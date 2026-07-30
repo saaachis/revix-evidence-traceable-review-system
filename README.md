@@ -35,32 +35,7 @@ It is a review **system**, not a review summariser. Three differences:
 
 ## What the user sees
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│  Hyundai Creta SX (O) 1.5 Diesel AT              ₹19.2L - ₹20.4L     │
-│                                                                       │
-│  ████████████░░░░  7.8 / 10        [ 7.1 ─────── 8.4 ]               │
-│  412 reviews · 6 sources · effective n = 178 · updated 2d ago        │
-│                                                                       │
-│  Weighting:  [ Equal ]  [ By source ]  [ ✓ By credibility ]  ← FLAGSHIP│
-├──────────────────────────────────────────────────────────────────────┤
-│  ⚠ MOST DISAGREEMENT                                                 │
-│  Gearbox & transmission        6.2  [5.4 ── 7.1]      divergence 0.61│
-│  71% of the split is explained by transmission type.                 │
-│  Automatic owners: 6.2   ·   Manual owners: 8.8      [ 34 reviews ▾ ]│
-├──────────────────────────────────────────────────────────────────────┤
-│  Ride & comfort                8.6  [8.2 ── 8.9]      divergence 0.12│
-│  Service & after-sales         5.9  [5.1 ── 6.6]      divergence 0.44│
-│  Real-world mileage           17.2 kmpl   ARAI claims 21.4  (−19.6%) │
-├──────────────────────────────────────────────────────────────────────┤
-│  EXPERT vs OWNER                                                      │
-│  Media 8.9  ████████████████░░   Owners 7.4  █████████████░░░░░       │
-│  Largest gap: service & after-sales (media 8.5, owners 5.9)          │
-├──────────────────────────────────────────────────────────────────────┤
-│  OFFICIAL RECORD                                                      │
-│  Bharat NCAP 5★ adult / 4★ child  ·  1 recall (2024, fuel pump)      │
-└──────────────────────────────────────────────────────────────────────┘
-```
+<img src="docs/assets/verdict-card.png" alt="The Revix verdict screen: an overall score of 7.8 with a confidence range of 7.1 to 8.4, a weighting switch, and vehicle topics ordered by how much owners disagree about them" width="820">
 
 *Illustrative layout. Figures are placeholders. Topics are ordered by how much people disagree, not by score.*
 

@@ -1,4 +1,4 @@
-"""Render the Revix verdict-card illustration to PNG and JPG."""
+﻿"""Render the Revix verdict-card illustration to PNG and JPG."""
 from PIL import Image, ImageDraw, ImageFont
 
 S = 3                      # supersample factor
@@ -86,7 +86,7 @@ def chip(x, y, label, fg, bg, size=12, padx=9, pady=5):
     return tw + padx * 2
 
 
-# ────────────────────────────────── header ──────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 y = 0
 rect(0, 0, W, 78, fill=HEADER)
 text(PAD, 20, "Hyundai Creta  SX (O) 1.5 Diesel AT", "b", 22, (255, 255, 255))
@@ -95,7 +95,7 @@ text(W - PAD, 30, "\u20b9 19.2L \u2013 20.4L", "sb", 19, (255, 255, 255), anchor
 
 y = 78 + 34
 
-# ─────────────────────────────── overall score ──────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ overall score â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 text(PAD, y - 4, "7.8", "b", 60, INK)
 sw = width_of("7.8", "b", 60)
 text(PAD + sw + 8, y + 30, "/ 10", "sb", 20, MUTED)
@@ -119,7 +119,7 @@ y += 38
 rule(y)
 y += 24
 
-# ───────────────────────────── weighting control ────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ weighting control â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 text(PAD, y + 9, "Weighting", "sb", 15, INK)
 px = PAD + 96
 for label, on in (("Equal", False), ("By source", False), ("By credibility", True)):
@@ -140,7 +140,7 @@ y += 60
 rule(y)
 y += 26
 
-# ──────────────────────────── disagreement section ──────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ disagreement section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 text(PAD, y, "WHERE OWNERS DISAGREE MOST", "b", 14, INK)
 text(W - PAD, y + 1, "topics ordered by disagreement, not by score", "i", 13, MUTED, anchor="ra")
 y += 30
@@ -183,7 +183,7 @@ y += 6
 rule(y)
 y += 22
 
-# ───────────────────────────────── mileage ──────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ mileage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 text(PAD, y + 6, "Real-world mileage", "sb", 16, INK)
 text(COL_SCORE, y + 4, "17.2", "b", 18, INK, anchor="ra")
 text(COL_SCORE + 6, y + 10, "kmpl", "r", 13, MUTED)
@@ -193,7 +193,7 @@ y += 44
 rule(y)
 y += 24
 
-# ────────────────────────────── expert vs owner ─────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ expert vs owner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 text(PAD, y, "EXPERTS vs OWNERS", "b", 14, INK)
 y += 28
 text(PAD, y + 1, "Media", "r", 15, MUTED)
@@ -209,7 +209,7 @@ y += 40
 rule(y)
 y += 22
 
-# ───────────────────────────── official record ──────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ official record â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 rect(PAD, y, W - PAD, y + 54, fill=TEAL_SOFT, r=8)
 text(PAD + 18, y + 8, "OFFICIAL RECORD", "b", 12, TEAL)
 text(PAD + 18, y + 28, "Bharat NCAP  5-star adult / 4-star child", "sb", 14, INK)
@@ -220,14 +220,14 @@ text(PAD, y, "Every number on this screen can be clicked to see the exact review
      "i", 13, MUTED)
 y += 26
 
-# ─────────────────────────────── finish ─────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ finish â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 H = y + PAD - 20
 img = img.crop((0, 0, W * S, int(H * S)))
 frame = ImageDraw.Draw(img)
 frame.rectangle((0, 0, W * S - 1, int(H * S) - 1), outline=BORDER, width=1 * S)
 
 out = img.resize((W, int(H)), Image.LANCZOS)
-out.save(r"F:\personal-github\revix\docs\review-1\assets\verdict-card.png")
-out.convert("RGB").save(r"F:\personal-github\revix\docs\review-1\assets\verdict-card.jpg",
+out.save(r"F:\personal-github\revix\docs\assets\verdict-card.png")
+out.convert("RGB").save(r"F:\personal-github\revix\docs\assets\verdict-card.jpg",
                         quality=95, subsampling=0)
 print("size:", out.size)

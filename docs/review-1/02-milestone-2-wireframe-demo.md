@@ -46,7 +46,7 @@ Revix's whole argument is that a verdict should show **its trust weighting, its 
 | 3 | The weighting switch shown **before and after**, with the changed numbers marked |
 | 4 | Two examples — one car and one two-wheeler — so the design works for both |
 | 5 | Images exported and committed to the repository, so the work is versioned |
-| 6 | A short rehearsed walkthrough, about five minutes |
+| 6 | A short rehearsed walkthrough, about five minutes, **presented by all three of us** |
 
 **Level of detail: medium.** Real labels and realistic numbers, but greyscale and no final styling. Our screens are full of numbers and ranges, so blank grey boxes would not tell us whether they are readable — but colour and font choices at this stage would only invite feedback about looks instead of about structure.
 
@@ -69,7 +69,7 @@ Revix's whole argument is that a verdict should show **its trust weighting, its 
 
 This is the target we are drawing towards. Numbers are placeholders.
 
-![The Revix verdict screen](assets/verdict-card.png)
+![The Revix verdict screen](../assets/verdict-card.png)
 
 ## 5. The one thing the demo must show
 
@@ -91,11 +91,11 @@ Each person draws the screens they will later build.
 
 | Who | Screens | Also responsible for |
 |---|---|---|
-| **Saachi Shinde** | Verdict, Search | Design lead — keeps all screens consistent, assembles the click-through, presents |
+| **Saachi Shinde** | Verdict, Search | Keeping all screens consistent with each other, and assembling the click-through |
 | **Devika Jonjale** | Evidence drawer, Compare, Method | That every number shown is something the pipeline can actually produce |
 | **Aditya Nariyapara** | Metrics, Admin | Realistic placeholder data, and the two worked examples (one car, one bike) |
 
-**Rule:** every screen is looked at by someone who did not draw it, before 7 August.
+**Two rules.** Every screen is looked at by someone who did not draw it, before 7 August. And **all three of us present the demo** — each person walks through the screens they drew, so every one of us can explain and defend any part of it.
 
 ## 7. Timeline
 
@@ -110,8 +110,8 @@ Two weeks, ten working days.
 | *Sat 8 – Sun 9 Aug* | *Buffer. Deliberately empty. If we use it, we were behind.* | — |
 | **Mon 10 – Tue 11 Aug** | Remaining screens, then link everything into a click-through and build the before/after pair. | Aditya + Saachi |
 | **Wed 12 Aug** | Tidy-up. Make every screen consistent, add the notes, check the placeholder numbers are believable. | All |
-| **Thu 13 Aug** | **Stop drawing.** Rehearse twice, timed. Export the images into the repository. | All |
-| **Fri 14 Aug** | **Demo.** | Saachi presents, all answer |
+| **Thu 13 Aug** | **Stop drawing.** Rehearse the full walkthrough twice, timed, with each of us presenting our own part. Export the images into the repository. | All |
+| **Fri 14 Aug** | **Demo — presented by all three of us.** | All |
 
 **Two rules that protect this:** the tool is chosen on 3 August and never changed afterwards, and 13 August is for rehearsing, not drawing.
 

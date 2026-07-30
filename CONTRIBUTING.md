@@ -112,8 +112,8 @@ If a source's terms clearly forbid what we want to do, we drop the source and do
 Full instructions land in week 1 with the schema. For now:
 
 ```bash
-git clone https://github.com/<owner>/revix.git
-cd revix
+git clone https://github.com/saaachis/revix-trust-weighted-vehicle-reviews.git
+cd revix-trust-weighted-vehicle-reviews
 cp .env.example .env        # fill in your own values; never commit this file
 ```
 

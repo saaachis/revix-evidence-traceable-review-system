@@ -63,7 +63,7 @@ Everything expensive runs **overnight in the background**, so the application it
 
 This is what a user would see. **Every figure below is illustrative** — the design is real, the numbers are placeholders until the pipeline runs.
 
-![The Revix verdict screen for one vehicle variant](assets/verdict-card.png)
+![The Revix verdict screen for one vehicle variant](../assets/verdict-card.png)
 
 **Read that screen block by block and the whole idea is visible:**
 
