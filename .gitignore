@@ -1,0 +1,72 @@
+# ---------- secrets ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# ---------- python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# ---------- node / next.js ----------
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+.vercel
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- data ----------
+# raw payloads and scraped content are never committed
+data/raw/
+data/cache/
+data/interim/
+data/processed/
+*.parquet
+*.duckdb
+*.sqlite3
+# gold sets and seed lists ARE committed
+!data/gold/**
+!data/seed/**
+
+# ---------- models and artefacts ----------
+models/
+*.pkl
+*.joblib
+*.bin
+*.onnx
+*.safetensors
+
+# ---------- notebooks ----------
+.ipynb_checkpoints/
+
+# ---------- prefect / orchestration ----------
+.prefect/
+*.log
+logs/
+
+# ---------- editors and os ----------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.shared.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

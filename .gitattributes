@@ -1,0 +1,31 @@
+# Normalise line endings so three machines do not fight over them
+* text=auto eol=lf
+
+*.bat        text eol=crlf
+*.ps1        text eol=crlf
+*.sh         text eol=lf
+*.py         text eol=lf
+*.ts         text eol=lf
+*.tsx        text eol=lf
+*.sql        text eol=lf
+*.md         text eol=lf
+*.json       text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+
+# Binary
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.webp       binary
+*.pdf        binary
+*.parquet    binary
+*.pkl        binary
+*.joblib     binary
+
+# Keep generated clients and lockfiles out of diffs and language stats
+package-lock.json  linguist-generated=true -diff
+pnpm-lock.yaml     linguist-generated=true -diff
+poetry.lock        linguist-generated=true -diff
+uv.lock            linguist-generated=true -diff
+docs/**            linguist-documentation=true
