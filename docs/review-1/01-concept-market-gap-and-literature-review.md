@@ -61,32 +61,11 @@ Everything expensive runs **overnight in the background**, so the application it
 
 ### 1.3 A worked example
 
-This is what a user would see. Figures are illustrative.
+This is what a user would see. **Every figure below is illustrative** — the design is real, the numbers are placeholders until the pipeline runs.
 
-```
- Hyundai Creta SX (O) 1.5 Diesel AT                        Rs 19.2L - 20.4L
+![The Revix verdict screen for one vehicle variant](assets/verdict-card.png)
 
- 7.8 / 10  ████████████░░░░       confident between 7.1 and 8.4
- 412 reviews · 6 sources · updated 2 days ago
-
- Weighting:  [ Equal ]  [ By source ]  [ ✓ By credibility ]   <- the flagship control
-
- MOST DISAGREEMENT
- Gearbox and transmission   6.2   [5.4 - 7.1]     divergence 0.61
- 71% of the split is explained by transmission type.
- Automatic owners rate it 6.2 · manual owners rate it 8.8    [ 34 reviews ]
-
- Ride and comfort           8.6   [8.2 - 8.9]     divergence 0.12
- Service and after-sales    5.9   [5.1 - 6.6]     divergence 0.44
- Real-world mileage        17.2 kmpl   claimed 21.4 kmpl   ( -19.6% )
-
- EXPERT vs OWNER    media 8.9 ████████████████░░   owners 7.4 █████████████░░░░░
- Widest gap: service and after-sales (media 8.5, owners 5.9)
-
- OFFICIAL RECORD    Bharat NCAP 5-star adult / 4-star child · 1 recall (2024, fuel pump)
-```
-
-**Read that screen line by line and the whole idea is visible:**
+**Read that screen block by block and the whole idea is visible:**
 
 | What you see | What it means |
 |---|---|
@@ -336,20 +315,14 @@ This is the honest summary, and the part worth saying out loud in the review.
 
 ### 6.1 The positioning
 
-```
-        aggregates across sources
-                    ▲
-                    │
-      Revix ●       │
-                    │
-   ─────────────────┼─────────────────►  traceable to specific evidence
-                    │
-                    │   ● AI chatbots            ● Portals (CarDekho etc.)
-                    │     (broad, untraceable)     (traceable, single-walled)
-                    │
-```
+Two questions separate everything in this market: **does it read across platforms**, and **can it show you the evidence behind what it says?**
 
-Portals are traceable but trapped inside one platform. Chatbots read broadly but cannot show you what they read. **Revix is the quadrant nobody occupies.**
+| | Reads only its own platform | Reads across platforms |
+|---|---|---|
+| **Can show you the evidence** | Portals — CarDekho, CarWale, BikeWale | **Revix** |
+| **Cannot show you the evidence** | Forums, video reviewers | AI chatbots |
+
+Portals can show you their reviews, but only their own. Chatbots read broadly, but cannot show you what they read. **The top-right box is empty, and that is the box we are building into.**
 
 ### 6.2 What we claim, and what we do not
 
