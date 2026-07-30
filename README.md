@@ -25,8 +25,6 @@ The bias always runs one way. Early reviews are kinder than late ones. Media is 
 | **COLLECT** | **MATCH** | **SCORE** | **COMBINE** | **EXPLAIN** |
 | Owner reviews, expert reviews, forums, videos, official records | Everything mapped to one exact vehicle variant | Opinion split by topic; each review scored for trust | Weighted into a verdict with a confidence range | Every number linked to the reviews behind it |
 
-Runs every night in the background, so the app itself is instant.
-
 It is a review **system**, not a review summariser. Three differences:
 
 1. It reads **across** platforms instead of inside one.
