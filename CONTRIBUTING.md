@@ -31,14 +31,14 @@ main
  ├── feat/connector-cardekho
  ├── feat/entity-resolution-blocking
  ├── fix/verdict-interval-rounding
- └── docs/adr-0005-aspect-taxonomy
+ └── docs/revise-aspect-taxonomy
 ```
 
 | Prefix | For |
 |---|---|
 | `feat/` | New capability |
 | `fix/` | Bug fix |
-| `docs/` | Documentation and ADRs |
+| `docs/` | Documentation |
 | `chore/` | Tooling, CI, dependencies |
 | `exp/` | Experiments not intended to merge as-is |
 
@@ -51,7 +51,7 @@ Conventional commits, present tense, one logical change per commit.
 ```
 feat(pipeline): add token-bucket rate limiter to connector framework
 fix(api): return 404 rather than 500 for unseeded variants
-docs(adr): record decision to drop NLI contradiction detection
+docs(proposal): record why NLI contradiction detection was dropped
 chore(ci): run alembic migrations before the test job
 ```
 
@@ -77,7 +77,7 @@ Every change reaches `main` through a PR, including your own area.
 | `pipeline/**` | Aditya | Connectors, orchestration, raw store |
 | `db/**`, entity resolution, fusion, `data/gold/**` | Devika | Schema evolution, intelligence, evaluation |
 | `apps/**` | Saachi | API contract, frontend, deployment |
-| `docs/**` | shared | Anyone, but ADRs need one review |
+| `docs/**` | shared | Anyone, but a change to `proposal.md` needs one review |
 
 Ownership means *you are the reviewer of last resort*, not that only you may touch it.
 
@@ -85,7 +85,7 @@ Ownership means *you are the reviewer of last resort*, not that only you may tou
 
 ## 6. Architectural invariants
 
-Some rules are not stylistic. Breaking one requires an [ADR](docs/adr/), not a PR comment:
+Some rules are not stylistic. Breaking one means updating [docs/proposal.md](docs/proposal.md) with the reasoning, not leaving a PR comment:
 
 1. No model inference on the read path.
 2. Every derived table is recomputable from `raw` and `core`.
@@ -120,4 +120,4 @@ cp .env.example .env        # fill in your own values; never commit this file
 ## 9. Weekly rhythm
 
 - **The deployed application must work every Friday.** This is the single most important discipline in the project.
-- Checkpoints at **week 4** and **week 8**. If week 8 slips, cut in the order agreed in [docs/roadmap.md](docs/roadmap.md) — and never cut the fusion toggle, the metrics page or the admin dashboard.
+- Checkpoints at **week 4** and **week 8**. If week 8 slips, cut in the order agreed in [docs/proposal.md](docs/proposal.md) section 24 — and never cut the fusion toggle, the metrics page or the admin dashboard.

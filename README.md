@@ -72,21 +72,18 @@ It is a review **system**, not a review summariser. Three differences:
 |---|---|
 | **Stage** | S1 Business Need submitted. Repository initialised, week 1 of 12. |
 | **Live URL** | Not deployed yet |
-| **Next milestone** | Schema, CI and deployment skeleton — see [roadmap](docs/roadmap.md) |
+| **Next milestone** | **Milestone 2 — Wireframe Demo, Friday 14 August 2026.** [Plan](docs/review-1/02-milestone-2-wireframe-demo.md) |
 
 ## Documentation
 
+Two documents are the source of truth. Everything else defers to them.
+
 | Document | What it covers |
 |---|---|
-| [Business need](docs/business-need.md) | S1 submission: the problem, the market gap, the ask |
-| [Full proposal](docs/proposal.md) | The complete concept note and software design specification |
-| [Architecture](docs/architecture.md) | Tiers, pipeline stages, data flow, the traceability guarantee |
-| [Data model](docs/data-model.md) | Canonical entities, the Evidence Unit abstraction, verdict tables |
-| [Evaluation](docs/evaluation.md) | The held-out fusion experiment, calibration, the metrics dashboard |
-| [Roadmap](docs/roadmap.md) | Twelve weeks, two hard checkpoints, the agreed cut list |
-| [Glossary](docs/glossary.md) | Every term used in this repository, defined once |
-| [Decision records](docs/adr/) | Why the architecture is the way it is |
-| [Contributing](CONTRIBUTING.md) | Branching, commits, reviews, local setup |
+| [**Full proposal**](docs/proposal.md) | The complete concept note and software design specification — architecture, data model, fusion engine, evaluation strategy, twelve-week roadmap, scope and glossary |
+| [**Review 1 — concept, market gap and literature review**](docs/review-1/01-concept-market-gap-and-literature-review.md) | The idea and what it means, the competitive gap analysis, the background study, and what we are and are not claiming |
+| [Milestone 2 — wireframe demo](docs/review-1/02-milestone-2-wireframe-demo.md) | What we are building by 14 August 2026, how, by whom, and by when |
+| [Contributing](CONTRIBUTING.md) | Branching, commits, reviews, local setup, how we collect data responsibly |
 
 ## Repository layout
 

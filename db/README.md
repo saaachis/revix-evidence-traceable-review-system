@@ -4,7 +4,7 @@ One PostgreSQL database with `pgvector`. Alembic migrations. Four schemas by lif
 
 **Jointly owned by all three of us.** A migration is the one change that breaks everybody at once, so every PR touching `migrations/` needs three approvals.
 
-See [docs/data-model.md](../docs/data-model.md) for the full model and [ADR 0001](../docs/adr/0001-single-postgres-with-pgvector.md) for why there is only one datastore.
+See [docs/proposal.md](../docs/proposal.md) sections 11 to 13 for the full model, and section 23 for why there is only one datastore rather than four services.
 
 ## Rules
 

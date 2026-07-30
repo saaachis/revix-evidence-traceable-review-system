@@ -51,4 +51,4 @@ resolve_entities   → chunk_and_embed → extract_aspects → score_credibility
 
 Each stage writes its output and can be re-run independently. `fuse` runs once **per fusion configuration** — a loop, not extra architecture.
 
-Full detail in [docs/architecture.md](../docs/architecture.md).
+Full detail in [docs/proposal.md](../docs/proposal.md), sections 9 and 14.
