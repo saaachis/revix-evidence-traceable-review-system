@@ -233,21 +233,23 @@ const NAV = [
   ['browse.html',  'Browse'],
   ['compare.html', 'Compare'],
   ['method.html',  'Method'],
-  ['metrics.html', 'Metrics'],
-  ['admin.html',   'Admin']
+  ['metrics.html', 'Accuracy']
 ];
 
 function mountChrome(active, opts){
   opts = opts || {};
   document.body.insertAdjacentHTML('afterbegin', `
     <div class="wf-flag">
-      <b>WIREFRAME</b>: Milestone 2. Layout and interaction are real; every figure is a
-      placeholder until the pipeline runs.
-      ${opts.home === false ? '<a href="index.html">Back to the flow</a>' : ''}
+      <b>PREVIEW</b>: every screen and every interaction here is real. The figures are
+      placeholders until our first full run finishes.
     </div>
     <nav class="nav"><div class="nav-in">
       <a class="brand" href="index.html"><span class="mark">revix</span><small>driven by reviews</small></a>
-      <a class="nav-search" href="search.html">Search a car or bike, try &ldquo;Creta&rdquo;</a>
+      <div class="nav-search">
+        <input id="navq" type="search" autocomplete="off" spellcheck="false"
+               placeholder="Search a car or bike, try &quot;Creta&quot;">
+        <div class="sdrop" id="navdrop"></div>
+      </div>
       <div class="nav-links">
         ${NAV.map(([h,l]) => `<a href="${h}" class="${h === active ? 'on' : ''}">${l}</a>`).join('')}
       </div>
@@ -263,4 +265,157 @@ function mountChrome(active, opts){
         <a href="suppressed.html">Thin evidence</a>
       </span>
     </div></footer>`);
+
+  wireSearch(document.getElementById('navq'), document.getElementById('navdrop'));
+}
+
+/* ================= search =================
+   A real client-side search over the seeded catalogue. Type-ahead filters as
+   you type, Enter opens the results page. In the real build this becomes
+   GET /variants?q= against the serving layer. */
+
+const CATALOGUE = [
+  { brand:'Hyundai', model:'Creta', variant:'SX (O) 1.5 Diesel AT', klass:'car', seg:'Midsize SUV',
+    price:'₹19.2L', score:7.8, lo:7.1, hi:8.4, n:412, href:'verdict.html' },
+  { brand:'Hyundai', model:'Creta', variant:'SX (O) 1.5 Diesel MT', klass:'car', seg:'Midsize SUV',
+    price:'₹18.0L', score:8.4, lo:7.9, hi:8.9, n:126, href:'verdict.html' },
+  { brand:'Hyundai', model:'Creta', variant:'SX (O) 1.5 Turbo DCT', klass:'car', seg:'Midsize SUV',
+    price:'₹20.1L', score:7.3, lo:6.4, hi:8.1, n:97, href:'verdict.html' },
+  { brand:'Hyundai', model:'Creta', variant:'SX 1.5 Petrol IVT', klass:'car', seg:'Midsize SUV',
+    price:'₹16.4L', score:7.6, lo:6.9, hi:8.3, n:88, href:'verdict.html' },
+  { brand:'Hyundai', model:'Creta', variant:'S 1.5 Petrol MT', klass:'car', seg:'Midsize SUV',
+    price:'₹13.0L', score:8.1, lo:7.5, hi:8.7, n:71, href:'verdict.html' },
+  { brand:'Hyundai', model:'Creta', variant:'E 1.5 Petrol MT', klass:'car', seg:'Midsize SUV',
+    price:'₹11.1L', score:8.2, lo:7.6, hi:8.8, n:54, href:'verdict.html' },
+  { brand:'Kia', model:'Seltos', variant:'GTX+ 1.5 Turbo DCT', klass:'car', seg:'Midsize SUV',
+    price:'₹20.4L', score:7.9, lo:7.3, hi:8.5, n:386, href:'compare.html' },
+  { brand:'Maruti Suzuki', model:'Grand Vitara', variant:'Alpha+ Hybrid', klass:'car', seg:'Midsize SUV',
+    price:'₹19.8L', score:7.7, lo:7.0, hi:8.3, n:298, href:'model.html' },
+  { brand:'Tata', model:'Nexon', variant:'Fearless+ 1.2 Petrol DCA', klass:'car', seg:'Compact SUV',
+    price:'₹13.6L', score:7.6, lo:7.0, hi:8.2, n:271, href:'model.html' },
+  { brand:'Tata', model:'Curvv', variant:'Accomplished+ A 1.2', klass:'car', seg:'Midsize SUV',
+    price:'₹17.7L', score:7.2, lo:6.3, hi:8.0, n:137, href:'model.html' },
+  { brand:'Volkswagen', model:'Taigun', variant:'GT Plus 1.5 TSI DSG', klass:'car', seg:'Midsize SUV',
+    price:'₹19.4L', score:8.0, lo:7.4, hi:8.6, n:244, href:'model.html' },
+  { brand:'Maruti Suzuki', model:'Swift', variant:'ZXi+ 1.2 AMT', klass:'car', seg:'Hatchback',
+    price:'₹9.6L', score:7.9, lo:7.4, hi:8.4, n:352, href:'model.html' },
+  { brand:'Mahindra', model:'XUV700', variant:'AX7 L Diesel AT', klass:'car', seg:'Full-size SUV',
+    price:'₹25.7L', score:8.1, lo:7.5, hi:8.6, n:318, href:'model.html' },
+  { brand:'Citroen', model:'C3 Aircross', variant:'Shine 1.2 Turbo MT', klass:'car', seg:'Midsize SUV',
+    price:'₹11.6L', score:null, n:19, href:'suppressed.html' },
+
+  { brand:'Royal Enfield', model:'Classic 350', variant:'Dual-channel ABS', klass:'two_wheeler', seg:'Cruiser',
+    price:'₹2.32L', score:7.5, lo:6.8, hi:8.1, n:368, href:'verdict-bike.html' },
+  { brand:'Royal Enfield', model:'Hunter 350', variant:'Retro', klass:'two_wheeler', seg:'Roadster',
+    price:'₹1.75L', score:7.8, lo:7.2, hi:8.3, n:214, href:'model.html' },
+  { brand:'Honda', model:'Activa', variant:'6G Standard', klass:'two_wheeler', seg:'Scooter',
+    price:'₹0.81L', score:8.3, lo:7.9, hi:8.6, n:496, href:'model.html' },
+  { brand:'Hero', model:'Splendor Plus', variant:'i3S Drum', klass:'two_wheeler', seg:'Commuter',
+    price:'₹0.79L', score:8.0, lo:7.6, hi:8.4, n:441, href:'model.html' },
+  { brand:'Bajaj', model:'Pulsar NS200', variant:'ABS', klass:'two_wheeler', seg:'Sport',
+    price:'₹1.62L', score:7.4, lo:6.7, hi:8.0, n:187, href:'model.html' },
+  { brand:'TVS', model:'Jupiter', variant:'125 SmartXonnect', klass:'two_wheeler', seg:'Scooter',
+    price:'₹0.92L', score:8.1, lo:7.6, hi:8.5, n:263, href:'model.html' },
+  { brand:'Yamaha', model:'MT-15', variant:'V2', klass:'two_wheeler', seg:'Sport',
+    price:'₹1.71L', score:7.7, lo:7.0, hi:8.3, n:156, href:'model.html' }
+];
+
+function searchHits(q, limit){
+  q = (q || '').trim().toLowerCase();
+  if (!q) return [];
+  const toks = q.split(/\s+/);
+  return CATALOGUE
+    .map(v => ({ v, hay: (v.brand + ' ' + v.model + ' ' + v.variant).toLowerCase() }))
+    .filter(x => toks.every(t => x.hay.indexOf(t) !== -1))
+    .slice(0, limit || 7)
+    .map(x => x.v);
+}
+
+function hitHTML(v){
+  const score = v.score === null
+    ? '<span class="vr">not enough evidence</span>'
+    : v.score.toFixed(1) + '<span class="vr"> / 10</span>';
+  return `<a class="sitem" href="${v.href}">
+      <div>
+        <div class="nm">${v.brand} ${v.model}</div>
+        <div class="vr">${v.variant} &middot; ${v.seg} &middot; ${v.price}</div>
+      </div>
+      <div class="sc">${score}</div>
+    </a>`;
+}
+
+function wireSearch(input, drop){
+  if (!input || !drop) return;
+  function render(){
+    const q = input.value.trim();
+    if (!q){ drop.classList.remove('on'); drop.innerHTML = ''; return; }
+    const hits = searchHits(q);
+    drop.innerHTML = hits.length
+      ? hits.map(hitHTML).join('') +
+        `<a class="sitem more" href="search.html?q=${encodeURIComponent(q)}">
+           <div class="nm">See all results for &ldquo;${q}&rdquo;</div><div class="sc">&rsaquo;</div></a>`
+      : `<div class="snone">Nothing in our catalogue matches &ldquo;${q}&rdquo;.
+           We cover 142 vehicles chosen for having enough reviews to say something useful.
+           <a href="browse.html">Browse them all.</a></div>`;
+    drop.classList.add('on');
+  }
+  input.addEventListener('input', render);
+  input.addEventListener('focus', render);
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && input.value.trim())
+      location.href = 'search.html?q=' + encodeURIComponent(input.value.trim());
+    if (e.key === 'Escape') drop.classList.remove('on');
+  });
+  document.addEventListener('click', function(e){
+    if (!drop.contains(e.target) && e.target !== input) drop.classList.remove('on');
+  });
+}
+
+/* the results page renders from ?q= */
+function mountSearchPage(){
+  const q = new URLSearchParams(location.search).get('q') || '';
+  const box = document.getElementById('results');
+  const head = document.getElementById('resultHead');
+  const input = document.getElementById('pageq');
+  if (input) input.value = q;
+
+  const hits = searchHits(q, 50);
+  const models = [...new Set(hits.map(v => v.brand + '|' + v.model))];
+
+  head.innerHTML = q
+    ? `<h1>Results for &ldquo;${q}&rdquo;</h1>
+       <p>${hits.length} ${hits.length === 1 ? 'vehicle' : 'vehicles'} matched,
+          across ${models.length} ${models.length === 1 ? 'model' : 'models'}.</p>`
+    : `<h1>Search</h1><p>Type a make, a model or an exact variant.</p>`;
+
+  if (!q){ box.innerHTML = ''; return; }
+
+  if (!hits.length){
+    box.innerHTML = `<div class="card"><div class="empty">
+        <div class="icon">&#9906;</div>
+        <h2>Nothing matched &ldquo;${q}&rdquo;.</h2>
+        <p>We cover 142 vehicles, chosen because they have enough reviews for us to say
+           something useful. If yours is not here yet, it is because we could not find
+           enough evidence to give you an honest answer.</p>
+        <p style="margin-top:18px"><a class="fpill on" href="browse.html">Browse the catalogue &rsaquo;</a></p>
+      </div></div>`;
+    return;
+  }
+
+  box.innerHTML = `<div class="card tbl-wrap"><table class="tbl">
+      <thead><tr>
+        <th>Vehicle</th><th>Variant</th><th>Type</th>
+        <th class="n">Price</th><th class="n">Verdict</th><th class="n">Reviews</th><th></th>
+      </tr></thead>
+      <tbody>${hits.map(v => `
+        <tr onclick="location.href='${v.href}'" style="cursor:pointer">
+          <td class="strong">${v.brand} ${v.model}</td>
+          <td>${v.variant}</td>
+          <td class="muted">${v.seg}</td>
+          <td class="n">${v.price}</td>
+          <td class="n ${v.score === null ? 'muted' : 'strong'}">${v.score === null ? 'No verdict' : v.score.toFixed(1)}</td>
+          <td class="n">${v.n}</td>
+          <td class="n muted">&rsaquo;</td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
 }
