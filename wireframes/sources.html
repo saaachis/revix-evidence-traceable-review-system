@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Where the evidence comes from &middot; Revix</title>
+<link rel="stylesheet" href="assets/revix.css">
+</head>
+<body>
+<main class="wrap">
+
+  <div class="page-head">
+    <h1>Where the evidence comes from</h1>
+    <p>
+      Every source we read, what we take from it, and how we behave while doing it. This page exists
+      because a system that weighs other people's writing owes them a straight answer about it.
+    </p>
+  </div>
+
+  <section class="sec">
+    <div class="card tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr><th>Source</th><th>What it gives us</th><th>How we read it</th><th class="n">Share of evidence</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="strong">Owner review portals</td>
+            <td>Owner opinion, ownership length, kilometres driven, verified status</td>
+            <td>Rate limited, cached, references stored rather than full text</td>
+            <td class="n">68%</td><td><span class="st ok"><i></i>Flowing</span></td>
+          </tr>
+          <tr>
+            <td class="strong">Enthusiast forums</td>
+            <td>Long-term ownership reporting, the most detailed writing anywhere</td>
+            <td>Rate limited, thread level, attributed and linked back</td>
+            <td class="n">12%</td><td><span class="st ok"><i></i>Flowing</span></td>
+          </tr>
+          <tr>
+            <td class="strong">YouTube</td>
+            <td>Video review transcripts</td>
+            <td>Official Data API and transcript endpoints, never scraped</td>
+            <td class="n">8%</td><td><span class="st warn"><i></i>Quota limited</span></td>
+          </tr>
+          <tr>
+            <td class="strong">Reddit</td>
+            <td>Unsponsored discussion, complaint clustering</td>
+            <td>Official API with a declared user agent</td>
+            <td class="n">6%</td><td><span class="st ok"><i></i>Flowing</span></td>
+          </tr>
+          <tr>
+            <td class="strong">Expert publications</td>
+            <td>Professional road tests with repeatable methodology</td>
+            <td>Rate limited, headline verdicts only</td>
+            <td class="n">3%</td><td><span class="st bad"><i></i>Blocked, 3 days</span></td>
+          </tr>
+          <tr>
+            <td class="strong">Bharat NCAP and Global NCAP</td>
+            <td>Crash safety ratings</td>
+            <td>Published tables, weekly</td>
+            <td class="n">2%</td><td><span class="st ok"><i></i>Flowing</span></td>
+          </tr>
+          <tr>
+            <td class="strong">SIAM and MoRTH</td>
+            <td>Recall notices</td>
+            <td>Public notices, weekly</td>
+            <td class="n">1%</td><td><span class="st ok"><i></i>Flowing</span></td>
+          </tr>
+          <tr>
+            <td class="strong">ARAI figures</td>
+            <td>Claimed fuel efficiency, used for the claimed against real gap</td>
+            <td>Published specifications</td>
+            <td class="n">&lt;1%</td><td><span class="st ok"><i></i>Flowing</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="prose">
+      <h2>The rules we hold ourselves to</h2>
+      <ul>
+        <li><b>We read the terms first.</b> Before a connector is written, somebody reads that site's
+            robots file and terms and records what they say, with the date, in the code itself. That
+            text goes into the report.</li>
+        <li><b>We use the official API wherever one exists.</b> Reddit and YouTube are read through
+            their published interfaces, not scraped.</li>
+        <li><b>We are slow on purpose.</b> Token bucket rate limiting, exponential backoff, and a
+            circuit breaker that stops entirely after repeated refusals. Right now one source is
+            blocking us, and the correct response is to stop asking.</li>
+        <li><b>We store references and structure, not copies.</b> We keep what we derived and a link
+            back to the original. We are not a mirror of anyone's content.</li>
+        <li><b>We attribute on every surface.</b> Every review shown on the evidence page carries its
+            source and links out to it.</li>
+        <li><b>Authors are pseudonymous.</b> We store a stable opaque key so we can spot posting
+            patterns. We do not store names, emails or profile links.</li>
+        <li><b>If terms forbid it, we drop the source</b> and write down why. The product is built to
+            survive that, which is what makes the rule credible rather than decorative.</li>
+      </ul>
+
+      <h2>What we are not doing</h2>
+      <p>
+        We are not scraping on demand. Nothing is fetched while you use the site; every page you see
+        was computed overnight. We are not reselling anyone's reviews, we are not republishing them in
+        full, and we do not accept payment from any manufacturer or dealer, which is precisely why we
+        can afford to say that a car's service experience is poor.
+      </p>
+
+      <h2>Why one dead source does not matter much</h2>
+      <p>
+        Each source is an isolated connector with its own failure handling. Losing one degrades coverage
+        and the interface says so, stating how many sources produced each verdict. The design target is
+        that the product stays complete and demonstrable with only three of eight alive. You can see
+        that being tested for real on the
+        <a href="admin.html" style="color:var(--brand);font-weight:650">admin page</a> right now.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/revix.js"></script>
+<script>mountChrome('', {home:false});</script>
+</body>
+</html>

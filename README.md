@@ -75,6 +75,7 @@ revix/
 ├── data/
 │   ├── seed/          Catalogue seed lists
 │   └── gold/          Hand-labelled evaluation sets
+├── wireframes/        Milestone 2 screens as working HTML, published to GitHub Pages
 ├── scripts/           Operational and one-off scripts
 └── docs/              Everything above
 ```
