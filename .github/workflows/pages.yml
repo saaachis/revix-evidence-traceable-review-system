@@ -34,8 +34,12 @@ jobs:
           for f in wireframes/*.html; do
             for link in $(grep -oE '(href|src)="[^"#:]+"' "$f" \
                           | sed -E 's/^(href|src)="//; s/"$//' | sort -u); do
-              [ -z "$link" ] && continue
-              if [ ! -e "wireframes/$link" ]; then
+              # Drop any query string. "search.html?q=creta" is a link to
+              # search.html, which is a file that exists; the query is read
+              # at runtime by mountSearchPage().
+              target="${link%%\?*}"
+              [ -z "$target" ] && continue
+              if [ ! -e "wireframes/$target" ]; then
                 echo "::error file=$f::broken link -> $link"
                 status=1
               fi
