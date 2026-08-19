@@ -1,0 +1,75 @@
+name: Wireframes
+
+# Publishes wireframes/ to GitHub Pages.
+# One-time setup: repository Settings > Pages > Source = "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wireframes/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deploy midway; queue instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Link and content check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Internal links resolve
+        run: |
+          status=0
+          for f in wireframes/*.html; do
+            for link in $(grep -oE '(href|src)="[^"#:]+"' "$f" \
+                          | sed -E 's/^(href|src)="//; s/"$//' | sort -u); do
+              [ -z "$link" ] && continue
+              if [ ! -e "wireframes/$link" ]; then
+                echo "::error file=$f::broken link -> $link"
+                status=1
+              fi
+            done
+          done
+          [ $status -eq 0 ] && echo "All internal links resolve."
+          exit $status
+
+      # Matches the literal byte sequence, so it does not depend on the runner
+      # locale the way "grep -P" does.
+      - name: No em dashes
+        run: |
+          if grep -rln '—' wireframes/ ; then
+            echo "::error::An em dash is present. Use a comma, colon, semicolon or hyphen."
+            exit 1
+          fi
+          echo "No em dashes."
+
+  deploy:
+    name: Deploy to Pages
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+
+      - name: Upload wireframes
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: wireframes
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
