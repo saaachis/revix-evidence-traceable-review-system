@@ -3,93 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Search results for &ldquo;creta&rdquo; &middot; Revix</title>
+<title>Search &middot; Revix</title>
 <link rel="stylesheet" href="assets/revix.css">
 </head>
 <body>
 <main class="wrap">
 
-  <div class="page-head">
-    <h1>Results for &ldquo;creta&rdquo;</h1>
-    <p>
-      One model, seven variants, and two things people confuse it with. Search runs over manufacturer,
-      model and variant names, including the shorthand real people type.
-    </p>
-  </div>
+  <div class="page-head" id="resultHead"></div>
+
+  <form class="big-search" style="margin:22px 0 0 0"
+        onsubmit="location.href='search.html?q='+encodeURIComponent(this.q.value);return false">
+    <input id="pageq" name="q" type="search" autocomplete="off" spellcheck="false"
+           placeholder="Search a car or two-wheeler">
+    <button class="go" type="submit">Search</button>
+    <div class="sdrop" id="pagedrop"></div>
+  </form>
+
+  <section class="sec" id="results"></section>
 
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title">Model</h2>
-      <span class="sec-note">Start here if you have not chosen a variant yet</span>
-    </div>
-    <a class="card pad" href="model.html" style="display:block">
-      <div class="flex">
-        <div class="grow">
-          <h3 style="font-size:18px">Hyundai Creta</h3>
-          <p class="muted" style="font-size:13px;margin-top:5px">
-            Midsize SUV &middot; 7 variants &middot; petrol, diesel and turbo &middot; 943 reviews across the model
-          </p>
-        </div>
-        <span class="chip ghost">Pick a variant &rsaquo;</span>
-      </div>
-    </a>
-  </section>
-
-  <section class="sec">
-    <div class="sec-head">
-      <h2 class="sec-title">Variants</h2>
-      <span class="sec-note">Scores are credibility weighted</span>
-    </div>
-    <div class="card tbl-wrap">
-      <table class="tbl">
-        <thead>
-          <tr><th>Variant</th><th>Fuel and gearbox</th><th class="n">Price</th><th class="n">Verdict</th><th class="n">Reviews</th><th></th></tr>
-        </thead>
-        <tbody>
-          <tr onclick="location.href='verdict.html'" style="cursor:pointer">
-            <td class="strong">Creta SX (O) 1.5 Diesel AT</td><td>Diesel &middot; Automatic</td>
-            <td class="n">&#8377;19.2L</td><td class="n strong">7.8</td><td class="n">412</td>
-            <td class="n muted">&rsaquo;</td>
-          </tr>
-          <tr onclick="location.href='verdict.html'" style="cursor:pointer">
-            <td class="strong">Creta SX (O) 1.5 Diesel MT</td><td>Diesel &middot; Manual</td>
-            <td class="n">&#8377;18.0L</td><td class="n strong">8.4</td><td class="n">126</td>
-            <td class="n muted">&rsaquo;</td>
-          </tr>
-          <tr onclick="location.href='verdict.html'" style="cursor:pointer">
-            <td class="strong">Creta SX (O) 1.5 Turbo DCT</td><td>Petrol &middot; DCT</td>
-            <td class="n">&#8377;20.1L</td><td class="n strong">7.3</td><td class="n">97</td>
-            <td class="n muted">&rsaquo;</td>
-          </tr>
-          <tr onclick="location.href='verdict.html'" style="cursor:pointer">
-            <td class="strong">Creta SX 1.5 Petrol IVT</td><td>Petrol &middot; CVT</td>
-            <td class="n">&#8377;16.4L</td><td class="n strong">7.6</td><td class="n">88</td>
-            <td class="n muted">&rsaquo;</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="sec">
-    <div class="sec-head">
-      <h2 class="sec-title">Did you mean</h2>
-      <span class="sec-note">Different vehicles that resolve to different catalogue rows</span>
+      <h2 class="sec-title">People often look for</h2>
     </div>
     <div class="toolbar" style="margin-top:0">
-      <a class="fpill" href="browse.html">Hyundai Creta N Line</a>
-      <a class="fpill" href="browse.html">Hyundai Creta Electric</a>
-      <a class="fpill" href="browse.html">Hyundai Alcazar</a>
+      <a class="fpill" href="search.html?q=creta">Hyundai Creta</a>
+      <a class="fpill" href="search.html?q=classic">Royal Enfield Classic 350</a>
+      <a class="fpill" href="search.html?q=activa">Honda Activa</a>
+      <a class="fpill" href="search.html?q=nexon">Tata Nexon</a>
+      <a class="fpill" href="search.html?q=swift">Maruti Swift</a>
+      <a class="fpill on" href="browse.html">Browse everything &rsaquo;</a>
     </div>
   </section>
 
   <section class="sec">
     <div class="card pad" style="background:var(--surface-2);box-shadow:none">
       <p class="muted" style="font-size:13.5px">
-        Search only covers the 142 variants we have deliberately seeded. Typing a vehicle outside the
-        catalogue returns nothing rather than a guess, because a verdict built on four reviews is
-        worse than no verdict.
-        <a href="suppressed.html" style="color:var(--brand);font-weight:650">See what that looks like &rsaquo;</a>
+        We cover 142 vehicles rather than every vehicle on sale. They are chosen because they have
+        enough reviews behind them for us to give you an honest answer, and we would rather show you
+        nothing than show you a score built on nineteen reviews.
+        <a href="browse.html" style="color:var(--brand);font-weight:650">See what we cover.</a>
       </p>
     </div>
   </section>
@@ -97,6 +49,10 @@
 </main>
 
 <script src="assets/revix.js"></script>
-<script>mountChrome('', {home:false});</script>
+<script>
+  mountChrome('', {home:false});
+  mountSearchPage();
+  wireSearch(document.getElementById('pageq'), document.getElementById('pagedrop'));
+</script>
 </body>
 </html>
