@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How a score is worked out &middot; Revix</title>
+<link rel="stylesheet" href="assets/revix.css">
+</head>
+<body>
+<main class="wrap">
+
+  <div class="page-head">
+    <h1>How a score is worked out</h1>
+    <p>
+      In plain language, with the actual arithmetic shown. If you disagree with any step you can see
+      exactly where to disagree, which is the point.
+    </p>
+  </div>
+
+  <section class="sec">
+    <div class="card pad">
+      <div class="steps">
+        <div class="step">
+          <div>
+            <h4>We collect the evidence</h4>
+            <p>Owner reviews, expert reviews, forum threads, video transcripts and official records,
+               read at a polite rate, cached, and linked back to. We store references and structure,
+               not copies of anyone's writing.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h4>We match every review to one exact variant</h4>
+            <p>A petrol listing is never matched to a diesel variant, whatever the text similarity
+               says. Specifications act as hard constraints before any learned matching runs, which is
+               why the matching can be accurate on a small budget. Anything ambiguous goes to a human
+               queue instead of being guessed.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h4>We split each review into nine topics</h4>
+            <p>A review is rarely about one thing. One paragraph can praise the ride and condemn the
+               service centre, so we score those separately rather than averaging them into a single
+               star rating.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h4>We work out how much each review should count</h4>
+            <p>This is the part that makes Revix different, and it is spelled out below.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h4>We combine, and we say how sure we are</h4>
+            <p>A weighted average, plus a range that widens when the evidence is thin or lopsided.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="prose">
+      <h2>What decides a review's weight</h2>
+      <p>
+        Every review gets a weight between 0 and 1 for each topic. It is a product of six terms, so
+        any single bad signal pulls the whole weight down:
+      </p>
+      <div class="formula">weight = source_prior
+       &times; (1 &minus; spam_probability)
+       &times; reliability
+       &times; <b>aspect_fit</b>
+       &times; recency_decay
+       &times; launch_window_correction</div>
+      <p>
+        Five of those are ordinary. <b>aspect_fit</b> is the interesting one, and it exists only
+        because this is the automobile domain.
+      </p>
+
+      <h3>Why the same person is a good witness to one thing and a bad witness to another</h3>
+      <p>
+        An owner who has covered 500 km can tell you a great deal about the showroom, the delivery
+        experience and the first service appointment. They can tell you nothing useful about whether
+        the clutch survives 60,000 km. An owner at 60,000 km is the reverse.
+      </p>
+      <p>
+        Indian review platforms record ownership duration and kilometres driven, and then throw that
+        information away by averaging every review equally. We use it. Credibility is therefore not
+        one number per review; it is a short vector across topic groups:
+      </p>
+      <div class="formula">{ "base": 0.71,
+  "by_aspect_group": {
+      "durability":  0.88,
+      "immediate":   0.42,
+      "service":     0.83,
+      "efficiency":  0.79
+  } }</div>
+
+      <h2>Why the range is not decoration</h2>
+      <p>
+        When reviews carry different weights, the number of reviews stops being a useful measure of how
+        much you know. Two hundred low-weight reviews can carry less real information than thirty
+        high-weight ones. The standard way to express that is the <b>effective sample size</b>:
+      </p>
+      <div class="formula">n_eff = (&Sigma; w)&sup2; / &Sigma; w&sup2;</div>
+      <p>
+        On the Creta page, 412 reviews produce an effective sample of 178. That is why flipping to
+        credibility weighting makes the range <i>wider</i>, not narrower. Being more careful about
+        which evidence counts means admitting you have less of it.
+      </p>
+      <p>
+        And we check that the range is honest rather than asserting it. Across every test run we
+        measure whether the 80% range actually contains the answer 80% of the time, and publish the
+        result on the <a href="metrics.html" style="color:var(--brand);font-weight:650">metrics page</a>.
+      </p>
+
+      <h2>Why we show disagreement instead of hiding it</h2>
+      <p>
+        When owners split on a topic we do not just report the split, we try to explain it. For each
+        topic we test which characteristic best accounts for the disagreement: transmission, fuel type,
+        model year, city, ownership length, or source. That produces statements like:
+      </p>
+      <p style="padding-left:16px;border-left:3px solid var(--brand);color:var(--ink)">
+        <b>71% of the disagreement about the gearbox is explained by transmission type.</b>
+        Automatic owners rate it 6.2. Manual owners rate it 8.8.
+      </p>
+      <p>
+        That is a statistical decomposition, not a language model's opinion. It is cheaper, more
+        reliable, and far more useful to somebody choosing between two variants of the same car.
+      </p>
+
+      <h2>What we do not claim</h2>
+      <ul>
+        <li>We do not claim our verdict is objectively correct. There is no ground truth for consumer
+            opinion, and anyone who says otherwise is selling something.</li>
+        <li>We do not claim to detect every fake review. The spam score is one term in a product, not
+            a filter that deletes things.</li>
+        <li>We do not rank by who pays us, because nobody pays us.</li>
+        <li>Where we do not have enough evidence, we show no score at all.</li>
+      </ul>
+      <p>
+        What we <i>can</i> test is whether trust weighting beats star averaging. We hold out long-term
+        verified owners as a target, estimate that target from the remaining mixed-quality reviews, and
+        compare the weighting strategies against it. Those results are public on the
+        <a href="metrics.html" style="color:var(--brand);font-weight:650">metrics page</a>, including
+        the cases where we do worse.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/revix.js"></script>
+<script>mountChrome('method.html', {home:false});</script>
+</body>
+</html>

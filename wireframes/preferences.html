@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preferences &middot; Revix</title>
+<link rel="stylesheet" href="assets/revix.css">
+</head>
+<body>
+<main class="wrap">
+
+  <div class="page-head">
+    <h1>Preferences</h1>
+    <p>
+      There are no accounts on Revix and there is nothing to sign up for. These settings live in your
+      own browser, so they follow this device and nothing about you is stored on our side.
+    </p>
+  </div>
+
+  <section class="sec">
+    <div class="card">
+
+      <div class="pref">
+        <div>
+          <h4>Default weighting</h4>
+          <p>Which strategy every verdict page opens with. You can still flip it on any page.</p>
+        </div>
+        <div class="seg">
+          <button aria-pressed="false">Equal</button>
+          <button aria-pressed="false">Source</button>
+          <button aria-pressed="true">Trust</button>
+        </div>
+      </div>
+
+      <div class="pref">
+        <div>
+          <h4>Show the range</h4>
+          <p>The confidence range around every score. Turning it off makes the product look more certain
+             than it is, so it is on by default and we would rather you left it on.</p>
+        </div>
+        <div class="seg">
+          <button aria-pressed="true">Always</button>
+          <button aria-pressed="false">On hover</button>
+        </div>
+      </div>
+
+      <div class="pref">
+        <div>
+          <h4>Order topics by</h4>
+          <p>Disagreement first is the default, because the contested topic is usually the one that
+             decides your purchase.</p>
+        </div>
+        <div class="seg">
+          <button aria-pressed="true">Disagreement</button>
+          <button aria-pressed="false">Score</button>
+        </div>
+      </div>
+
+      <div class="pref">
+        <div>
+          <h4>Units</h4>
+          <p>Fuel efficiency and distance.</p>
+        </div>
+        <div class="seg">
+          <button aria-pressed="true">kmpl and km</button>
+          <button aria-pressed="false">L/100km</button>
+        </div>
+      </div>
+
+      <div class="pref">
+        <div>
+          <h4>Price shown as</h4>
+          <p>On-road price varies by state, so ex-showroom is the honest default.</p>
+        </div>
+        <div class="seg">
+          <button aria-pressed="true">Ex-showroom</button>
+          <button aria-pressed="false">On-road, Mumbai</button>
+        </div>
+      </div>
+
+      <div class="pref">
+        <div>
+          <h4>Appearance</h4>
+          <p>Follows your system setting unless you choose otherwise.</p>
+        </div>
+        <div class="seg">
+          <button aria-pressed="true">System</button>
+          <button aria-pressed="false">Light</button>
+          <button aria-pressed="false">Dark</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="card pad" style="background:var(--surface-2);box-shadow:none">
+      <p class="muted" style="font-size:13.5px">
+        <b>Not built, and deliberately so.</b> Accounts, saved shortlists, price alerts and personalised
+        source trust are all out of scope for this project. The weighting system could support
+        personalised trust one day, since a preference is just another weighting configuration, but
+        shipping the measured version of the core product matters more than adding features to it.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/revix.js"></script>
+<script>mountChrome('', {home:false});</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verdict: Hyundai Creta SX (O) 1.5 Diesel AT &middot; Revix</title>
+<link rel="stylesheet" href="assets/revix.css">
+</head>
+<body>
+<main class="wrap">
+
+  <div class="crumb">
+    <a href="browse.html">Cars</a><span>&rsaquo;</span>
+    <a href="browse.html">Hyundai</a><span>&rsaquo;</span>
+    <a href="model.html">Creta</a><span>&rsaquo;</span>
+    <b>SX (O) 1.5 Diesel AT</b>
+  </div>
+
+  <!-- ============ 1. THE ANSWER ============ -->
+  <section class="sec">
+    <div class="card hero">
+      <div class="hero-l">
+        <h1 class="hero-title" id="vName"></h1>
+        <p class="hero-sub">The exact variant, never just &ldquo;Creta&rdquo;. Every number below is for this configuration only.</p>
+
+        <p class="verdict-line" id="vLine"></p>
+
+        <div class="score-row">
+          <div class="score-big" id="ovScore">7.8</div>
+          <div class="score-den">/ 10</div>
+          <div class="score-track">
+            <div id="ovTrack"></div>
+            <div class="track-scale"><span>0</span><span class="rng" id="ovRange"></span><span>10</span></div>
+          </div>
+        </div>
+
+        <div class="meta-strip" id="ovEff"></div>
+      </div>
+
+      <aside class="hero-r">
+        <div class="price" id="vPrice"></div>
+        <dl class="spec-list" id="vSpecs"></dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ 2. THE FLAGSHIP ============ -->
+  <section class="sec">
+    <div class="card switch-card pad">
+      <div class="switch-q">How should these 412 reviews be counted?</div>
+      <p class="switch-hint" id="stratBlurb"></p>
+      <div class="seg" id="seg"></div>
+      <div class="changed" id="changed"></div>
+    </div>
+  </section>
+
+  <!-- ============ 3. OPINION: ordered by disagreement ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title">What owners argue about</h2>
+      <span class="sec-note">Ordered by disagreement, not by score; the contested topics are the useful ones</span>
+    </div>
+    <div class="card"><div class="aspects" id="aspects"></div></div>
+  </section>
+
+  <!-- ============ 4. MEASURED FACTS: different form on purpose ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title">The official record</h2>
+      <span class="sec-note">Measured facts, not opinion, so they get no score and no range</span>
+    </div>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <!-- ============ 5. WHO IS SAYING IT ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2 class="sec-title">Experts versus owners</h2>
+      <a class="sec-note" href="compare.html" style="color:var(--brand);font-weight:650">Compare with a rival &rsaquo;</a>
+    </div>
+    <div class="card pad" id="vsBlock"></div>
+  </section>
+
+  <section class="sec">
+    <div class="card pad" style="background:var(--surface-2);box-shadow:none">
+      <p class="muted" style="font-size:13.5px">
+        Every number on this page is clickable. Clicking opens the exact reviews that produced it,
+        each with the weight it carried, because the number is computed <i>from</i> those links,
+        not annotated with them afterwards.
+        <a href="evidence.html" style="color:var(--brand);font-weight:650">Try it &rsaquo;</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/revix.js"></script>
+<script>mountChrome('', {home:false}); mountVerdict(CRETA);</script>
+</body>
+</html>
