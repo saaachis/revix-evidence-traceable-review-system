@@ -19,9 +19,9 @@
   <div class="page-head">
     <h1>The reviews behind <span style="color:var(--brand)">6.2</span></h1>
     <p>
-      Engine and gearbox, credibility weighted. These 34 reviews are not a search result; they are the
-      exact rows the fusion engine used, ordered by how much each one contributed. Change the weighting
-      on the verdict page and this list reorders, because the weights <i>are</i> the ordering.
+      These are not search results. They are the 34 reviews that produced the 6.2, listed in order of
+      how much each one counted towards it. Change how reviews are counted on the verdict page and
+      this list reorders itself, because the two are the same thing.
     </p>
   </div>
 
@@ -31,7 +31,7 @@
     <a class="fpill" href="evidence.html">Forum &middot; 6</a>
     <a class="fpill" href="evidence.html">Video &middot; 3</a>
     <a class="fpill" href="evidence.html">Expert &middot; 1</a>
-    <span class="sortby">Sorted by <b>contribution weight</b></span>
+    <span class="sortby">Sorted by <b>how much each counted</b></span>
   </div>
 
   <section class="sec">
@@ -39,7 +39,7 @@
       <div class="ev-head">
         <h2>34 reviews, 4 sources</h2>
         <span class="chip" data-heat="split"><span class="tick"></span>Sharply split</span>
-        <span class="sec-note">Effective sample 19.4, not 34, because the weights are uneven</span>
+        <span class="sec-note">Worth about 19 reviews once weighting is applied, not 34.</span>
       </div>
 
       <article class="review">
@@ -63,8 +63,8 @@
           <div class="wval">0.94</div>
           <div class="wbar"><i style="width:94%"></i></div>
           <p class="wwhy">
-            Long ownership and high mileage make this a strong witness on drivetrain durability.
-            Specific, falsifiable detail. No spam signal.
+            Three years and 61,000 km make this person worth listening to about how the gearbox
+            holds up. Specific enough that it could be proved wrong, which is a good sign.
           </p>
         </aside>
       </article>
@@ -90,8 +90,8 @@
           <div class="wval">0.81</div>
           <div class="wbar"><i style="width:81%"></i></div>
           <p class="wwhy">
-            Verified, nearly two years of ownership, and separates the gearbox complaint from the engine
-            rather than rating everything at once.
+            A verified owner of nearly two years, who separates the gearbox complaint from the
+            engine instead of giving the whole car one score.
           </p>
         </aside>
       </article>
@@ -114,8 +114,8 @@
           <div class="wval">0.34</div>
           <div class="wbar"><i style="width:34%"></i></div>
           <p class="wwhy">
-            One week of exposure on a manufacturer-supplied car. Counted, but it cannot outweigh three
-            years of ownership on the same question.
+            One week in a car lent by the manufacturer. It still counts, but it cannot outweigh
+            three years of living with the same gearbox.
           </p>
         </aside>
       </article>
@@ -138,8 +138,8 @@
           <div class="wval">0.11</div>
           <div class="wbar"><i style="width:11%"></i></div>
           <p class="wwhy">
-            Delivery-window review, unverified, no specific detail, and a spam probability of 0.46 from
-            the classifier. Down-weighted, not deleted.
+            Written in the first month, unverified, and it says nothing specific enough to check.
+            It reads like the reviews we see posted in bulk. Counted, but barely.
           </p>
         </aside>
       </article>
@@ -164,8 +164,8 @@
           <div class="wval">0.91</div>
           <div class="wbar"><i style="width:91%"></i></div>
           <p class="wwhy">
-            High weight, and it sits on the other side of the split. This is the review that made
-            transmission type the top covariate.
+            Counts heavily, and it argues the opposite way. Reviews like this one are why we
+            can tell you the gearbox complaint belongs to the automatic, not to the car.
           </p>
         </aside>
       </article>
@@ -175,13 +175,13 @@
 
   <section class="sec">
     <div class="card pad switch-card">
-      <div class="switch-q">What this page is actually proving</div>
+      <div class="switch-q">Why you can check us</div>
       <p class="switch-hint" style="margin-top:8px">
-        The weights on the right are stored in a table called <b>verdict_claim_evidence</b>, written by
-        the fusion engine before any text is generated. The score of 6.2 is computed <i>from</i> these
-        rows. That is why the citation cannot be wrong: it is not an annotation added afterwards, and no
-        language model was asked to produce it.
-        <a href="method.html" style="color:var(--brand);font-weight:650">How the weight is calculated &rsaquo;</a>
+        Most sites that cite their sources decide what to say first and look for supporting quotes
+        afterwards. We do it the other way round. The 6.2 is calculated from exactly these reviews and
+        exactly these weights, so the list you are reading cannot drift away from the number it
+        produced. If the reviews changed, the number would change with them.
+        <a href="method.html" style="color:var(--brand);font-weight:650">How the weighting works.</a>
       </p>
     </div>
   </section>

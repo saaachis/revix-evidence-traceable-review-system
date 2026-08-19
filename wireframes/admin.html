@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin: connector health &middot; Revix</title>
+<title>System status &middot; Revix</title>
 <link rel="stylesheet" href="assets/revix.css">
 </head>
 <body>
 <main class="wrap">
 
   <div class="page-head">
-    <h1>Connector health</h1>
+    <h1>System status</h1>
     <p>
-      Authentication gated. One card per source. A dead connector marks its own source stale and
-      reports here; it never fails the pipeline and it never breaks the product. The system is designed
-      to stay complete and demonstrable with only three of eight sources alive.
+      Where every source we read stands right now. A source that stops working marks itself as stale
+      and shows up here. It never takes the rest of the site down with it, and the verdict pages go
+      on telling you how many sources they were built from.
     </p>
     <div class="tabs">
       <a href="admin.html" class="on">Sources</a>
@@ -48,8 +48,8 @@
 
   <section class="sec">
     <div class="sec-head">
-      <h2 class="sec-title">Every connector</h2>
-      <span class="sec-note">One deliberately failing, so the degraded path is visible</span>
+      <h2 class="sec-title">Every source we read</h2>
+      <span class="sec-note">One is blocking us today, and the site carries on without it.</span>
     </div>
     <div class="card tbl-wrap">
       <table class="tbl">
@@ -118,21 +118,19 @@
 
   <section class="sec">
     <div class="card pad switch-card">
-      <div class="switch-q">One source is dead and the product is still complete</div>
+      <div class="switch-q">One source is down, and nothing else is</div>
       <p class="switch-hint" style="margin-top:8px">
-        <b>expert_reviews</b> has been failing for three days. The circuit breaker opened after five
-        consecutive refusals and stopped hitting the site, which is the polite behaviour as well as the
-        correct one. Meanwhile every verdict still renders, every page still states how many sources it
-        used, and the Creta page now says <b>6 sources</b> instead of 7 rather than silently pretending
-        nothing changed. That is the resilience contract working, and it is worth showing rather than
-        hiding.
+        <b>expert_reviews</b> has been refusing us for three days. After five refusals we stopped asking,
+        which is the polite thing to do as well as the correct one. Every verdict on the site still
+        works, and the Creta page now says it was built from <b>6 sources</b> rather than 7. We would
+        rather change that number where you can see it than quietly leave it at 7.
       </p>
     </div>
   </section>
 
   <section class="sec">
     <div class="sec-head"><h2 class="sec-title">Matching queue</h2>
-      <span class="sec-note">Human decisions feed back into the gold set, so it grows for free</span></div>
+      <span class="sec-note">Anything we are not sure about waits for a person, rather than being guessed.</span></div>
     <div class="card tbl-wrap">
       <table class="tbl">
         <thead><tr><th>Listing as the source wrote it</th><th>Best candidate variant</th><th class="n">Confidence</th><th>Decision</th></tr></thead>
@@ -159,8 +157,8 @@
       </table>
     </div>
     <p class="sec-note" style="margin:12px 0 0">
-      Anything below the confidence floor lands here instead of being guessed. A human in the loop is a
-      designed feature, not an admission of failure.
+      When we cannot tell whether two listings describe the same vehicle, the pair waits here for a
+      person to decide, rather than being guessed at and quietly polluting a score.
     </p>
   </section>
 

@@ -81,11 +81,10 @@
     <div class="prose">
       <h2>The rules we hold ourselves to</h2>
       <ul>
-        <li><b>We read the terms first.</b> Before a connector is written, somebody reads that site's
-            robots file and terms and records what they say, with the date, in the code itself. That
-            text goes into the report.</li>
-        <li><b>We use the official API wherever one exists.</b> Reddit and YouTube are read through
-            their published interfaces, not scraped.</li>
+        <li><b>We read the terms first.</b> Before we read a site for the first time, somebody reads its
+            robots file and its terms, and records what they say and on what date.</li>
+        <li><b>We use the front door wherever there is one.</b> Reddit and YouTube are read through the
+            interfaces they publish for the purpose, not scraped.</li>
         <li><b>We are slow on purpose.</b> Token bucket rate limiting, exponential backoff, and a
             circuit breaker that stops entirely after repeated refusals. Right now one source is
             blocking us, and the correct response is to stop asking.</li>
@@ -109,11 +108,11 @@
 
       <h2>Why one dead source does not matter much</h2>
       <p>
-        Each source is an isolated connector with its own failure handling. Losing one degrades coverage
-        and the interface says so, stating how many sources produced each verdict. The design target is
-        that the product stays complete and demonstrable with only three of eight alive. You can see
-        that being tested for real on the
-        <a href="admin.html" style="color:var(--brand);font-weight:650">admin page</a> right now.
+        Every source is kept separate from every other, so losing one costs us coverage rather than the
+        whole site. When it happens, the verdict page tells you how many places that verdict was built
+        from, so you can see the difference rather than having it hidden from you. One of our sources is
+        blocking us today, and you can
+        <a href="admin.html" style="color:var(--brand);font-weight:650">see the current state of all of them</a>.
       </p>
     </div>
   </section>
