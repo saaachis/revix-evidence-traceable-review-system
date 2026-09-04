@@ -14,7 +14,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class Health(BaseModel):
@@ -114,11 +114,14 @@ class VerdictOut(BaseModel):
 
     evidence_count: int
     effective_sample_size: float | None
-    sources_used: list[str] = Field(default_factory=list)
+    # No defaults on these two. A field with a default is optional in the
+    # generated OpenAPI schema, which would make the frontend treat an
+    # always-present list as possibly undefined. The API always sends both.
+    sources_used: list[str]
 
     #: Ordered by disagreement, never by score. Conflict first is the product's
     #: identity and the opposite of what every competitor does.
-    aspects: list[AspectOut] = Field(default_factory=list)
+    aspects: list[AspectOut]
 
 
 class EvidenceOut(BaseModel):

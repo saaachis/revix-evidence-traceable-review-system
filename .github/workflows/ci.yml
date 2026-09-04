@@ -137,37 +137,76 @@ jobs:
   web:
     name: Web
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: revix
+          POSTGRES_PASSWORD: revix
+          POSTGRES_DB: revix
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U revix -d revix"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect Node project
-        id: detect
-        run: |
-          if [ -f apps/web/package.json ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "No web project yet. Lands in phase 1."
-          fi
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       - uses: actions/setup-node@v4
-        if: steps.detect.outputs.present == 'true'
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
 
       - name: Install
-        if: steps.detect.outputs.present == 'true'
-        working-directory: apps/web
-        run: npm ci
+        run: |
+          uv sync --all-packages --frozen
+          npm ci --prefix apps/web
+
+      # The typed client is generated from the OpenAPI schema, so this catches
+      # the frontend and the serving layer drifting apart. If someone changes a
+      # response shape without regenerating, the committed types differ and
+      # this fails rather than the page breaking at runtime.
+      - name: The committed API types match the API
+        run: |
+          uv run python -c "import json;from revix_api.main import app;print(json.dumps(app.openapi(),indent=2))" > apps/web/openapi.json
+          npx --prefix apps/web openapi-typescript apps/web/openapi.json -o /tmp/api-types.ts
+          if ! diff -q /tmp/api-types.ts apps/web/src/lib/api-types.ts >/dev/null; then
+            echo "::error::apps/web/src/lib/api-types.ts is stale. Run: npm run openapi"
+            diff /tmp/api-types.ts apps/web/src/lib/api-types.ts | head -40
+            exit 1
+          fi
+          echo "Frontend types match the contract."
 
       - name: Lint
-        if: steps.detect.outputs.present == 'true'
-        working-directory: apps/web
-        run: npm run lint --if-present
+        run: npm run lint --prefix apps/web
+
+      - name: Types
+        run: npm run typecheck --prefix apps/web
 
       - name: Build
-        if: steps.detect.outputs.present == 'true'
-        working-directory: apps/web
-        run: npm run build --if-present
+        run: npm run build --prefix apps/web
+
+      # The whole product, driven in a real browser. The test that matters is
+      # the weighting switch: if flipping it stopped changing the numbers, the
+      # project would have no point, and that is not something a unit test on a
+      # reducer would catch.
+      - name: Browser smoke test
+        env:
+          DATABASE_URL: postgresql+psycopg://revix:revix@localhost:5432/revix
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          uv run alembic upgrade head
+          uv run revix pipeline nightly --limit 8
+          uv run uvicorn revix_api.main:app --port 8000 &
+          npm run start --prefix apps/web -- --port 3000 &
+          npx --prefix apps/web wait-on http://127.0.0.1:8000/health http://127.0.0.1:3000 -t 60000
+          npm run e2e --prefix apps/web

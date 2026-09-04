@@ -28,6 +28,14 @@ so verdicts. Then start the API:
 uv run uvicorn revix_api.main:app --reload --port 8000
 ```
 
+Then the frontend, in a second terminal:
+
+```bash
+cd apps/web
+npm install
+npm run dev          # http://localhost:3000
+```
+
 `http://localhost:8000/docs` is the generated OpenAPI browser. The endpoint
 worth looking at first is:
 
@@ -59,7 +67,29 @@ uv run ruff format --check .                          # formatting
 uv run mypy packages/revix_core/src pipeline/src apps/api/src   # types
 uv run alembic check                                  # models match migrations
 uv run pytest --cov                                   # tests
+
+npm run lint      --prefix apps/web                   # eslint
+npm run typecheck --prefix apps/web                   # tsc
+npm run build     --prefix apps/web                   # next build
+npm run e2e       --prefix apps/web                   # browser smoke test
 ```
+
+The browser smoke test needs the API on :8000 and the web app on :3000, both
+already running. It drives a real Chrome and its most important assertion is
+that flipping the weighting switch changes the numbers. If that ever stopped
+being true the product would have no point, and no unit test would notice.
+
+## The typed API client
+
+`apps/web/src/lib/api-types.ts` is generated from the OpenAPI schema and must
+never be hand-edited. After changing any response model:
+
+```bash
+npm run openapi --prefix apps/web     # regenerate the schema and the types
+```
+
+CI regenerates and diffs against what is committed, so the frontend and the
+serving layer cannot drift apart without the build going red.
 
 ## Working on the schema
 
@@ -95,7 +125,7 @@ recover from.
 packages/revix_core/   models, settings, session. Imports neither of the others.
 pipeline/              connectors, enrichment stages, the `revix` CLI
 apps/api/              FastAPI, reads only from the serving schema
-apps/web/              Next.js
+apps/web/              Next.js 16, Tailwind v4, typed client from OpenAPI
 db/migrations/         Alembic
 docs/adr/              why things are the way they are
 ```

@@ -1,0 +1,33 @@
+{
+  "name": "revix-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "openapi": "uv run python -c \"import json;from revix_api.main import app;print(json.dumps(app.openapi(),indent=2))\" > openapi.json && npm run types",
+    "types": "openapi-typescript openapi.json -o src/lib/api-types.ts",
+    "e2e": "node e2e/smoke.mjs"
+  },
+  "dependencies": {
+    "next": "^16.3.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^16.3.4",
+    "openapi-typescript": "^7.5.0",
+    "playwright-core": "^1.62.1",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "wait-on": "^9.1.0"
+  }
+}
