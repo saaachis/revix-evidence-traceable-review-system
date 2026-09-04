@@ -186,6 +186,13 @@ class EvidenceUnit(Base, TimestampMixin):
     raw_payload_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey(f"{SCHEMA_RAW}.raw_payload.id", ondelete="SET NULL")
     )
+    # Which listing this came from. Resolution happens once per listing rather
+    # than once per review, because a thousand reviews on one product page all
+    # describe the same vehicle and matching them individually would be a
+    # thousand chances to disagree with ourselves.
+    source_listing_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey(f"{SCHEMA_CORE}.source_listing.id", ondelete="SET NULL")
+    )
 
     # Resolved target. model_id is the fallback granularity when a review is
     # clearly about the model but not attributable to one variant.

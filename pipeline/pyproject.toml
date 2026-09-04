@@ -10,6 +10,7 @@ dependencies = [
     "tenacity>=9.0",
     "selectolax>=0.3.27",
     "python-dateutil>=2.9",
+    "rapidfuzz>=3.10",
 ]
 
 [project.scripts]

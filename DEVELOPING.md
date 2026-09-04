@@ -17,9 +17,29 @@ Local setup, end to end, on a clean machine.
 uv sync --all-packages     # install all three Python packages
 docker compose up -d       # PostgreSQL 16 + pgvector on localhost:5433
 uv run alembic upgrade head
-uv run revix db seed-reference
-uv run revix db check
+uv run revix pipeline nightly     # seed, ingest, resolve, extract, score, fuse
+uv run revix db status
 ```
+
+That last command should report a few thousand evidence units and a hundred or
+so verdicts. Then start the API:
+
+```bash
+uv run uvicorn revix_api.main:app --reload --port 8000
+```
+
+`http://localhost:8000/docs` is the generated OpenAPI browser. The endpoint
+worth looking at first is:
+
+```
+GET /variants/{id}/verdict?fusion=equal
+GET /variants/{id}/verdict?fusion=credibility_weighted
+```
+
+Switching between those is the whole product. The overall score moves, the
+topics reorder, and the effective sample size drops while the interval widens,
+because weighting carefully means admitting you have less evidence than the
+raw count suggests.
 
 `revix db check` prints the server version, the installed extensions and the
 table count. If it exits non-zero, the extensions are missing and nothing
@@ -36,7 +56,7 @@ Run this before opening a pull request. CI runs exactly the same commands.
 ```bash
 uv run ruff check .                                   # lint
 uv run ruff format --check .                          # formatting
-uv run mypy packages/revix_core/src pipeline/src      # types
+uv run mypy packages/revix_core/src pipeline/src apps/api/src   # types
 uv run alembic check                                  # models match migrations
 uv run pytest --cov                                   # tests
 ```
@@ -85,6 +105,9 @@ docs/adr/              why things are the way they are
 ```bash
 uv run revix --help                  # every pipeline stage
 uv run revix db show-reference       # the nine aspects, the three strategies
+uv run revix sources                 # every registered connector
+uv run revix db status               # how much of everything exists
+uv run revix enrich fuse             # recompute verdicts without re-ingesting
 docker compose logs -f db            # database logs
 docker compose down -v               # wipe the database completely
 uv run pytest -m "not db"            # tests that need no database

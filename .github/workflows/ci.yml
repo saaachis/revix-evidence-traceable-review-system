@@ -98,7 +98,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Types
-        run: uv run mypy packages/revix_core/src pipeline/src
+        run: uv run mypy packages/revix_core/src pipeline/src apps/api/src
 
       - name: Migrations apply
         run: uv run alembic upgrade head
@@ -122,6 +122,14 @@ jobs:
           echo "$out"
           echo "$out" | grep -q "already present" || {
             echo "::error::seed-reference is not idempotent"; exit 1; }
+
+      # The whole pipeline against fixtures, on every push. This is the check
+      # that would have caught the resolver scoring bug and the Kish bug, both
+      # of which passed unit tests while producing nonsense end to end.
+      - name: Pipeline runs end to end
+        run: |
+          uv run revix pipeline nightly --limit 6
+          uv run revix db status
 
       - name: Tests
         run: uv run pytest --cov --cov-report=term-missing

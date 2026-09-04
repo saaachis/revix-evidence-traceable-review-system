@@ -1,0 +1,165 @@
+{
+  "_comment": [
+    "The seeded catalogue. Chosen deliberately rather than sampled, because",
+    "review volume is heavily skewed towards popular vehicles and a random",
+    "sample would be mostly variants nobody has written about.",
+    "",
+    "Roughly 60% cars and 40% two-wheelers by variant count, per proposal",
+    "section 6.3. Prices are ex-showroom in rupees."
+  ],
+  "manufacturers": [
+    { "slug": "hyundai", "name": "Hyundai", "country": "KR" },
+    { "slug": "kia", "name": "Kia", "country": "KR" },
+    { "slug": "maruti-suzuki", "name": "Maruti Suzuki", "country": "IN" },
+    { "slug": "tata", "name": "Tata Motors", "country": "IN" },
+    { "slug": "mahindra", "name": "Mahindra", "country": "IN" },
+    { "slug": "volkswagen", "name": "Volkswagen", "country": "DE" },
+    { "slug": "royal-enfield", "name": "Royal Enfield", "country": "IN" },
+    { "slug": "honda", "name": "Honda", "country": "JP" },
+    { "slug": "hero", "name": "Hero MotoCorp", "country": "IN" },
+    { "slug": "bajaj", "name": "Bajaj Auto", "country": "IN" },
+    { "slug": "tvs", "name": "TVS Motor", "country": "IN" },
+    { "slug": "yamaha", "name": "Yamaha", "country": "JP" }
+  ],
+  "models": [
+    {
+      "manufacturer": "hyundai", "slug": "creta", "name": "Creta",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2015,
+      "variants": [
+        { "variant_name": "E 1.5 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1497, "engine_power_bhp": 113, "arai_mileage_kmpl": 17.4, "seating_capacity": 5, "boot_litres": 433, "price_min": 1111000, "price_max": 1111000 },
+        { "variant_name": "S 1.5 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1497, "engine_power_bhp": 113, "arai_mileage_kmpl": 17.4, "seating_capacity": 5, "boot_litres": 433, "price_min": 1300000, "price_max": 1300000 },
+        { "variant_name": "SX 1.5 Petrol IVT", "fuel_type": "petrol", "transmission": "ivt", "engine_cc": 1497, "engine_power_bhp": 113, "arai_mileage_kmpl": 17.7, "seating_capacity": 5, "boot_litres": 433, "price_min": 1640000, "price_max": 1640000 },
+        { "variant_name": "SX (O) 1.5 Diesel AT", "fuel_type": "diesel", "transmission": "at", "engine_cc": 1493, "engine_power_bhp": 114, "arai_mileage_kmpl": 21.4, "seating_capacity": 5, "boot_litres": 433, "price_min": 1920000, "price_max": 2040000 },
+        { "variant_name": "SX (O) 1.5 Diesel MT", "fuel_type": "diesel", "transmission": "mt", "engine_cc": 1493, "engine_power_bhp": 114, "arai_mileage_kmpl": 21.8, "seating_capacity": 5, "boot_litres": 433, "price_min": 1800000, "price_max": 1800000 },
+        { "variant_name": "SX (O) 1.5 Turbo DCT", "fuel_type": "petrol", "transmission": "dct", "engine_cc": 1482, "engine_power_bhp": 158, "arai_mileage_kmpl": 18.0, "seating_capacity": 5, "boot_litres": 433, "price_min": 2010000, "price_max": 2010000 }
+      ]
+    },
+    {
+      "manufacturer": "kia", "slug": "seltos", "name": "Seltos",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2019,
+      "variants": [
+        { "variant_name": "HTK 1.5 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1497, "engine_power_bhp": 113, "arai_mileage_kmpl": 17.0, "seating_capacity": 5, "boot_litres": 433, "price_min": 1189000, "price_max": 1189000 },
+        { "variant_name": "HTX 1.5 Diesel MT", "fuel_type": "diesel", "transmission": "mt", "engine_cc": 1493, "engine_power_bhp": 114, "arai_mileage_kmpl": 20.8, "seating_capacity": 5, "boot_litres": 433, "price_min": 1740000, "price_max": 1740000 },
+        { "variant_name": "GTX+ 1.5 Turbo DCT", "fuel_type": "petrol", "transmission": "dct", "engine_cc": 1482, "engine_power_bhp": 158, "arai_mileage_kmpl": 17.7, "seating_capacity": 5, "boot_litres": 433, "price_min": 2040000, "price_max": 2040000 },
+        { "variant_name": "X-Line 1.5 Diesel AT", "fuel_type": "diesel", "transmission": "at", "engine_cc": 1493, "engine_power_bhp": 114, "arai_mileage_kmpl": 19.1, "seating_capacity": 5, "boot_litres": 433, "price_min": 2065000, "price_max": 2065000 }
+      ]
+    },
+    {
+      "manufacturer": "maruti-suzuki", "slug": "grand-vitara", "name": "Grand Vitara",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2022,
+      "variants": [
+        { "variant_name": "Sigma 1.5 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1462, "engine_power_bhp": 101, "arai_mileage_kmpl": 21.1, "seating_capacity": 5, "boot_litres": 373, "price_min": 1099000, "price_max": 1099000 },
+        { "variant_name": "Zeta 1.5 Petrol AT", "fuel_type": "petrol", "transmission": "at", "engine_cc": 1462, "engine_power_bhp": 101, "arai_mileage_kmpl": 20.6, "seating_capacity": 5, "boot_litres": 373, "price_min": 1620000, "price_max": 1620000 },
+        { "variant_name": "Alpha+ Hybrid", "fuel_type": "hybrid", "transmission": "cvt", "engine_cc": 1490, "engine_power_bhp": 115, "arai_mileage_kmpl": 27.9, "seating_capacity": 5, "boot_litres": 265, "price_min": 1980000, "price_max": 1980000 }
+      ]
+    },
+    {
+      "manufacturer": "maruti-suzuki", "slug": "swift", "name": "Swift",
+      "vehicle_class": "car", "body_style": "hatchback", "segment": "compact", "launch_year": 2005,
+      "variants": [
+        { "variant_name": "LXi 1.2 MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1197, "engine_power_bhp": 81, "arai_mileage_kmpl": 24.8, "seating_capacity": 5, "boot_litres": 265, "price_min": 649000, "price_max": 649000 },
+        { "variant_name": "ZXi 1.2 MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1197, "engine_power_bhp": 81, "arai_mileage_kmpl": 24.8, "seating_capacity": 5, "boot_litres": 265, "price_min": 829000, "price_max": 829000 },
+        { "variant_name": "ZXi+ 1.2 AMT", "fuel_type": "petrol", "transmission": "amt", "engine_cc": 1197, "engine_power_bhp": 81, "arai_mileage_kmpl": 25.8, "seating_capacity": 5, "boot_litres": 265, "price_min": 960000, "price_max": 960000 },
+        { "variant_name": "ZXi 1.2 CNG MT", "fuel_type": "cng", "transmission": "mt", "engine_cc": 1197, "engine_power_bhp": 69, "arai_mileage_kmpl": 32.8, "seating_capacity": 5, "boot_litres": 155, "price_min": 924000, "price_max": 924000 }
+      ]
+    },
+    {
+      "manufacturer": "tata", "slug": "nexon", "name": "Nexon",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "compact", "launch_year": 2017,
+      "variants": [
+        { "variant_name": "Smart 1.2 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1199, "engine_power_bhp": 118, "arai_mileage_kmpl": 17.4, "seating_capacity": 5, "boot_litres": 382, "price_min": 800000, "price_max": 800000 },
+        { "variant_name": "Creative 1.5 Diesel MT", "fuel_type": "diesel", "transmission": "mt", "engine_cc": 1497, "engine_power_bhp": 113, "arai_mileage_kmpl": 23.2, "seating_capacity": 5, "boot_litres": 382, "price_min": 1250000, "price_max": 1250000 },
+        { "variant_name": "Fearless+ 1.2 Petrol DCA", "fuel_type": "petrol", "transmission": "dct", "engine_cc": 1199, "engine_power_bhp": 118, "arai_mileage_kmpl": 17.0, "seating_capacity": 5, "boot_litres": 382, "price_min": 1360000, "price_max": 1360000 }
+      ]
+    },
+    {
+      "manufacturer": "tata", "slug": "curvv", "name": "Curvv",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2024,
+      "variants": [
+        { "variant_name": "Smart 1.2 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1199, "engine_power_bhp": 118, "arai_mileage_kmpl": 17.7, "seating_capacity": 5, "boot_litres": 500, "price_min": 1000000, "price_max": 1000000 },
+        { "variant_name": "Accomplished+ A 1.2", "fuel_type": "petrol", "transmission": "dct", "engine_cc": 1199, "engine_power_bhp": 123, "arai_mileage_kmpl": 17.2, "seating_capacity": 5, "boot_litres": 500, "price_min": 1770000, "price_max": 1770000 }
+      ]
+    },
+    {
+      "manufacturer": "mahindra", "slug": "xuv700", "name": "XUV700",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "premium", "launch_year": 2021,
+      "variants": [
+        { "variant_name": "MX 2.0 Petrol MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 1999, "engine_power_bhp": 197, "arai_mileage_kmpl": 13.0, "seating_capacity": 5, "boot_litres": 240, "price_min": 1399000, "price_max": 1399000 },
+        { "variant_name": "AX7 2.2 Diesel MT", "fuel_type": "diesel", "transmission": "mt", "engine_cc": 2184, "engine_power_bhp": 182, "arai_mileage_kmpl": 16.6, "seating_capacity": 7, "boot_litres": 240, "price_min": 2180000, "price_max": 2180000 },
+        { "variant_name": "AX7 L 2.2 Diesel AT", "fuel_type": "diesel", "transmission": "at", "engine_cc": 2184, "engine_power_bhp": 182, "arai_mileage_kmpl": 15.6, "seating_capacity": 7, "boot_litres": 240, "price_min": 2570000, "price_max": 2570000 }
+      ]
+    },
+    {
+      "manufacturer": "volkswagen", "slug": "taigun", "name": "Taigun",
+      "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2021,
+      "variants": [
+        { "variant_name": "Comfortline 1.0 TSI MT", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 999, "engine_power_bhp": 114, "arai_mileage_kmpl": 19.2, "seating_capacity": 5, "boot_litres": 385, "price_min": 1200000, "price_max": 1200000 },
+        { "variant_name": "Highline 1.0 TSI AT", "fuel_type": "petrol", "transmission": "at", "engine_cc": 999, "engine_power_bhp": 114, "arai_mileage_kmpl": 18.5, "seating_capacity": 5, "boot_litres": 385, "price_min": 1650000, "price_max": 1650000 },
+        { "variant_name": "GT Plus 1.5 TSI DSG", "fuel_type": "petrol", "transmission": "dct", "engine_cc": 1498, "engine_power_bhp": 148, "arai_mileage_kmpl": 18.9, "seating_capacity": 5, "boot_litres": 385, "price_min": 1940000, "price_max": 1940000 }
+      ]
+    },
+    {
+      "manufacturer": "royal-enfield", "slug": "classic-350", "name": "Classic 350",
+      "vehicle_class": "two_wheeler", "body_style": "cruiser", "segment": "midsize", "launch_year": 2021,
+      "variants": [
+        { "variant_name": "Single-channel ABS", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 349, "engine_power_bhp": 20.2, "arai_mileage_kmpl": 37.6, "kerb_weight_kg": 195, "seat_height_mm": 805, "braking_type": "Single-channel ABS", "price_min": 199000, "price_max": 199000 },
+        { "variant_name": "Dual-channel ABS", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 349, "engine_power_bhp": 20.2, "arai_mileage_kmpl": 37.6, "kerb_weight_kg": 195, "seat_height_mm": 805, "braking_type": "Dual-channel ABS", "price_min": 225000, "price_max": 232000 }
+      ]
+    },
+    {
+      "manufacturer": "royal-enfield", "slug": "hunter-350", "name": "Hunter 350",
+      "vehicle_class": "two_wheeler", "body_style": "roadster", "segment": "midsize", "launch_year": 2022,
+      "variants": [
+        { "variant_name": "Retro", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 349, "engine_power_bhp": 20.2, "arai_mileage_kmpl": 36.2, "kerb_weight_kg": 181, "seat_height_mm": 790, "braking_type": "Single-channel ABS", "price_min": 150000, "price_max": 150000 },
+        { "variant_name": "Metro Rebel", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 349, "engine_power_bhp": 20.2, "arai_mileage_kmpl": 36.2, "kerb_weight_kg": 181, "seat_height_mm": 790, "braking_type": "Dual-channel ABS", "price_min": 175000, "price_max": 175000 }
+      ]
+    },
+    {
+      "manufacturer": "honda", "slug": "activa", "name": "Activa",
+      "vehicle_class": "two_wheeler", "body_style": "scooter", "segment": "commuter", "launch_year": 2001,
+      "variants": [
+        { "variant_name": "6G Standard", "fuel_type": "petrol", "transmission": "cvt", "engine_cc": 109, "engine_power_bhp": 7.7, "arai_mileage_kmpl": 60.0, "kerb_weight_kg": 106, "seat_height_mm": 765, "braking_type": "Combi-brake", "price_min": 81000, "price_max": 81000 },
+        { "variant_name": "6G Deluxe", "fuel_type": "petrol", "transmission": "cvt", "engine_cc": 109, "engine_power_bhp": 7.7, "arai_mileage_kmpl": 60.0, "kerb_weight_kg": 106, "seat_height_mm": 765, "braking_type": "Combi-brake", "price_min": 86000, "price_max": 86000 },
+        { "variant_name": "125 Smart", "fuel_type": "petrol", "transmission": "cvt", "engine_cc": 124, "engine_power_bhp": 8.2, "arai_mileage_kmpl": 47.0, "kerb_weight_kg": 111, "seat_height_mm": 770, "braking_type": "Combi-brake", "price_min": 95000, "price_max": 95000 }
+      ]
+    },
+    {
+      "manufacturer": "honda", "slug": "shine", "name": "Shine",
+      "vehicle_class": "two_wheeler", "body_style": "commuter", "segment": "commuter", "launch_year": 2006,
+      "variants": [
+        { "variant_name": "125 Drum", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 123, "engine_power_bhp": 10.6, "arai_mileage_kmpl": 65.0, "kerb_weight_kg": 113, "seat_height_mm": 791, "braking_type": "Drum", "price_min": 82000, "price_max": 82000 },
+        { "variant_name": "125 Disc", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 123, "engine_power_bhp": 10.6, "arai_mileage_kmpl": 65.0, "kerb_weight_kg": 114, "seat_height_mm": 791, "braking_type": "Disc", "price_min": 87000, "price_max": 87000 }
+      ]
+    },
+    {
+      "manufacturer": "hero", "slug": "splendor-plus", "name": "Splendor Plus",
+      "vehicle_class": "two_wheeler", "body_style": "commuter", "segment": "commuter", "launch_year": 1994,
+      "variants": [
+        { "variant_name": "i3S Drum", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 97, "engine_power_bhp": 7.9, "arai_mileage_kmpl": 70.0, "kerb_weight_kg": 112, "seat_height_mm": 785, "braking_type": "Drum", "price_min": 79000, "price_max": 79000 },
+        { "variant_name": "Xtec Disc", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 97, "engine_power_bhp": 7.9, "arai_mileage_kmpl": 70.0, "kerb_weight_kg": 113, "seat_height_mm": 785, "braking_type": "Disc", "price_min": 86000, "price_max": 86000 }
+      ]
+    },
+    {
+      "manufacturer": "bajaj", "slug": "pulsar-ns200", "name": "Pulsar NS200",
+      "vehicle_class": "two_wheeler", "body_style": "sport", "segment": "midsize", "launch_year": 2012,
+      "variants": [
+        { "variant_name": "ABS", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 199, "engine_power_bhp": 24.1, "arai_mileage_kmpl": 38.0, "kerb_weight_kg": 158, "seat_height_mm": 805, "braking_type": "Single-channel ABS", "price_min": 162000, "price_max": 162000 }
+      ]
+    },
+    {
+      "manufacturer": "tvs", "slug": "jupiter", "name": "Jupiter",
+      "vehicle_class": "two_wheeler", "body_style": "scooter", "segment": "commuter", "launch_year": 2013,
+      "variants": [
+        { "variant_name": "110 Drum", "fuel_type": "petrol", "transmission": "cvt", "engine_cc": 113, "engine_power_bhp": 7.9, "arai_mileage_kmpl": 62.0, "kerb_weight_kg": 108, "seat_height_mm": 765, "braking_type": "Drum", "price_min": 78000, "price_max": 78000 },
+        { "variant_name": "125 SmartXonnect", "fuel_type": "petrol", "transmission": "cvt", "engine_cc": 124, "engine_power_bhp": 8.1, "arai_mileage_kmpl": 57.0, "kerb_weight_kg": 108, "seat_height_mm": 765, "braking_type": "Disc", "price_min": 92000, "price_max": 92000 }
+      ]
+    },
+    {
+      "manufacturer": "yamaha", "slug": "mt-15", "name": "MT-15",
+      "vehicle_class": "two_wheeler", "body_style": "sport", "segment": "midsize", "launch_year": 2019,
+      "variants": [
+        { "variant_name": "V2", "fuel_type": "petrol", "transmission": "mt", "engine_cc": 155, "engine_power_bhp": 18.1, "arai_mileage_kmpl": 45.0, "kerb_weight_kg": 141, "seat_height_mm": 810, "braking_type": "Dual-channel ABS", "price_min": 171000, "price_max": 171000 }
+      ]
+    }
+  ]
+}
