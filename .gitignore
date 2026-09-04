@@ -47,7 +47,11 @@ data/processed/
 !data/seed/**
 
 # ---------- models and artefacts ----------
-models/
+# Anchored to the artefact locations. An unanchored "models/" also matches
+# packages/revix_core/src/revix_core/models/, which silently drops the ORM
+# package from the repository.
+/data/models/
+/artifacts/
 *.pkl
 *.joblib
 *.bin
@@ -70,3 +74,5 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Python workspace

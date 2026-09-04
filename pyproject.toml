@@ -1,0 +1,125 @@
+[project]
+name = "revix"
+version = "0.1.0"
+description = "An evidence-traceable review system for Indian cars and two-wheelers"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "revix-core",
+    "revix-pipeline",
+    "revix-api",
+]
+
+# The three packages depend on each other in one direction only:
+#
+#   revix-api ──┐
+#               ├──> revix-core   (models, settings, session)
+#   revix-pipeline ─┘
+#
+# revix-core never imports from the other two. That rule is what keeps the
+# read path and the write path from tangling, and it is enforced by import
+# linting in CI rather than by convention.
+[tool.uv.workspace]
+members = ["packages/revix_core", "pipeline", "apps/api"]
+
+[tool.uv.sources]
+revix-core = { workspace = true }
+revix-pipeline = { workspace = true }
+revix-api = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-python-dateutil",
+    "httpx>=0.28",
+    "alembic>=1.14",
+    "psycopg[binary]>=3.2",
+]
+
+# ----------------------------------------------------------------------------
+# ruff: linting and formatting. One tool instead of black + isort + flake8.
+# ----------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# scripts/ holds one-off operational scripts that are not part of the
+# application and are not worth reformatting.
+extend-exclude = ["db/migrations/versions", "scripts"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # import sorting
+    "N",         # pep8 naming
+    "UP",        # pyupgrade
+    "B",         # bugbear
+    "A",         # builtin shadowing
+    "C4",        # comprehensions
+    "DTZ",       # timezone-aware datetimes, which matters for collected_at
+    "SIM",       # simplify
+    "PTH",       # use pathlib
+    "RUF",
+]
+ignore = [
+    "E501",   # line length is handled by the formatter
+    "B008",   # FastAPI Depends() in defaults is the documented pattern
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+# SQLAlchemy's declarative API requires __table_args__ and type_annotation_map
+# to be plain class-level dicts. Annotating them ClassVar breaks its
+# introspection, so RUF012 does not apply to model definitions.
+"packages/revix_core/src/revix_core/models/*.py" = ["RUF012"]
+
+[tool.ruff.lint.isort]
+# Our own packages are first party, otherwise they get sorted in among the
+# third-party imports and every file churns on the next format run.
+known-first-party = ["revix_core", "revix_pipeline", "revix_api"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ----------------------------------------------------------------------------
+# mypy: typed where it earns its keep. Strict on core, relaxed on tests.
+# ----------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+exclude = ["db/migrations/versions"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["pgvector.*", "rapidfuzz.*", "sentence_transformers.*", "sklearn.*"]
+ignore_missing_imports = true
+
+# ----------------------------------------------------------------------------
+# pytest
+# ----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
+markers = [
+    "db: requires a live PostgreSQL instance",
+    "network: touches the public internet, skipped in CI by default",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["packages/revix_core/src", "pipeline/src", "apps/api/src"]
+
+[tool.coverage.report]
+skip_empty = true
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedError"]

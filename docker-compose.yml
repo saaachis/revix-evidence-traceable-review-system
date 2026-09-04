@@ -1,0 +1,33 @@
+# Local development database. One PostgreSQL with pgvector, matching what the
+# free-tier host will run, so "works on my machine" and "works deployed" mean
+# the same thing.
+#
+#   docker compose up -d
+#   uv run alembic upgrade head
+#
+# Port 5433 on purpose, so it never collides with a Postgres already installed
+# on the host.
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: revix-db
+    environment:
+      POSTGRES_USER: revix
+      POSTGRES_PASSWORD: revix
+      POSTGRES_DB: revix
+      # Deterministic collation, so ORDER BY behaves identically everywhere.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - revix_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U revix -d revix"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  revix_pgdata:

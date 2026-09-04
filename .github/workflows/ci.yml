@@ -13,6 +13,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # CI talks to the service container on the standard port. Locally the
+  # compose file uses 5433 so it cannot collide with a host Postgres.
+  DATABASE_URL: postgresql+psycopg://revix:revix@localhost:5432/revix
+
 jobs:
   hygiene:
     name: Repository hygiene
@@ -54,39 +59,72 @@ jobs:
           done < <(git ls-files '*.md')
           exit $status
 
-  api:
+  python:
     name: API and pipeline
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        # Same image as docker-compose.yml, so CI and a developer's machine
+        # cannot disagree about what the database supports.
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: revix
+          POSTGRES_PASSWORD: revix
+          POSTGRES_DB: revix
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U revix -d revix"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect Python project
-        id: detect
-        run: |
-          if [ -f apps/api/pyproject.toml ] || [ -f pyproject.toml ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "No Python project yet — skipping. Lands in week 1."
-          fi
-
-      - uses: actions/setup-python@v5
-        if: steps.detect.outputs.present == 'true'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.11'
-          cache: pip
+          enable-cache: true
 
-      - name: Install
-        if: steps.detect.outputs.present == 'true'
-        run: pip install -e ".[dev]"
+      - name: Install the workspace
+        run: uv sync --all-packages --frozen
 
       - name: Lint
-        if: steps.detect.outputs.present == 'true'
-        run: ruff check .
+        run: uv run ruff check .
 
-      - name: Test
-        if: steps.detect.outputs.present == 'true'
-        run: pytest -q
+      - name: Formatting
+        run: uv run ruff format --check .
+
+      - name: Types
+        run: uv run mypy packages/revix_core/src pipeline/src
+
+      - name: Migrations apply
+        run: uv run alembic upgrade head
+
+      # The check that catches the mistake everybody makes: editing a model and
+      # forgetting the migration. If they disagree, this fails.
+      - name: Migrations match the models
+        run: uv run alembic check
+
+      # A migration that cannot be reversed is a migration you cannot recover
+      # from. This caught two real bugs the first time it ran.
+      - name: Migrations reverse cleanly
+        run: |
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+
+      - name: Reference data seeds, and seeds idempotently
+        run: |
+          uv run revix db seed-reference
+          out=$(uv run revix db seed-reference)
+          echo "$out"
+          echo "$out" | grep -q "already present" || {
+            echo "::error::seed-reference is not idempotent"; exit 1; }
+
+      - name: Tests
+        run: uv run pytest --cov --cov-report=term-missing
 
   web:
     name: Web
@@ -101,13 +139,13 @@ jobs:
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "No web project yet — skipping. Lands in week 1."
+            echo "No web project yet. Lands in phase 1."
           fi
 
       - uses: actions/setup-node@v4
         if: steps.detect.outputs.present == 'true'
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
 
