@@ -44,6 +44,12 @@ from revix_pipeline.enrichment import (
 )
 from revix_pipeline.reference import seed_all
 
+#: Kept as a named constant rather than inline, because a default naming a
+#: connector that no longer exists silently ingests nothing. That happened
+#: once: the fixture sources were renamed and this default was not, so CI
+#: built an empty database and suppressed every verdict without failing.
+DEFAULT_SOURCES = "fixture_owner,fixture_forum,fixture_expert"
+
 app = typer.Typer(
     name="revix",
     help="Revix pipeline: ingestion and nightly enrichment.",
@@ -269,7 +275,7 @@ def enrich_fuse(
 
 @pipeline_app.command("nightly")
 def pipeline_nightly(
-    sources: str = typer.Option("fixture", "--sources", help="Comma-separated source keys."),
+    sources: str = typer.Option(DEFAULT_SOURCES, "--sources", help="Comma-separated source keys."),
     limit_variants: int | None = typer.Option(None, "--limit", help="Only the first N variants."),
 ) -> None:
     """Everything, in order. This is what the scheduled workflow calls.
@@ -285,8 +291,9 @@ def pipeline_nightly(
         seed_all(session)
         seed_catalogue(session)
 
+    requested = [s.strip() for s in sources.split(",") if s.strip()]
     failed: list[str] = []
-    for key in [s.strip() for s in sources.split(",") if s.strip()]:
+    for key in requested:
         try:
             connector = registry.get(key)
         except KeyError as exc:
@@ -322,6 +329,19 @@ def pipeline_nightly(
     typer.secho(f"\nnightly finished in {time.monotonic() - overall:.1f}s", bold=True)
     if failed:
         typer.secho(f"sources that did not succeed: {', '.join(failed)}", fg="yellow")
+
+    # Losing some sources is the resilience contract working as designed.
+    # Losing all of them is a broken run and must not exit zero: every stage
+    # downstream will happily "succeed" over an empty database and suppress
+    # every verdict, which looks like a healthy run from the outside.
+    if requested and len(failed) == len(requested):
+        typer.secho(
+            f"every requested source failed ({', '.join(requested)}). "
+            "Nothing was ingested, so nothing downstream means anything.",
+            fg="red",
+            bold=True,
+        )
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

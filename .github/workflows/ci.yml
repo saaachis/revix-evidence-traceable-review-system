@@ -128,7 +128,7 @@ jobs:
       # of which passed unit tests while producing nonsense end to end.
       - name: Pipeline runs end to end
         run: |
-          uv run revix pipeline nightly --limit 6
+          uv run revix pipeline nightly --limit 6 --sources fixture_owner,fixture_forum,fixture_expert
           uv run revix db status
 
       - name: Tests
@@ -205,8 +205,10 @@ jobs:
           CHROME_PATH: /usr/bin/google-chrome
         run: |
           uv run alembic upgrade head
-          uv run revix pipeline nightly --limit 8
+          uv run revix pipeline nightly --limit 8 --sources fixture_owner,fixture_forum,fixture_expert
           uv run uvicorn revix_api.main:app --port 8000 &
           npm run start --prefix apps/web -- --port 3000 &
-          npx --prefix apps/web wait-on http://127.0.0.1:8000/health http://127.0.0.1:3000 -t 60000
+          # http-get:// rather than http://, because wait-on probes with HEAD
+          # by default and a GET-only FastAPI route correctly answers 405.
+          npx --prefix apps/web wait-on http-get://127.0.0.1:8000/health http-get://127.0.0.1:3000 -t 90000
           npm run e2e --prefix apps/web
