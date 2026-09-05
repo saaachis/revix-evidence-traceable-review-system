@@ -243,7 +243,12 @@ def compute_credibility(unit: EvidenceUnit) -> Credibility:
 def score_credibility(session: Session, *, recompute: bool = False) -> dict[str, int]:
     """Score every resolved unit. Cheap enough to redo from scratch."""
     stats = {"scored": 0, "skipped": 0}
-    stmt = select(EvidenceUnit).where(EvidenceUnit.variant_id.is_not(None))
+    # Model-level units count too. A review placed on the Creta but not on a
+    # trim is still evidence, and skipping it here would quietly undo the
+    # whole point of resolving to a model in the first place.
+    stmt = select(EvidenceUnit).where(
+        EvidenceUnit.variant_id.is_not(None) | EvidenceUnit.model_id.is_not(None)
+    )
     for unit in session.scalars(stmt).yield_per(500):
         if not recompute and unit.credibility_json is not None:
             stats["skipped"] += 1

@@ -107,6 +107,7 @@ def _variant_summary(variant: VehicleVariant, verdict: Verdict | None = None) ->
             float(verdict.confidence_high) if verdict and verdict.confidence_high else None
         ),
         evidence_count=verdict.evidence_count if verdict else 0,
+        model_evidence_count=verdict.model_evidence_count if verdict else 0,
         is_suppressed=verdict.is_suppressed if verdict else True,
     )
 
@@ -280,6 +281,7 @@ def get_verdict(
         is_suppressed=verdict.is_suppressed,
         suppression_reason=verdict.suppression_reason,
         evidence_count=verdict.evidence_count,
+        model_evidence_count=verdict.model_evidence_count,
         effective_sample_size=(
             float(verdict.effective_sample_size)
             if verdict.effective_sample_size is not None

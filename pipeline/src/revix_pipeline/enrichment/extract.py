@@ -284,7 +284,12 @@ def extract_opinions(session: Session, *, batch_size: int = 500) -> dict[str, in
 
     already = {row[0] for row in session.execute(select(AspectOpinion.evidence_unit_id).distinct())}
 
-    stmt = select(EvidenceUnit).where(EvidenceUnit.variant_id.is_not(None))
+    # Model-level units count too. A review placed on the Creta but not on a
+    # trim is still evidence, and skipping it here would quietly undo the
+    # whole point of resolving to a model in the first place.
+    stmt = select(EvidenceUnit).where(
+        EvidenceUnit.variant_id.is_not(None) | EvidenceUnit.model_id.is_not(None)
+    )
     for unit in session.scalars(stmt).yield_per(batch_size):
         if unit.id in already:
             continue

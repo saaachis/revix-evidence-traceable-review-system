@@ -149,6 +149,14 @@ class SourceListing(Base, TimestampMixin):
     variant_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey(f"{SCHEMA_CORE}.vehicle_variant.id", ondelete="SET NULL")
     )
+    # Which model this is about, when the trim is not knowable. A review site
+    # asks which model you bought, not which trim, so most real owner reviews
+    # can be placed here and nowhere finer. Set even when variant_id is
+    # resolved, because a variant always belongs to exactly one model and
+    # having it here saves a join on the read path.
+    model_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey(f"{SCHEMA_CORE}.vehicle_model.id", ondelete="SET NULL")
+    )
     match_method: Mapped[str | None] = mapped_column(String(20))
     match_confidence: Mapped[float | None] = mapped_column(Numeric(4, 3))
     resolved_at: Mapped[datetime | None] = mapped_column()

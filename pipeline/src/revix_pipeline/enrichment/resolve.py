@@ -68,6 +68,7 @@ class MatchCandidate:
     variant_id: str
     score: float
     method: MatchMethod
+    model_id: str = ""
 
 
 def _detect(text: str, tokens: dict[object, tuple[str, ...]]) -> set[object]:
@@ -170,7 +171,9 @@ def candidates_for(session: Session, listing: SourceListing) -> list[MatchCandid
             continue
         score = score_trim(title, variant)
         method = MatchMethod.SPEC_CONSTRAINT if score >= 0.99 else MatchMethod.TRIGRAM
-        results.append(MatchCandidate(str(variant.id), round(score, 3), method))
+        results.append(
+            MatchCandidate(str(variant.id), round(score, 3), method, str(variant.model_id))
+        )
 
     results.sort(key=lambda c: c.score, reverse=True)
     return results
@@ -178,10 +181,20 @@ def candidates_for(session: Session, listing: SourceListing) -> list[MatchCandid
 
 def resolve_listings(session: Session, *, threshold: float = ACCEPT_THRESHOLD) -> dict[str, int]:
     """Resolve every unresolved listing, then propagate to its evidence units."""
-    stats = {"considered": 0, "resolved": 0, "ambiguous": 0, "no_candidate": 0, "units_linked": 0}
+    stats = {
+        "considered": 0,
+        "resolved": 0,
+        "model_only": 0,
+        "ambiguous": 0,
+        "no_candidate": 0,
+        "units_linked": 0,
+        "units_model_linked": 0,
+    }
 
     unresolved = session.scalars(
-        select(SourceListing).where(SourceListing.variant_id.is_(None))
+        select(SourceListing).where(
+            SourceListing.variant_id.is_(None), SourceListing.model_id.is_(None)
+        )
     ).all()
 
     for listing in unresolved:
@@ -193,11 +206,21 @@ def resolve_listings(session: Session, *, threshold: float = ACCEPT_THRESHOLD) -
 
         best = candidates[0]
         runner_up = candidates[1].score if len(candidates) > 1 else 0.0
+
+        # Blocking only admitted variants whose model name is in the title, so
+        # if every survivor shares one model then the model is certain even
+        # when the trim is not. Recording that is the difference between
+        # "we could not place this" and "this is about a Creta, we just do not
+        # know which one", and on a review site that asks for a model and not
+        # a trim, the second is the ordinary case rather than the exception.
+        models = {c.model_id for c in candidates if c.model_id}
+        if len(models) == 1:
+            listing.model_id = models.pop()  # type: ignore[assignment]
         # A clear winner is required, not just a high score. Two variants both
         # scoring 0.95 means we cannot tell them apart, which is exactly the
         # case that must go to a person rather than to a coin flip.
         if best.score < threshold or (best.score - runner_up) < 0.02:
-            stats["ambiguous"] += 1
+            stats["model_only" if listing.model_id else "ambiguous"] += 1
             continue
 
         listing.variant_id = best.variant_id  # type: ignore[assignment]
@@ -208,15 +231,25 @@ def resolve_listings(session: Session, *, threshold: float = ACCEPT_THRESHOLD) -
 
     session.flush()
 
-    # Propagate. Every unit from a resolved listing inherits its variant.
+    # Propagate. Every unit from a resolved listing inherits its variant, and
+    # every unit from a listing we could only place on a model inherits that.
     linked = session.execute(
-        select(EvidenceUnit, SourceListing.variant_id)
+        select(EvidenceUnit, SourceListing.variant_id, SourceListing.model_id)
         .join(SourceListing, EvidenceUnit.source_listing_id == SourceListing.id)
-        .where(EvidenceUnit.variant_id.is_(None), SourceListing.variant_id.is_not(None))
+        .where(
+            EvidenceUnit.variant_id.is_(None),
+            EvidenceUnit.model_id.is_(None),
+            SourceListing.variant_id.is_not(None) | SourceListing.model_id.is_not(None),
+        )
     ).all()
-    for unit, variant_id in linked:
-        unit.variant_id = variant_id
-        stats["units_linked"] += 1
+    for unit, variant_id, model_id in linked:
+        if variant_id is not None:
+            unit.variant_id = variant_id
+            stats["units_linked"] += 1
+        if model_id is not None:
+            unit.model_id = model_id
+            if variant_id is None:
+                stats["units_model_linked"] += 1
 
     session.flush()
     return stats

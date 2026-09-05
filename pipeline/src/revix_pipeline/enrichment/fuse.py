@@ -86,6 +86,11 @@ class Contribution:
     verified: bool | None
     ownership_months: int | None
     km_driven: int | None
+    #: True when this review is about the model and not about this exact trim.
+    #: Carried on the contribution rather than looked up later, because the
+    #: reader is told the split and a number nobody can trace back is not
+    #: something this project publishes.
+    model_level: bool = False
 
 
 def to_ten(polarity: float) -> float:
@@ -279,14 +284,32 @@ def gather_contributions(
     session: Session, variant_id: Any, params: dict[str, Any]
 ) -> dict[AspectKey, list[Contribution]]:
     """Load every opinion about one variant and weight it under one strategy."""
+    # The variant itself, so its model can be matched against model-level
+    # evidence. One extra lookup per variant per strategy, against an indexed
+    # primary key.
+    variant_row = session.get(VehicleVariant, variant_id)
+    model_id = variant_row.model_id if variant_row is not None else None
+
+    # Two populations, deliberately in one query. Reviews of this exact trim,
+    # and reviews of the model that nobody could pin to a trim because the
+    # source never asked. Ninety percent of real owner reviews are the second
+    # kind: a review site asks which model you bought, not which variant.
     rows = session.execute(
         select(AspectOpinion, EvidenceUnit, EvidenceSource, VehicleVariant)
         .join(EvidenceUnit, AspectOpinion.evidence_unit_id == EvidenceUnit.id)
         .join(EvidenceSource, EvidenceUnit.source_id == EvidenceSource.id)
-        .join(VehicleVariant, EvidenceUnit.variant_id == VehicleVariant.id)
-        .where(EvidenceUnit.variant_id == variant_id)
+        .join(VehicleVariant, VehicleVariant.id == variant_id)
+        .where(
+            (EvidenceUnit.variant_id == variant_id)
+            | (
+                (EvidenceUnit.variant_id.is_(None))
+                & (EvidenceUnit.model_id == model_id)
+                & (model_id is not None)
+            )
+        )
     ).all()
 
+    settings = get_settings()
     by_aspect: dict[AspectKey, list[Contribution]] = defaultdict(list)
     for opinion, unit, source, variant in rows:
         aspect = opinion.aspect_key
@@ -322,6 +345,14 @@ def gather_contributions(
         # meant should not count as much as a certainty, under any strategy.
         weight *= float(opinion.confidence)
 
+        # A review of "the Creta" is real evidence about a Creta SX(O) Turbo
+        # DCT and weaker evidence than a review of that trim. The discount is
+        # a setting rather than a constant here, and it is identical across
+        # strategies, so it cannot flatter one of them in the 18.1 comparison.
+        model_level = unit.variant_id is None
+        if model_level:
+            weight *= settings.model_level_evidence_weight
+
         if weight <= 0:
             continue
 
@@ -336,6 +367,7 @@ def gather_contributions(
                 verified=unit.is_verified_owner,
                 ownership_months=unit.ownership_duration_months,
                 km_driven=unit.km_driven,
+                model_level=model_level,
             )
         )
     return by_aspect
@@ -365,12 +397,16 @@ def fuse_variant(
     all_contributions = [c for group in by_aspect.values() for c in group]
     unit_ids = {c.unit_id for c in all_contributions}
     source_keys = sorted({c.source_key for c in all_contributions})
+    # Counted over units rather than contributions, because one review can
+    # speak to several aspects and would otherwise be counted several times.
+    model_unit_ids = {c.unit_id for c in all_contributions if c.model_level}
 
     verdict = Verdict(
         variant_id=variant.id,
         fusion_config_id=config.id,
         computed_at=utcnow(),
         evidence_count=len(unit_ids),
+        model_evidence_count=len(model_unit_ids),
         sources_used={"sources": source_keys, "count": len(source_keys)},
     )
 

@@ -357,6 +357,11 @@ export interface components {
              */
             evidence_count: number;
             /**
+             * Model Evidence Count
+             * @default 0
+             */
+            model_evidence_count: number;
+            /**
              * Is Suppressed
              * @default false
              */
@@ -385,6 +390,8 @@ export interface components {
             suppression_reason: string | null;
             /** Evidence Count */
             evidence_count: number;
+            /** Model Evidence Count */
+            model_evidence_count: number;
             /** Effective Sample Size */
             effective_sample_size: number | null;
             /** Sources Used */
