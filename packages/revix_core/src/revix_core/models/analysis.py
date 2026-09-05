@@ -26,7 +26,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from revix_core.enums import AspectKey
-from revix_core.models.base import SCHEMA_ANALYSIS, SCHEMA_CORE, Base, uuid_pk
+from revix_core.models.base import SCHEMA_ANALYSIS, SCHEMA_CORE, Base, TimestampMixin, uuid_pk
 
 #: paraphrase-multilingual-MiniLM-L12-v2. Multilingual rather than English
 #: only, because Indian owner reviews are heavily code-mixed.
@@ -82,6 +82,39 @@ class AspectOpinion(Base):
     polarity: Mapped[float] = mapped_column(Numeric(4, 3), nullable=False)
     confidence: Mapped[float] = mapped_column(Numeric(4, 3), nullable=False)
     extracted_span: Mapped[str | None] = mapped_column(Text)
+
+
+class EvalRun(Base, TimestampMixin):
+    """One measurement of one component, kept so it can be plotted over time.
+
+    Proposal section 18.4 asks for every metric to be written here and
+    rendered publicly, including trend. A score that exists only in the log of
+    the run that produced it cannot be compared with last week's, and
+    "accuracy improved" is a claim rather than a fact until it can be.
+    """
+
+    __tablename__ = "eval_run"
+    __table_args__ = (
+        Index("ix_eval_run_component_time", "component", "created_at"),
+        {"schema": SCHEMA_ANALYSIS},
+    )
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    #: "aspect_extraction", "entity_resolution", "fusion", and so on.
+    component: Mapped[str] = mapped_column(String(40), nullable=False)
+    #: Which system produced it: "lexicon", "classifier", a fusion strategy.
+    system: Mapped[str] = mapped_column(String(40), nullable=False)
+    #: The commit, so a number on the metrics page can be traced to the code
+    #: that produced it rather than to a date.
+    git_sha: Mapped[str | None] = mapped_column(String(40))
+    n_items: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    #: The headline figure, whatever that means for this component.
+    primary_metric: Mapped[str] = mapped_column(String(40), nullable=False)
+    primary_value: Mapped[float] = mapped_column(Numeric(6, 4), nullable=False)
+    #: Everything else, including the per-aspect breakdown. JSONB because the
+    #: shape genuinely differs per component and inventing a common one would
+    #: be a schema fighting its own data.
+    detail: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
 
 class FusionConfig(Base):

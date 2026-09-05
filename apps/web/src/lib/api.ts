@@ -18,6 +18,7 @@ export type EvidenceOut = components["schemas"]["EvidenceOut"];
 export type ClaimEvidenceOut = components["schemas"]["ClaimEvidenceOut"];
 export type FusionConfigOut = components["schemas"]["FusionConfigOut"];
 export type SourceHealthOut = components["schemas"]["SourceHealthOut"];
+export type EvalRunOut = components["schemas"]["EvalRunOut"];
 export type Health = components["schemas"]["Health"];
 
 type VariantsQuery = NonNullable<paths["/variants"]["get"]["parameters"]["query"]>;
@@ -110,6 +111,8 @@ export const api = {
   claimEvidence: (claimId: string) => get<ClaimEvidenceOut>(`/claims/${claimId}/evidence`),
 
   sourceHealth: () => get<SourceHealthOut[]>("/sources/health"),
+
+  metrics: (component?: string) => get<EvalRunOut[]>("/metrics", { component }),
 };
 
 /** Never throws. Used where a missing section should degrade, not 500. */

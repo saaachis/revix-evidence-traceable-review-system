@@ -34,6 +34,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Metrics
+         * @description Every measurement we have recorded, newest first.
+         *
+         *     Proposal section 18.4. Published rather than kept internal, because a
+         *     project that asks you to trust its numbers should show how well those
+         *     numbers hold up, including when the answer is unflattering. The first
+         *     recorded comparison had our own classifier losing to the lexicon it was
+         *     trained from, and that is on this endpoint like everything else.
+         *
+         *     Empty is a truthful answer. It means nothing has been measured yet.
+         */
+        get: operations["metrics_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/fusion-configs": {
         parameters: {
             query?: never;
@@ -202,6 +230,33 @@ export interface components {
             weight_share: number;
             /** Count */
             count: number;
+        };
+        /**
+         * EvalRunOut
+         * @description One recorded measurement, for the public metrics page.
+         */
+        EvalRunOut: {
+            /** Component */
+            component: string;
+            /** System */
+            system: string;
+            /** N Items */
+            n_items: number;
+            /** Primary Metric */
+            primary_metric: string;
+            /** Primary Value */
+            primary_value: number;
+            /** Git Sha */
+            git_sha: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Detail */
+            detail: {
+                [key: string]: unknown;
+            } | null;
         };
         /** EvidenceOut */
         EvidenceOut: {
@@ -433,6 +488,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    metrics_metrics_get: {
+        parameters: {
+            query?: {
+                component?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvalRunOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

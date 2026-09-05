@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card, PageHead, SectionHead } from "@/components/ui";
+import { api, tryGet, type EvalRunOut } from "@/lib/api";
+
+// Rendered per request. A measurement page that serves a cached copy of last
+// week's numbers is worse than one that says it has none.
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-cache";
 
 export const metadata: Metadata = {
   title: "How accurate are we",
@@ -9,7 +15,58 @@ export const metadata: Metadata = {
     "We ask you to trust our numbers, so here is how well they hold up when we test them.",
 };
 
-export default function AccuracyPage() {
+function MeasuredResults({ runs }: { runs: EvalRunOut[] }) {
+  // Newest first from the API, so the first row per (component, system) is
+  // the current figure and anything after it is history.
+  const latest = new Map<string, EvalRunOut>();
+  for (const run of runs) {
+    const key = `${run.component}|${run.system}`;
+    if (!latest.has(key)) latest.set(key, run);
+  }
+  const rows = [...latest.values()];
+
+  return (
+    <section className="my-5">
+      <SectionHead
+        title="What we have measured so far"
+        note="Recorded automatically, including when the answer is unflattering."
+      />
+      <Card className="overflow-x-auto p-0">
+        <table className="w-full text-[13px]">
+          <thead className="border-b border-(--color-line) text-left text-(--color-muted)">
+            <tr>
+              <th className="px-4 py-3 font-medium">Component</th>
+              <th className="px-4 py-3 font-medium">System</th>
+              <th className="px-4 py-3 font-medium">Metric</th>
+              <th className="px-4 py-3 text-right font-medium">Score</th>
+              <th className="px-4 py-3 text-right font-medium">Measured on</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((run) => (
+              <tr key={`${run.component}-${run.system}`} className="border-b border-(--color-line-soft) last:border-0">
+                <td className="px-4 py-3">{run.component.replace(/_/g, " ")}</td>
+                <td className="px-4 py-3 font-semibold">{run.system}</td>
+                <td className="px-4 py-3 text-(--color-muted)">{run.primary_metric.replace(/_/g, " ")}</td>
+                <td className="num px-4 py-3 text-right font-semibold">
+                  {run.primary_value.toFixed(3)}
+                </td>
+                <td className="num px-4 py-3 text-right text-(--color-muted)">
+                  {run.n_items.toLocaleString()} items
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </section>
+  );
+}
+
+export default async function AccuracyPage() {
+  const runs = (await tryGet(() => api.metrics())) ?? [];
+  const measured = runs.length > 0;
+
   return (
     <>
       <PageHead title="How accurate are we?">
@@ -24,13 +81,20 @@ export default function AccuracyPage() {
             Being straight with you about this page
           </div>
           <p className="mt-2 max-w-[88ch] text-[13px] leading-relaxed text-(--color-muted)">
-            The measurement harness is built but has not been run against a hand-labelled set yet,
-            so we are not going to print numbers here and imply they mean something. What follows is
-            exactly what we will measure and how, published now so the method is fixed before we see
-            the results rather than chosen afterwards to flatter them.
+            {measured
+              ? `Every figure below was produced by a measurement we ran, recorded against the exact
+                 commit that produced it. We publish them whether or not they flatter us: the first
+                 comparison we ran had our own classifier losing to the simple word list it was
+                 meant to replace, and that is on this page too.`
+              : `The measurement harness is built but has not been run against a hand-labelled set
+                 yet, so we are not going to print numbers here and imply they mean something. What
+                 follows is exactly what we will measure and how, published now so the method is
+                 fixed before we see the results rather than chosen afterwards to flatter them.`}
           </p>
         </Card>
       </section>
+
+      {measured && <MeasuredResults runs={runs} />}
 
       <section className="my-5">
         <SectionHead

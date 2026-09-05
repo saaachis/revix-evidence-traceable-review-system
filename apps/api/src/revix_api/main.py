@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 from revix_api.schemas import (
     AspectOut,
     ClaimEvidenceOut,
+    EvalRunOut,
     EvidenceOut,
     FusionConfigOut,
     Health,
@@ -36,6 +37,7 @@ from revix_api.schemas import (
 from revix_core.db import get_session, session_scope
 from revix_core.enums import ASPECT_LABELS, AspectKey, RunStatus, VehicleClass
 from revix_core.models import (
+    EvalRun,
     EvidenceSource,
     EvidenceUnit,
     FusionConfig,
@@ -152,6 +154,24 @@ def health(response: Response) -> Health:
         response.status_code = 503
         return Health(status="degraded", database=False, variants=0, verdicts=0)
     return Health(status="ok", database=True, variants=variants, verdicts=verdicts)
+
+
+@app.get("/metrics", response_model=list[EvalRunOut], tags=["meta"])
+def metrics(session: SessionDep, component: str | None = None, limit: int = 50) -> Sequence[Any]:
+    """Every measurement we have recorded, newest first.
+
+    Proposal section 18.4. Published rather than kept internal, because a
+    project that asks you to trust its numbers should show how well those
+    numbers hold up, including when the answer is unflattering. The first
+    recorded comparison had our own classifier losing to the lexicon it was
+    trained from, and that is on this endpoint like everything else.
+
+    Empty is a truthful answer. It means nothing has been measured yet.
+    """
+    stmt = select(EvalRun).order_by(EvalRun.created_at.desc())
+    if component:
+        stmt = stmt.where(EvalRun.component == component)
+    return list(session.scalars(stmt.limit(max(1, min(limit, 200)))))
 
 
 @app.get("/fusion-configs", response_model=list[FusionConfigOut], tags=["meta"])

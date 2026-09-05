@@ -38,6 +38,70 @@
         }
       }
     },
+    "/metrics": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Metrics",
+        "description": "Every measurement we have recorded, newest first.\n\nProposal section 18.4. Published rather than kept internal, because a\nproject that asks you to trust its numbers should show how well those\nnumbers hold up, including when the answer is unflattering. The first\nrecorded comparison had our own classifier losing to the lexicon it was\ntrained from, and that is on this endpoint like everything else.\n\nEmpty is a truthful answer. It means nothing has been measured yet.",
+        "operationId": "metrics_metrics_get",
+        "parameters": [
+          {
+            "name": "component",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Component"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EvalRunOut"
+                  },
+                  "title": "Response Metrics Metrics Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/fusion-configs": {
       "get": {
         "tags": [
@@ -507,6 +571,71 @@
           "count"
         ],
         "title": "CovariateGroup"
+      },
+      "EvalRunOut": {
+        "properties": {
+          "component": {
+            "type": "string",
+            "title": "Component"
+          },
+          "system": {
+            "type": "string",
+            "title": "System"
+          },
+          "n_items": {
+            "type": "integer",
+            "title": "N Items"
+          },
+          "primary_metric": {
+            "type": "string",
+            "title": "Primary Metric"
+          },
+          "primary_value": {
+            "type": "number",
+            "title": "Primary Value"
+          },
+          "git_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Git Sha"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "component",
+          "system",
+          "n_items",
+          "primary_metric",
+          "primary_value",
+          "git_sha",
+          "created_at",
+          "detail"
+        ],
+        "title": "EvalRunOut",
+        "description": "One recorded measurement, for the public metrics page."
       },
       "EvidenceOut": {
         "properties": {
