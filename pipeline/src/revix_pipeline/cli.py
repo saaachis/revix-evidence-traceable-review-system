@@ -225,6 +225,11 @@ def ingest(
     typer.echo(f"    errors                 {result.error_count:>8,}")
     if result.last_error:
         typer.secho(f"    last error: {result.last_error}", fg="yellow")
+    # `nightly` deliberately survives a dead source. A bare `ingest --source x`
+    # is different: one source was asked for, and reporting success when it
+    # produced nothing is how a green run that did no work gets missed.
+    if not result.ok:
+        raise typer.Exit(1)
 
 
 # ---------------------------------------------------------------- enrichment

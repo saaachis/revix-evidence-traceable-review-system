@@ -56,6 +56,13 @@ class Settings(BaseSettings):
     reddit_client_id: str = ""
     reddit_client_secret: str = ""
     reddit_user_agent: str = ""
+    # Which communities to read, comma separated and without the "r/". Kept in
+    # configuration rather than in code because the right list is an editorial
+    # judgement that changes faster than a release, and a subreddit that is
+    # renamed, private or misspelled should be a line in .env to fix rather
+    # than a patch. The connector skips one it cannot read.
+    reddit_subreddits_car: str = "CarsIndia"
+    reddit_subreddits_two_wheeler: str = "indianbikes"
     youtube_api_key: str = ""
 
     # ---------- evidence floor ----------
@@ -67,6 +74,14 @@ class Settings(BaseSettings):
     @classmethod
     def _strip(cls, v: str) -> str:
         return v.strip()
+
+    def subreddits_for(self, vehicle_class: str) -> list[str]:
+        raw = (
+            self.reddit_subreddits_two_wheeler
+            if vehicle_class == "two_wheeler"
+            else self.reddit_subreddits_car
+        )
+        return [s.strip().removeprefix("r/") for s in raw.split(",") if s.strip()]
 
     @property
     def cors_origins(self) -> list[str]:

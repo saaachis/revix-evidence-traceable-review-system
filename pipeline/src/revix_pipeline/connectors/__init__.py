@@ -7,11 +7,14 @@ from revix_pipeline.connectors.base import (
     ConnectorRegistry,
     EvidenceUnitDraft,
     ExternalRef,
+    MissingCredentialsError,
     RawPayload,
     registry,
 )
 from revix_pipeline.connectors.fixture import FixtureConnector
+from revix_pipeline.connectors.reddit import RedditConnector
 from revix_pipeline.connectors.runner import RunResult, run_connector
+from revix_pipeline.connectors.youtube import YouTubeConnector
 
 # Three fixtures rather than one, standing in for the three source kinds the
 # real connectors will occupy. A single source cannot clear the evidence floor
@@ -49,6 +52,13 @@ registry.register(
     )
 )
 
+# The live sources. Both are registered whether or not credentials are
+# present: a connector that is missing its key should say so by name when you
+# run it, rather than vanishing from `revix ingest --source` and leaving you
+# to wonder whether you spelled it wrong.
+registry.register(RedditConnector())
+registry.register(YouTubeConnector())
+
 __all__ = [
     "CatalogSeed",
     "Connector",
@@ -56,8 +66,11 @@ __all__ = [
     "EvidenceUnitDraft",
     "ExternalRef",
     "FixtureConnector",
+    "MissingCredentialsError",
     "RawPayload",
+    "RedditConnector",
     "RunResult",
+    "YouTubeConnector",
     "registry",
     "run_connector",
 ]
