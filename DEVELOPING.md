@@ -130,6 +130,27 @@ db/migrations/         Alembic
 docs/adr/              why things are the way they are
 ```
 
+## The sources, and which are real
+
+| Source | What it is | Credentials | Notes |
+|---|---|---|---|
+| `carwale` | CarWale owner reviews | none | Cars only. Paginated, ~50 per model, and the only source with dates |
+| `cardekho` | CarDekho and BikeDekho | none | ~22 per model, no pagination, no dates |
+| `youtube` | Comments on review videos | API key | ~82 per model, many are questions rather than reviews |
+| `reddit` | r/CarsIndia and friends | approval | Reddit closed self-serve API access; see ADR 0006 |
+| `fixture_*` | Generated | none | Development and CI only. Never publish a demo from these |
+
+Check any of them without a database, and without handing anyone a key:
+
+```bash
+uv run revix probe --source carwale
+uv run revix probe --source youtube --manufacturer Tata --model Nexon
+```
+
+It runs discover, fetch and parse for one vehicle and reports what came back.
+Use it when a nightly returns less than you expected, because a site changing
+its markup looks exactly like a site having no reviews.
+
 ## Running the live connectors
 
 Everything works without these. `fixture_owner`, `fixture_forum` and

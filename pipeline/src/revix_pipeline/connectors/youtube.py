@@ -77,6 +77,10 @@ class YouTubeConnector:
         self.daily_quota = daily_quota
         self.quota_spent = 0
         self._client: PoliteClient | None = None
+        # Searches are per model, not per variant. Six Creta variants asking
+        # the same question six times cost 600 quota units for one answer, and
+        # a search is a hundred of the ten thousand we get a day.
+        self._searched: set[str] = set()
 
     def _authenticated(self) -> PoliteClient:
         settings = get_settings()
@@ -112,9 +116,12 @@ class YouTubeConnector:
     def discover(self, seed: CatalogSeed) -> Iterable[ExternalRef]:
         client = self._authenticated()
         settings = get_settings()
+        query = f"{seed.manufacturer} {seed.model} review ownership"
+        if query in self._searched:
+            return
+        self._searched.add(query)
         if not self._spend(_SEARCH_COST):
             return
-        query = f"{seed.manufacturer} {seed.model} review ownership"
         response = client.get(
             f"{API_BASE}/search",
             params={

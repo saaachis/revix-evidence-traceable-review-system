@@ -13,7 +13,7 @@ on:
     inputs:
       sources:
         description: "Comma-separated source keys"
-        default: "fixture_owner,fixture_forum,fixture_expert"
+        default: "carwale,cardekho,youtube"
 
 permissions:
   contents: read
@@ -43,8 +43,12 @@ jobs:
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
+          # The real sources, deliberately. This default is what the 04:00
+          # schedule runs with, and while it named the development fixtures a
+          # single scheduled run would have quietly poured 3,784 generated
+          # reviews back into a database we had just cleaned out.
           uv run revix pipeline nightly \
-            --sources "${{ inputs.sources || 'fixture_owner,fixture_forum,fixture_expert' }}"
+            --sources "${{ inputs.sources || 'carwale,cardekho,youtube' }}"
 
       - name: Report what exists afterwards
         if: always()
