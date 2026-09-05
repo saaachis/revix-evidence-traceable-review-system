@@ -12,7 +12,8 @@ from datetime import UTC, datetime
 
 from revix_pipeline.connectors import registry
 from revix_pipeline.connectors.base import CatalogSeed, ExternalRef, RawPayload
-from revix_pipeline.connectors.dekho import DekhoConnector, _variant_tokens
+from revix_pipeline.connectors.dekho import DekhoConnector
+from revix_pipeline.connectors.schema_org import variant_tokens as _variant_tokens
 
 SEED = CatalogSeed(
     variant_id="00000000-0000-0000-0000-000000000001",

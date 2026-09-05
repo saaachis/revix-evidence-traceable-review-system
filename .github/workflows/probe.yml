@@ -1,0 +1,61 @@
+name: Probe a source
+
+# Does a source still work?
+#
+# Runs one connector's discover, fetch and parse for a single vehicle and
+# prints what came back. Nothing is written to any database, so this is safe to
+# run against production credentials at any time.
+#
+# Two jobs it does that nothing else does. It checks an API key without anyone
+# having to hand the key around, and it tells you a site has changed its markup
+# before the nightly quietly returns nothing at four in the morning.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Connector source key"
+        required: true
+        default: "youtube"
+        type: choice
+        options: [youtube, reddit, carwale, cardekho, fixture_owner]
+      manufacturer:
+        description: "Manufacturer"
+        default: "Hyundai"
+      model:
+        description: "Model"
+        default: "Creta"
+      vehicle_class:
+        description: "car or two_wheeler"
+        default: "car"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --all-packages --frozen
+
+      - name: Probe
+        env:
+          # No DATABASE_URL on purpose. The probe does not touch a database,
+          # and not passing one proves it.
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          uv run revix probe \
+            --source "${{ inputs.source }}" \
+            --manufacturer "${{ inputs.manufacturer }}" \
+            --model "${{ inputs.model }}" \
+            --class "${{ inputs.vehicle_class }}"

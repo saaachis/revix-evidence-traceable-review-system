@@ -39,6 +39,7 @@ from revix_core.models import (
 from revix_core.settings import get_settings
 from revix_pipeline.catalogue import seed_catalogue
 from revix_pipeline.connectors import registry, run_connector
+from revix_pipeline.connectors.base import CatalogSeed
 from revix_pipeline.enrichment import (
     extract_opinions,
     fuse_all,
@@ -87,6 +88,90 @@ def _report(title: str, stats: dict[str, int], elapsed: float) -> None:
     typer.secho(f"{title}  ({elapsed:.1f}s)", fg="cyan", bold=True)
     for key, value in stats.items():
         typer.echo(f"    {key:22} {value:>8,}")
+
+
+@app.command("probe")
+def probe(
+    source: str = typer.Option(..., "--source", "-s", help="Connector source_key."),
+    manufacturer: str = typer.Option("Hyundai", "--manufacturer"),
+    model: str = typer.Option("Creta", "--model"),
+    variant: str = typer.Option("SX (O) Turbo DCT", "--variant"),
+    vehicle_class: str = typer.Option("car", "--class", help="car or two_wheeler."),
+) -> None:
+    """Does this source still work? Answers without touching the database.
+
+    Runs one connector's discover, fetch and parse for a single vehicle and
+    reports what came back. Nothing is written anywhere.
+
+    Two jobs. Checking a credential without granting anyone database access,
+    and finding out whether a site has changed its markup before a nightly run
+    quietly returns nothing at four in the morning.
+    """
+    try:
+        connector = registry.get(source)
+    except KeyError as exc:
+        typer.secho(str(exc), fg="red")
+        raise typer.Exit(1) from exc
+
+    seed = CatalogSeed(
+        variant_id="probe",
+        manufacturer=manufacturer,
+        model=model,
+        variant_name=variant,
+        vehicle_class=vehicle_class,
+    )
+    typer.secho(f"{source}: {manufacturer} {model} ({vehicle_class})", bold=True)
+
+    start = time.monotonic()
+    try:
+        refs = list(connector.discover(seed))
+    except Exception as exc:
+        typer.secho(f"    discover failed: {type(exc).__name__}: {exc}", fg="red")
+        raise typer.Exit(1) from exc
+
+    typer.echo(f"    discovered            {len(refs):>6,}")
+    if not refs:
+        typer.secho(
+            "    nothing to fetch. Either this source skips this vehicle class, "
+            "or its search returned no results.",
+            fg="yellow",
+        )
+        raise typer.Exit(1)
+
+    drafts = []
+    failures = 0
+    for ref in refs:
+        try:
+            drafts.extend(connector.parse(connector.fetch(ref)))
+        except Exception as exc:
+            failures += 1
+            typer.secho(f"    {ref.url}: {type(exc).__name__}: {exc}", fg="yellow")
+
+    typer.echo(f"    fetched               {len(refs) - failures:>6,}")
+    typer.echo(f"    parsed into units     {len(drafts):>6,}")
+    typer.echo(
+        f"    with a rating         {sum(1 for d in drafts if d.rating_raw is not None):>6,}"
+    )
+    typer.echo(f"    with a date           {sum(1 for d in drafts if d.published_at):>6,}")
+    typer.echo(f"    naming a variant      {sum(1 for d in drafts if d.variant_hint):>6,}")
+    typer.echo(
+        f"    stating ownership     {sum(1 for d in drafts if d.ownership_duration_months):>6,}"
+    )
+    typer.echo(f"    took                  {time.monotonic() - start:>6.1f}s")
+
+    if drafts:
+        sample = drafts[0]
+        typer.secho("\n    a sample unit", fg="cyan")
+        typer.echo(f"      listing   {sample.listing_title}")
+        typer.echo(f"      rating    {sample.rating_raw} / {sample.rating_scale_max}")
+        typer.echo(f"      published {sample.published_at}")
+        typer.echo(f"      text      {sample.text[:120].replace(chr(10), ' ')}...")
+
+    # Reaching a source and getting nothing usable out of it is a failure, and
+    # a scheduled check that exits 0 on that would be worse than no check.
+    if not drafts:
+        typer.secho("\n    fetched, but parsed nothing. The markup may have changed.", fg="red")
+        raise typer.Exit(1)
 
 
 # ---------------------------------------------------------------- db
