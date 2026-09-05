@@ -29,6 +29,7 @@ from revix_core.db import session_scope
 from revix_core.models import (
     Aspect,
     AspectOpinion,
+    EvalRun,
     EvidenceSource,
     EvidenceUnit,
     FusionConfig,
@@ -67,11 +68,15 @@ catalogue_app = typer.Typer(help="The seeded vehicle catalogue.", no_args_is_hel
 enrich_app = typer.Typer(help="The nightly enrichment stages.", no_args_is_help=True)
 pipeline_app = typer.Typer(help="Whole-pipeline runs.", no_args_is_help=True)
 eval_app = typer.Typer(help="Does the weighting actually help?", no_args_is_help=True)
+gold_app = typer.Typer(help="The hand-labelled sets.", no_args_is_help=True)
+model_app = typer.Typer(help="Train and measure the aspect classifier.", no_args_is_help=True)
 app.add_typer(db_app, name="db")
 app.add_typer(catalogue_app, name="catalogue")
 app.add_typer(enrich_app, name="enrich")
 app.add_typer(pipeline_app, name="pipeline")
 app.add_typer(eval_app, name="eval")
+app.add_typer(gold_app, name="gold")
+app.add_typer(model_app, name="model")
 
 
 def redact_dsn(dsn: str) -> str:
@@ -172,6 +177,166 @@ def probe(
     if not drafts:
         typer.secho("\n    fetched, but parsed nothing. The markup may have changed.", fg="red")
         raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------- gold sets
+
+
+@gold_app.command("sample")
+def gold_sample(
+    per_aspect: int = typer.Option(40, "--per-aspect", help="Sentences to draw per topic."),
+    out: str = typer.Option("data/gold/aspects.jsonl", "--out"),
+) -> None:
+    """Draw a spread of real sentences for somebody to label.
+
+    Stratified by topic, because a random draw returns a pile of sentences
+    about looks and mileage and almost nothing about the service centre, which
+    is the aspect this project cares most about. It also includes a bucket the
+    lexicon matched to nothing, because that is exactly where a classifier can
+    beat it.
+
+    Appends to whatever is already labelled rather than replacing it.
+    """
+    from revix_pipeline.ml.gold import coverage, load_gold, sample_for_labelling, save_gold
+
+    path = pathlib.Path(out)
+    existing = load_gold(path)
+    with session_scope() as session:
+        drawn = sample_for_labelling(session, per_aspect=per_aspect, existing=existing)
+
+    if not drawn:
+        typer.secho("no sentences to draw. Ingest some evidence first.", fg="yellow")
+        raise typer.Exit(1)
+
+    save_gold(existing + drawn, path)
+    typer.secho(f"{len(drawn):,} new sentences written to {path}", fg="green", bold=True)
+    typer.echo('    Label each by filling in "aspects" and "labelled_by".')
+    typer.echo("    An empty list is a real answer. Leave labelled_by blank to skip one.")
+    _report("gold set", coverage(load_gold(path)), 0.0)
+
+
+@gold_app.command("status")
+def gold_status(path: str = typer.Option("data/gold/aspects.jsonl", "--path")) -> None:
+    """How much is labelled, and which topics are still thin."""
+    from revix_pipeline.ml.gold import coverage, load_gold
+
+    items = load_gold(pathlib.Path(path))
+    if not items:
+        typer.secho(f"no gold set at {path}. Run: revix gold sample", fg="yellow")
+        raise typer.Exit(1)
+    _report("gold set", coverage(items), 0.0)
+
+
+# ---------------------------------------------------------------- the model
+
+
+@model_app.command("train")
+def model_train(
+    out: str = typer.Option("data/models/aspect_classifier.joblib", "--out"),
+    gold_path: str = typer.Option("data/gold/aspects.jsonl", "--gold"),
+) -> None:
+    """Train the aspect classifier on weak labels from the lexicon.
+
+    The gold sentences are held out of training, so the evaluation afterwards
+    is on text the model has never seen. That is the difference between a test
+    score and a memory test.
+    """
+    from revix_pipeline.ml.aspect_model import build_training_set, train_classifier
+    from revix_pipeline.ml.gold import load_gold
+
+    gold = load_gold(pathlib.Path(gold_path))
+    held_out = {item.text for item in gold}
+
+    start = time.monotonic()
+    with session_scope() as session:
+        sentences, targets = build_training_set(session, exclude=held_out)
+
+    typer.echo(f"    training sentences    {len(sentences):>8,}")
+    typer.echo(f"    held out for testing  {len(held_out):>8,}")
+    classifier = train_classifier(sentences, targets)
+    path = classifier.save(pathlib.Path(out))
+    typer.secho(
+        f"trained in {time.monotonic() - start:.1f}s, written to {path}", fg="green", bold=True
+    )
+
+
+@model_app.command("evaluate")
+def model_evaluate(
+    gold_path: str = typer.Option("data/gold/aspects.jsonl", "--gold"),
+    model_path: str = typer.Option("data/models/aspect_classifier.joblib", "--model"),
+    record: bool = typer.Option(False, "--record", help="Write the result to eval_run."),
+) -> None:
+    """Score the lexicon and the classifier on the same hand-labelled set.
+
+    Reports macro F1 as the headline. Micro is dominated by the common topics,
+    so a system that handles looks and mileage well and the service centre
+    badly scores respectably on it; macro treats every topic equally and is
+    the number that notices.
+    """
+    from revix_pipeline.ml.aspect_model import AspectClassifier, evaluate_against_gold
+    from revix_pipeline.ml.gold import load_gold
+
+    gold = load_gold(pathlib.Path(gold_path))
+    labelled = [item for item in gold if item.is_labelled]
+    if not labelled:
+        typer.secho(
+            f"nothing labelled in {gold_path}. A classifier with no gold set is a "
+            "lexicon with extra steps, so this refuses to print a number.",
+            fg="red",
+        )
+        raise typer.Exit(1)
+
+    classifier = AspectClassifier.load(pathlib.Path(model_path))
+    results = evaluate_against_gold(gold, classifier)
+
+    typer.secho(f"measured on {len(labelled):,} hand-labelled sentences", bold=True)
+    typer.echo(f"    {'system':14} {'macro F1':>9} {'micro F1':>9}")
+    for result in results:
+        typer.echo(f"    {result.name:14} {result.macro_f1:>9.3f} {result.micro_f1:>9.3f}")
+
+    if len(results) == 2:
+        delta = results[1].macro_f1 - results[0].macro_f1
+        colour = "green" if delta > 0 else "yellow"
+        verdict = "better than" if delta > 0 else "no better than"
+        typer.secho(
+            f"\n    the classifier is {verdict} the lexicon by {delta:+.3f} macro F1", fg=colour
+        )
+
+    typer.secho("\n    per topic, best system", fg="cyan")
+    best = results[-1]
+    for aspect, scores in sorted(best.per_aspect.items(), key=lambda kv: -kv[1]["f1"]):
+        typer.echo(
+            f"      {aspect:22} F1 {scores['f1']:.3f}  "
+            f"P {scores['precision']:.3f}  R {scores['recall']:.3f}  n={int(scores['support'])}"
+        )
+
+    if record:
+        with session_scope() as session:
+            for result in results:
+                session.add(
+                    EvalRun(
+                        component="aspect_extraction",
+                        system=result.name,
+                        git_sha=_git_sha(),
+                        n_items=result.n_items,
+                        primary_metric="macro_f1",
+                        primary_value=round(result.macro_f1, 4),
+                        detail=result.as_dict(),
+                    )
+                )
+        typer.secho(f"\n    {len(results)} result(s) recorded to eval_run", fg="green")
+
+
+def _git_sha() -> str | None:
+    """Which commit produced a number, so it can be traced to code."""
+    import subprocess
+
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5, check=True
+        ).stdout.strip()[:40]
+    except Exception:
+        return None
 
 
 # ---------------------------------------------------------------- db

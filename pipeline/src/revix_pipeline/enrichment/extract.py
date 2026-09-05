@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from revix_core.enums import AspectKey
 from revix_core.models import AspectOpinion, EvidenceUnit
+from revix_core.settings import get_settings
 
 #: Topic cues. Multi-word phrases first so "service centre" wins over "service".
 ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
@@ -255,15 +256,25 @@ def score_sentence(sentence: str) -> tuple[float, float]:
     return round(polarity, 3), round(confidence, 3)
 
 
-def extract_from_text(text: str) -> list[Extraction]:
+def aspects_in(sentence: str, classifier: object | None = None) -> set[AspectKey]:
+    """Which topics this sentence is about.
+
+    The trained classifier when one exists, the cue lexicon otherwise. ADR
+    0004 promised the pipeline would keep running with nothing trained, and
+    this is where that promise is kept.
+    """
+    if classifier is not None:
+        return classifier.predict(sentence)  # type: ignore[attr-defined,no-any-return]
+    lowered = sentence.casefold()
+    return {a for a, cues in ASPECT_CUES.items() if any(cue in lowered for cue in cues)}
+
+
+def extract_from_text(text: str, classifier: object | None = None) -> list[Extraction]:
     """One extraction per (sentence, topic) pair the sentence actually mentions."""
     out: list[Extraction] = []
     for sentence in split_sentences(text):
         polarity, confidence = score_sentence(sentence)
-        lowered = sentence.casefold()
-        for aspect, cues in ASPECT_CUES.items():
-            if not any(cue in lowered for cue in cues):
-                continue
+        for aspect in aspects_in(sentence, classifier):
             if confidence < 0.2:
                 # It mentions the topic but says nothing evaluative about it.
                 continue
@@ -280,7 +291,21 @@ def extract_from_text(text: str) -> list[Extraction]:
 
 def extract_opinions(session: Session, *, batch_size: int = 500) -> dict[str, int]:
     """Extract for every resolved unit that has not been extracted yet."""
-    stats = {"units": 0, "opinions": 0, "skipped_no_opinion": 0}
+    stats = {"units": 0, "opinions": 0, "skipped_no_opinion": 0, "used_classifier": 0}
+
+    # Loaded once, not per unit. Absent is the normal case on a fresh
+    # checkout, and it must not be an error.
+    classifier = None
+    if get_settings().aspect_classifier_enabled:
+        try:
+            from revix_pipeline.ml.aspect_model import AspectClassifier
+
+            classifier = AspectClassifier.load()
+        except ImportError:
+            # The ml extra is not installed. Expected in the API image, which
+            # has no reason to carry scikit-learn.
+            classifier = None
+    stats["used_classifier"] = 1 if classifier is not None else 0
 
     already = {row[0] for row in session.execute(select(AspectOpinion.evidence_unit_id).distinct())}
 
@@ -294,7 +319,7 @@ def extract_opinions(session: Session, *, batch_size: int = 500) -> dict[str, in
         if unit.id in already:
             continue
         stats["units"] += 1
-        extractions = extract_from_text(unit.text)
+        extractions = extract_from_text(unit.text, classifier)
         if not extractions:
             stats["skipped_no_opinion"] += 1
             continue

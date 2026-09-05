@@ -3,6 +3,7 @@
 from revix_core.models.analysis import (
     EMBEDDING_DIM,
     AspectOpinion,
+    EvalRun,
     EvidenceChunk,
     FusionConfig,
 )
@@ -34,6 +35,7 @@ __all__ = [
     "Aspect",
     "AspectOpinion",
     "Base",
+    "EvalRun",
     "EvidenceChunk",
     "EvidenceSource",
     "EvidenceUnit",

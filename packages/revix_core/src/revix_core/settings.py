@@ -65,6 +65,18 @@ class Settings(BaseSettings):
     reddit_subreddits_two_wheeler: str = "indianbikes"
     youtube_api_key: str = ""
 
+    # ---------- learned components ----------
+    # Off until the classifier is shown to beat the lexicon on the
+    # hand-labelled set. Loading it merely because a trained file exists would
+    # let somebody's local experiment silently downgrade the pipeline, and the
+    # first measured comparison had the classifier LOSING to the rules it was
+    # trained from by 0.34 macro F1. A model has to earn its place.
+    #
+    #   uv run revix model evaluate --gold data/gold/aspects.jsonl
+    #
+    # Flip this only when that says the classifier wins.
+    aspect_classifier_enabled: bool = False
+
     # ---------- model-level evidence ----------
     # A review of "the Creta" is real evidence about a Creta SX(O) Turbo DCT,
     # but weaker evidence than a review of that exact trim. This is the

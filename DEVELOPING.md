@@ -211,6 +211,53 @@ Note that with only two live sources, `min_evidence_units` and
 `min_distinct_sources` will suppress most verdicts. That is the evidence floor
 working, not a fault. See [ADR 0006](docs/adr/0006-official-apis-only-for-ingestion.md).
 
+## The aspect classifier, and the gold set it needs
+
+Aspect extraction has always been a cue-word lexicon (ADR 0004). There is now
+a trained classifier alongside it, and, more importantly, a way to tell which
+of the two is better.
+
+```bash
+uv sync --all-packages --extra ml     # scikit-learn, kept out of the API image
+uv run revix gold sample --per-aspect 40
+```
+
+That writes `data/gold/aspects.jsonl`, stratified by topic. **Somebody now has
+to read it.** For each line, fill in `aspects` and put your name in
+`labelled_by`:
+
+```json
+{"id": "safety-0004", "text": "Brakes felt weak on the highway.",
+ "aspects": ["safety"], "labelled_by": "saachi"}
+```
+
+An empty `aspects` list is a real answer, not a skip; leave `labelled_by`
+blank to skip. Split the file between the three of you and label the same
+twenty lines each as well, so you can measure how often you disagree, which is
+the ceiling on any score a classifier can honestly claim.
+
+Then:
+
+```bash
+uv run revix model train                 # holds the gold sentences out
+uv run revix model evaluate --record     # scores both, writes to eval_run
+```
+
+**Why this is stratified and not random.** A random draw returns a pile of
+sentences about looks and mileage and almost nothing about the service centre,
+which is the topic this project cares most about. It also includes a bucket
+the lexicon matched to nothing, because that is exactly where a classifier can
+beat it.
+
+**The classifier is off by default.** `ASPECT_CLASSIFIER_ENABLED=false`. The
+first measured comparison had it losing to the lexicon it was trained from by
+0.29 macro F1, on twelve sentences. Turn it on when `model evaluate` says it
+wins on a set large enough to mean something, and not before. Loading a model
+because a file happens to exist is how one person's local experiment silently
+downgrades everyone's pipeline.
+
+Results land on the public `/accuracy` page, unflattering ones included.
+
 ## The fusion experiment
 
 The question the project rests on: does weighting evidence beat counting it?

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
@@ -22,6 +23,21 @@ class Health(BaseModel):
     database: bool
     variants: int
     verdicts: int
+
+
+class EvalRunOut(BaseModel):
+    """One recorded measurement, for the public metrics page."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    component: str
+    system: str
+    n_items: int
+    primary_metric: str
+    primary_value: float
+    git_sha: str | None
+    created_at: datetime
+    detail: dict[str, Any] | None
 
 
 class ManufacturerOut(BaseModel):

@@ -13,6 +13,16 @@ dependencies = [
     "rapidfuzz>=3.10",
 ]
 
+[project.optional-dependencies]
+# Training and evaluating the aspect classifier. Optional on purpose: the API
+# image installs the workspace without extras, so scikit-learn and numpy stay
+# out of the container that only ever serves rows. The nightly workflow asks
+# for them explicitly.
+ml = [
+    "scikit-learn>=1.5",
+    "joblib>=1.4",
+]
+
 [project.scripts]
 revix = "revix_pipeline.cli:app"
 
