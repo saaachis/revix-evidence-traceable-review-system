@@ -20,10 +20,11 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Any, cast
 
 from rapidfuzz import fuzz
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import CursorResult, select, update
+from sqlalchemy.orm import Session, joinedload
 
 from revix_core.enums import FuelType, MatchMethod, Transmission
 from revix_core.models import (
@@ -149,17 +150,43 @@ def score_trim(listing_text: str, variant: VehicleVariant) -> float:
     return fuzz.token_set_ratio(left_tokens, right_tokens) / 100.0
 
 
-def candidates_for(session: Session, listing: SourceListing) -> list[MatchCandidate]:
-    """Block, constrain, then score whatever survives."""
+def load_catalogue(session: Session) -> list[VehicleVariant]:
+    """Every variant, with its model and manufacturer already attached.
+
+    One query for the whole catalogue. Reading `variant.model` lazily inside
+    the matching loop instead cost one SELECT per variant per listing: 704
+    statements to resolve 44 listings locally, and the larger part of a nine
+    minute stage in production, where each of those is a network round trip.
+    """
+    return list(
+        session.scalars(
+            select(VehicleVariant).options(
+                joinedload(VehicleVariant.model).joinedload(VehicleModel.manufacturer)
+            )
+        ).unique()
+    )
+
+
+def candidates_for(
+    session: Session,
+    listing: SourceListing,
+    catalogue: list[VehicleVariant] | None = None,
+) -> list[MatchCandidate]:
+    """Block, constrain, then score whatever survives.
+
+    `catalogue` is passed in by the batch caller so the whole table is read
+    once per run rather than once per listing. It stays optional so a caller
+    resolving a single listing does not have to know that.
+    """
     title = listing.raw_title
     hint = (listing.raw_specs or {}).get("model_hint") or ""
+    variants = catalogue if catalogue is not None else load_catalogue(session)
 
     # 1. Blocking. Only variants whose model name appears in the title are
     #    even considered, which removes almost everything before any scoring.
-    stmt = select(VehicleVariant).join(VehicleVariant.model)
     blocked: list[VehicleVariant] = []
     lowered = title.casefold()
-    for variant in session.scalars(stmt):
+    for variant in variants:
         model: VehicleModel = variant.model
         if model.name.casefold() in lowered or (hint and hint.casefold() == model.name.casefold()):
             blocked.append(variant)
@@ -196,10 +223,11 @@ def resolve_listings(session: Session, *, threshold: float = ACCEPT_THRESHOLD) -
             SourceListing.variant_id.is_(None), SourceListing.model_id.is_(None)
         )
     ).all()
+    catalogue = load_catalogue(session)
 
     for listing in unresolved:
         stats["considered"] += 1
-        candidates = candidates_for(session, listing)
+        candidates = candidates_for(session, listing, catalogue)
         if not candidates:
             stats["no_candidate"] += 1
             continue
@@ -233,23 +261,46 @@ def resolve_listings(session: Session, *, threshold: float = ACCEPT_THRESHOLD) -
 
     # Propagate. Every unit from a resolved listing inherits its variant, and
     # every unit from a listing we could only place on a model inherits that.
-    linked = session.execute(
-        select(EvidenceUnit, SourceListing.variant_id, SourceListing.model_id)
-        .join(SourceListing, EvidenceUnit.source_listing_id == SourceListing.id)
-        .where(
-            EvidenceUnit.variant_id.is_(None),
-            EvidenceUnit.model_id.is_(None),
-            SourceListing.variant_id.is_not(None) | SourceListing.model_id.is_not(None),
-        )
-    ).all()
-    for unit, variant_id, model_id in linked:
-        if variant_id is not None:
-            unit.variant_id = variant_id
-            stats["units_linked"] += 1
-        if model_id is not None:
-            unit.model_id = model_id
-            if variant_id is None:
-                stats["units_model_linked"] += 1
+    #
+    # Two set-based UPDATEs rather than a loop. Loading each unit and assigning
+    # to it emitted one UPDATE per row, which is 3,696 network round trips on
+    # a full production run for work the database can do in two.
+    unresolved_unit = (
+        EvidenceUnit.source_listing_id == SourceListing.id,
+        EvidenceUnit.variant_id.is_(None),
+        EvidenceUnit.model_id.is_(None),
+    )
+
+    # CursorResult, because an UPDATE is what this returns; the generic
+    # Result type that execute() is annotated with has no rowcount.
+    to_variant = cast(
+        "CursorResult[Any]",
+        session.execute(
+            update(EvidenceUnit)
+            .where(*unresolved_unit, SourceListing.variant_id.is_not(None))
+            .values(variant_id=SourceListing.variant_id, model_id=SourceListing.model_id)
+        ),
+    )
+    stats["units_linked"] = to_variant.rowcount or 0
+
+    to_model = cast(
+        "CursorResult[Any]",
+        session.execute(
+            update(EvidenceUnit)
+            .where(
+                *unresolved_unit,
+                SourceListing.variant_id.is_(None),
+                SourceListing.model_id.is_not(None),
+            )
+            .values(model_id=SourceListing.model_id)
+        ),
+    )
+    stats["units_model_linked"] = to_model.rowcount or 0
+
+    # The session still holds stale copies of rows the UPDATEs changed
+    # underneath it. Anything reading a unit after this in the same session
+    # would otherwise see the pre-update value.
+    session.expire_all()
 
     session.flush()
     return stats

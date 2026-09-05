@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import math
 import random
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
@@ -294,7 +295,19 @@ def gather_contributions(
     # and reviews of the model that nobody could pin to a trim because the
     # source never asked. Ninety percent of real owner reviews are the second
     # kind: a review site asks which model you bought, not which variant.
-    rows = session.execute(
+    rows = load_opinion_rows(session, variant_id, model_id)
+    return weight_rows(rows, params)
+
+
+def load_opinion_rows(session: Session, variant_id: Any, model_id: Any) -> list[Any]:
+    """Every opinion about this variant, and about its model.
+
+    Separated from the weighting because the read is identical for all three
+    strategies and only the arithmetic afterwards differs. Fusing a variant
+    used to run this query once per strategy, fetching the same rows three
+    times.
+    """
+    stmt = (
         select(AspectOpinion, EvidenceUnit, EvidenceSource, VehicleVariant)
         .join(EvidenceUnit, AspectOpinion.evidence_unit_id == EvidenceUnit.id)
         .join(EvidenceSource, EvidenceUnit.source_id == EvidenceSource.id)
@@ -307,8 +320,12 @@ def gather_contributions(
                 & (model_id is not None)
             )
         )
-    ).all()
+    )
+    return list(session.execute(stmt).all())
 
+
+def weight_rows(rows: list[Any], params: dict[str, Any]) -> dict[AspectKey, list[Contribution]]:
+    """Turn loaded opinions into weighted contributions under one strategy."""
     settings = get_settings()
     by_aspect: dict[AspectKey, list[Contribution]] = defaultdict(list)
     for opinion, unit, source, variant in rows:
@@ -377,22 +394,32 @@ def fuse_variant(
     session: Session,
     variant: VehicleVariant,
     config: FusionConfig,
+    rows: list[Any] | None = None,
 ) -> Verdict:
-    """Compute and persist one verdict for one variant under one strategy."""
+    """Compute and persist one verdict for one variant under one strategy.
+
+    `rows` lets the batch caller read a variant's evidence once and weight it
+    under each strategy in turn. It stays optional so a caller fusing a single
+    verdict does not have to know about that.
+    """
     settings = get_settings()
     params = dict(config.params)
-    by_aspect = gather_contributions(session, variant.id, params)
+    if rows is None:
+        by_aspect = gather_contributions(session, variant.id, params)
+    else:
+        by_aspect = weight_rows(rows, params)
 
     # Replace rather than update. A verdict is fully derived, so recomputing
     # it from scratch is both simpler and safer than reconciling a diff.
-    existing = session.scalar(
-        select(Verdict).where(
+    # Straight to the DELETE. Reading the row first to find out whether there
+    # was one to delete cost a round trip per verdict and told us nothing the
+    # DELETE would not have handled on its own.
+    session.execute(
+        delete(Verdict).where(
             Verdict.variant_id == variant.id, Verdict.fusion_config_id == config.id
         )
     )
-    if existing is not None:
-        session.execute(delete(Verdict).where(Verdict.id == existing.id))
-        session.flush()
+    session.flush()
 
     all_contributions = [c for group in by_aspect.values() for c in group]
     unit_ids = {c.unit_id for c in all_contributions}
@@ -502,7 +529,12 @@ def _write_claims(
     for row, contributions in sorted(
         aspect_rows, key=lambda pair: float(pair[0].divergence_index or 0), reverse=True
     ):
+        # The id is chosen here rather than at flush time. It was the only
+        # reason this loop flushed per claim, and each of those flushes is a
+        # network round trip: 435 of them in one nightly run, for work the
+        # database will happily take in a single batch.
         claim = VerdictClaim(
+            id=uuid.uuid4(),
             verdict_id=verdict.id,
             claim_type="aspect_score",
             claim_template="aspect_score",
@@ -517,7 +549,6 @@ def _write_claims(
             },
         )
         session.add(claim)
-        session.flush()
 
         top = sorted(contributions, key=lambda c: c.weight, reverse=True)
         seen: set[Any] = set()
@@ -577,8 +608,12 @@ def fuse_all(session: Session, *, variant_limit: int | None = None) -> dict[str,
     stats = {"variants": 0, "verdicts": 0, "suppressed": 0}
     for variant in variants:
         stats["variants"] += 1
+        # One read per variant, weighted once per strategy. The query does not
+        # depend on the strategy, so running it inside the config loop fetched
+        # the same rows three times for no gain.
+        rows = load_opinion_rows(session, variant.id, variant.model_id)
         for config in configs:
-            verdict = fuse_variant(session, variant, config)
+            verdict = fuse_variant(session, variant, config, rows)
             stats["verdicts"] += 1
             if verdict.is_suppressed:
                 stats["suppressed"] += 1
@@ -595,7 +630,9 @@ __all__ = [
     "fuse_variant",
     "gather_contributions",
     "kish_effective_sample",
+    "load_opinion_rows",
     "math",
     "to_ten",
+    "weight_rows",
     "weighted_mean",
 ]
