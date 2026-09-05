@@ -11,6 +11,7 @@ from revix_pipeline.connectors.base import (
     RawPayload,
     registry,
 )
+from revix_pipeline.connectors.dekho import DekhoConnector
 from revix_pipeline.connectors.fixture import FixtureConnector
 from revix_pipeline.connectors.reddit import RedditConnector
 from revix_pipeline.connectors.runner import RunResult, run_connector
@@ -56,6 +57,7 @@ registry.register(
 # present: a connector that is missing its key should say so by name when you
 # run it, rather than vanishing from `revix ingest --source` and leaving you
 # to wonder whether you spelled it wrong.
+registry.register(DekhoConnector())
 registry.register(RedditConnector())
 registry.register(YouTubeConnector())
 
@@ -63,6 +65,7 @@ __all__ = [
     "CatalogSeed",
     "Connector",
     "ConnectorRegistry",
+    "DekhoConnector",
     "EvidenceUnitDraft",
     "ExternalRef",
     "FixtureConnector",
