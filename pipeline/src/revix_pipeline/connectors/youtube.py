@@ -35,6 +35,7 @@ from revix_pipeline.connectors.base import (
 )
 from revix_pipeline.connectors.hints import km_driven, ownership_months
 from revix_pipeline.connectors.politeness import PoliteClient
+from revix_pipeline.connectors.schema_org import variant_tokens
 
 API_BASE = "https://www.googleapis.com/youtube/v3"
 
@@ -224,7 +225,12 @@ class YouTubeConnector:
                     ownership_duration_months=ownership_months(text),
                     km_driven=km_driven(text),
                     listing_title=title or None,
-                    variant_hint=seed.variant_name if seed else None,
+                    # Read from the video's own title and the comment, not
+                    # from the variant we happened to search for. Echoing the
+                    # search term back would record every comment as naming a
+                    # trim, which is a claim the source never made and which
+                    # the resolver would then act on.
+                    variant_hint=variant_tokens(f"{title} {text}") or None,
                     model_hint=f"{seed.manufacturer} {seed.model}" if seed else None,
                 )
             )
