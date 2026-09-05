@@ -36,6 +36,7 @@ from revix_pipeline.connectors.base import (
 )
 from revix_pipeline.connectors.hints import km_driven, ownership_months
 from revix_pipeline.connectors.politeness import PoliteClient
+from revix_pipeline.connectors.schema_org import variant_tokens
 
 TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 API_BASE = "https://oauth.reddit.com"
@@ -251,7 +252,10 @@ class RedditConnector:
             ownership_duration_months=ownership_months(text),
             km_driven=km_driven(text),
             listing_title=listing_title or None,
-            variant_hint=seed.variant_name if seed else None,
+            # From the thread title and the body, not from the variant we
+            # searched for. Recording our own query as though the writer had
+            # said it would be inventing evidence.
+            variant_hint=variant_tokens(f"{listing_title} {text}") or None,
             model_hint=f"{seed.manufacturer} {seed.model}" if seed else None,
         )
 

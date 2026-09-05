@@ -338,3 +338,92 @@ class TestRegistration:
             registry.get("youtube").default_source_prior
             < registry.get("reddit").default_source_prior
         )
+
+
+class TestHintsComeFromTheSource:
+    """A hint records what the source said, not what we asked it.
+
+    Both connectors used to copy the seed's variant name onto every unit,
+    which made a probe report that all 82 YouTube comments named a trim. They
+    named nothing; we were reading our own search term back.
+    """
+
+    def test_youtube_reads_the_video_title_and_the_comment(self) -> None:
+        payload = {
+            "_revix_video_title": "Hyundai Creta Petrol Manual ownership review",
+            "items": [
+                {
+                    "snippet": {
+                        "topLevelComment": {
+                            "id": "Ug1",
+                            "snippet": {
+                                "textOriginal": (
+                                    "I have the diesel automatic and the mileage in city "
+                                    "traffic is nowhere near the claim, about 12 kmpl."
+                                ),
+                                "authorChannelId": {"value": "UC_x"},
+                                "publishedAt": "2024-03-11T06:41:22Z",
+                                "likeCount": 4,
+                            },
+                        }
+                    }
+                }
+            ],
+        }
+        raw = RawPayload(
+            ref=ExternalRef(
+                external_id="vid1",
+                url="https://www.youtube.com/watch?v=vid1",
+                seed=SEED,
+                hint={"title": "Hyundai Creta Petrol Manual ownership review"},
+            ),
+            body=json.dumps(payload).encode("utf-8"),
+            fetched_at=datetime.now(UTC),
+            http_status=200,
+        )
+        draft = YouTubeConnector().parse(raw)[0]
+        assert draft.variant_hint is not None
+        # From the video title and from the comment, and not "SX (O) Turbo DCT",
+        # which is only what we searched for.
+        assert "diesel" in draft.variant_hint
+        assert "SX (O) Turbo DCT" not in draft.variant_hint
+
+    def test_a_comment_that_names_nothing_gets_no_hint(self) -> None:
+        payload = {
+            "_revix_video_title": "Some vehicle",
+            "items": [
+                {
+                    "snippet": {
+                        "topLevelComment": {
+                            "id": "Ug2",
+                            "snippet": {
+                                "textOriginal": (
+                                    "Great video, very helpful for anyone deciding "
+                                    "what to buy this year, thanks a lot."
+                                ),
+                                "authorChannelId": {"value": "UC_y"},
+                                "publishedAt": "2024-03-11T06:41:22Z",
+                                "likeCount": 1,
+                            },
+                        }
+                    }
+                }
+            ],
+        }
+        raw = RawPayload(
+            ref=ExternalRef(
+                external_id="vid2",
+                url="https://www.youtube.com/watch?v=vid2",
+                seed=SEED,
+                hint={"title": "Some vehicle"},
+            ),
+            body=json.dumps(payload).encode("utf-8"),
+            fetched_at=datetime.now(UTC),
+            http_status=200,
+        )
+        assert YouTubeConnector().parse(raw)[0].variant_hint is None
+
+    def test_reddit_reads_the_thread_and_the_body(self) -> None:
+        drafts = RedditConnector().parse(_raw(REDDIT_THREAD))
+        assert "SX (O) Turbo DCT" not in (drafts[0].variant_hint or "")
+        assert "diesel" in (drafts[0].variant_hint or "")
