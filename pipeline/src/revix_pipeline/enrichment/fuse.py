@@ -496,7 +496,12 @@ def fuse_all(session: Session, *, variant_limit: int | None = None) -> dict[str,
     than a recomputation.
     """
     configs = list(session.scalars(select(FusionConfig).order_by(FusionConfig.display_order)))
-    stmt = select(VehicleVariant)
+    # Ordered before limiting, and ordered the SAME way as seeds_for in the
+    # runner. A bare LIMIT returns arbitrary rows in Postgres, so with
+    # --limit N the ingest stage collected one set of N variants and this
+    # stage fused a different set, producing a database full of evidence and
+    # a page full of suppressed verdicts.
+    stmt = select(VehicleVariant).order_by(VehicleVariant.trim_code)
     if variant_limit:
         stmt = stmt.limit(variant_limit)
     variants = list(session.scalars(stmt))
