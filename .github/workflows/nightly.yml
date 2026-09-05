@@ -1,0 +1,53 @@
+name: Nightly pipeline
+
+# The orchestrator, such as it is. Every enrichment stage is idempotent, so
+# "recovery" is running this again rather than resuming from a checkpoint.
+# See docs/adr/0002 for why this is not Prefect.
+
+on:
+  schedule:
+    # 04:00 IST. Late enough that the day's reviews have landed, early enough
+    # that a failure can be fixed before anyone looks at the site.
+    - cron: "30 22 * * *"
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Comma-separated source keys"
+        default: "fixture_owner,fixture_forum,fixture_expert"
+
+permissions:
+  contents: read
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --all-packages --frozen
+
+      - name: Migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run alembic upgrade head
+
+      - name: Run the pipeline
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          uv run revix pipeline nightly \
+            --sources "${{ inputs.sources || 'fixture_owner,fixture_forum,fixture_expert' }}"
+
+      - name: Report what exists afterwards
+        if: always()
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db status

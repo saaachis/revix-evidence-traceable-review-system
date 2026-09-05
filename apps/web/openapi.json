@@ -1,0 +1,1143 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Revix API",
+    "description": "Read-only serving layer for Revix. Every response is a precomputed row. Verdicts carry the evidence count, the effective sample size and the sources they were built from, so a caller can judge them rather than having to trust them.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fusion-configs": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Fusion Configs",
+        "description": "What the weighting switch offers.\n\nSwitching between these is a lookup by (variant, config), never a\nrecomputation. That is the only reason the switch is affordable.",
+        "operationId": "fusion_configs_fusion_configs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FusionConfigOut"
+                  },
+                  "type": "array",
+                  "title": "Response Fusion Configs Fusion Configs Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/variants": {
+      "get": {
+        "tags": [
+          "catalogue"
+        ],
+        "summary": "List Variants",
+        "operationId": "list_variants_variants_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Free text over manufacturer, model and variant.",
+              "title": "Q"
+            },
+            "description": "Free text over manufacturer, model and variant."
+          },
+          {
+            "name": "vehicle_class",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(car|two_wheeler)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vehicle Class"
+            }
+          },
+          {
+            "name": "fusion",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fusion"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VariantSummary"
+                  },
+                  "title": "Response List Variants Variants Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/variants/{variant_id}/verdict": {
+      "get": {
+        "tags": [
+          "verdict"
+        ],
+        "summary": "Get Verdict",
+        "description": "THE endpoint. One indexed read, no computation.",
+        "operationId": "get_verdict_variants__variant_id__verdict_get",
+        "parameters": [
+          {
+            "name": "variant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Variant Id"
+            }
+          },
+          {
+            "name": "fusion",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fusion"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerdictOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/claims/{claim_id}/evidence": {
+      "get": {
+        "tags": [
+          "verdict"
+        ],
+        "summary": "Claim Evidence",
+        "description": "The traceability drawer.\n\nA read of verdict_claim_evidence ordered by contribution weight, and\nnothing else. These rows were written by the fusion engine before any\nprose existed, and the score was computed from them, which is why the\ncitation cannot be wrong.",
+        "operationId": "claim_evidence_claims__claim_id__evidence_get",
+        "parameters": [
+          {
+            "name": "claim_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Claim Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimEvidenceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sources/health": {
+      "get": {
+        "tags": [
+          "ops"
+        ],
+        "summary": "Sources Health",
+        "description": "Where every source stands. A dead source degrades, it does not break.",
+        "operationId": "sources_health_sources_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SourceHealthOut"
+                  },
+                  "type": "array",
+                  "title": "Response Sources Health Sources Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AspectOut": {
+        "properties": {
+          "aspect_key": {
+            "type": "string",
+            "title": "Aspect Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "ci_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci Low"
+          },
+          "ci_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci High"
+          },
+          "support_count": {
+            "type": "integer",
+            "title": "Support Count"
+          },
+          "divergence_index": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Divergence Index"
+          },
+          "agreement": {
+            "type": "string",
+            "title": "Agreement"
+          },
+          "top_covariate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top Covariate"
+          },
+          "covariate_explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CovariateExplanation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claim_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "aspect_key",
+          "label",
+          "score",
+          "ci_low",
+          "ci_high",
+          "support_count",
+          "divergence_index",
+          "agreement"
+        ],
+        "title": "AspectOut"
+      },
+      "ClaimEvidenceOut": {
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Claim Id"
+          },
+          "aspect_key": {
+            "type": "string",
+            "title": "Aspect Key"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "total_contributors": {
+            "type": "integer",
+            "title": "Total Contributors"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceOut"
+            },
+            "type": "array",
+            "title": "Evidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "claim_id",
+          "aspect_key",
+          "score",
+          "total_contributors",
+          "evidence"
+        ],
+        "title": "ClaimEvidenceOut"
+      },
+      "CovariateExplanation": {
+        "properties": {
+          "covariate": {
+            "type": "string",
+            "title": "Covariate"
+          },
+          "explained_share": {
+            "type": "number",
+            "title": "Explained Share"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/CovariateGroup"
+            },
+            "type": "array",
+            "title": "Groups"
+          }
+        },
+        "type": "object",
+        "required": [
+          "covariate",
+          "explained_share",
+          "groups"
+        ],
+        "title": "CovariateExplanation"
+      },
+      "CovariateGroup": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "weight_share": {
+            "type": "number",
+            "title": "Weight Share"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "score",
+          "weight_share",
+          "count"
+        ],
+        "title": "CovariateGroup"
+      },
+      "EvidenceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "source_kind": {
+            "type": "string",
+            "title": "Source Kind"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "is_verified_owner": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Verified Owner"
+          },
+          "ownership_duration_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownership Duration Months"
+          },
+          "km_driven": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Km Driven"
+          },
+          "rating_normalized": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating Normalized"
+          },
+          "contribution_weight": {
+            "type": "number",
+            "title": "Contribution Weight"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "source_kind",
+          "url",
+          "text",
+          "published_at",
+          "is_verified_owner",
+          "ownership_duration_months",
+          "km_driven",
+          "rating_normalized",
+          "contribution_weight",
+          "rank"
+        ],
+        "title": "EvidenceOut"
+      },
+      "FusionConfigOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default"
+          },
+          "display_order": {
+            "type": "integer",
+            "title": "Display Order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "label",
+          "description",
+          "is_default",
+          "display_order"
+        ],
+        "title": "FusionConfigOut"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "database": {
+            "type": "boolean",
+            "title": "Database"
+          },
+          "variants": {
+            "type": "integer",
+            "title": "Variants"
+          },
+          "verdicts": {
+            "type": "integer",
+            "title": "Verdicts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "database",
+          "variants",
+          "verdicts"
+        ],
+        "title": "Health"
+      },
+      "SourceHealthOut": {
+        "properties": {
+          "source_key": {
+            "type": "string",
+            "title": "Source Key"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "last_success": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Success"
+          },
+          "units_total": {
+            "type": "integer",
+            "title": "Units Total"
+          },
+          "error_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Rate"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_key",
+          "display_name",
+          "kind",
+          "is_enabled",
+          "status",
+          "last_success",
+          "units_total",
+          "error_rate",
+          "last_error"
+        ],
+        "title": "SourceHealthOut"
+      },
+      "SpecOut": {
+        "properties": {
+          "engine_cc": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Cc"
+          },
+          "engine_power_bhp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Power Bhp"
+          },
+          "arai_mileage_kmpl": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arai Mileage Kmpl"
+          },
+          "seating_capacity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seating Capacity"
+          },
+          "boot_litres": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boot Litres"
+          },
+          "kerb_weight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kerb Weight Kg"
+          },
+          "seat_height_mm": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seat Height Mm"
+          },
+          "braking_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Braking Type"
+          },
+          "spec_completeness": {
+            "type": "number",
+            "title": "Spec Completeness",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "SpecOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VariantSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "manufacturer": {
+            "type": "string",
+            "title": "Manufacturer"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "model_slug": {
+            "type": "string",
+            "title": "Model Slug"
+          },
+          "vehicle_class": {
+            "type": "string",
+            "title": "Vehicle Class"
+          },
+          "variant_name": {
+            "type": "string",
+            "title": "Variant Name"
+          },
+          "fuel_type": {
+            "type": "string",
+            "title": "Fuel Type"
+          },
+          "transmission": {
+            "type": "string",
+            "title": "Transmission"
+          },
+          "price_min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Min"
+          },
+          "price_max": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Max"
+          },
+          "overall_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Score"
+          },
+          "confidence_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Low"
+          },
+          "confidence_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence High"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "title": "Evidence Count",
+            "default": 0
+          },
+          "is_suppressed": {
+            "type": "boolean",
+            "title": "Is Suppressed",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "manufacturer",
+          "model",
+          "model_slug",
+          "vehicle_class",
+          "variant_name",
+          "fuel_type",
+          "transmission"
+        ],
+        "title": "VariantSummary"
+      },
+      "VerdictOut": {
+        "properties": {
+          "variant": {
+            "$ref": "#/components/schemas/VariantSummary"
+          },
+          "specs": {
+            "$ref": "#/components/schemas/SpecOut"
+          },
+          "fusion": {
+            "type": "string",
+            "title": "Fusion"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          },
+          "overall_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Score"
+          },
+          "confidence_low": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Low"
+          },
+          "confidence_high": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence High"
+          },
+          "is_suppressed": {
+            "type": "boolean",
+            "title": "Is Suppressed"
+          },
+          "suppression_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suppression Reason"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "title": "Evidence Count"
+          },
+          "effective_sample_size": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Sample Size"
+          },
+          "sources_used": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources Used"
+          },
+          "aspects": {
+            "items": {
+              "$ref": "#/components/schemas/AspectOut"
+            },
+            "type": "array",
+            "title": "Aspects"
+          }
+        },
+        "type": "object",
+        "required": [
+          "variant",
+          "specs",
+          "fusion",
+          "computed_at",
+          "overall_score",
+          "confidence_low",
+          "confidence_high",
+          "is_suppressed",
+          "suppression_reason",
+          "evidence_count",
+          "effective_sample_size",
+          "sources_used",
+          "aspects"
+        ],
+        "title": "VerdictOut"
+      }
+    }
+  }
+}

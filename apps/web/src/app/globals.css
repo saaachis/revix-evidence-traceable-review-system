@@ -1,0 +1,299 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Revix design system.
+
+   Ported directly from the Milestone 2 wireframes, so what was signed off is
+   what ships. Four rules run through all of it:
+
+     1. One quantity, one encoding.  A score is a numeral plus one dot on one
+        track. The band around the dot is the confidence range. Nothing
+        encodes the same number twice.
+     2. Words before numbers.        "Sharply split", not "0.61".
+     3. Colour encodes DISAGREEMENT, never quality. Grey means agreed, amber
+        means some disagreement, red means sharply split. Quality is shown
+        only by position on the track, so a contested 6.2 reads as contested
+        rather than bad.
+     4. Opinion, measured fact and metadata get three different visual forms.
+   ========================================================================== */
+
+@theme {
+  /* brand: deep cardinal red */
+  --color-brand: #c41e3a;
+  --color-brand-deep: #9e1730;
+  --color-brand-ink: #4a0b17;
+  --color-brand-soft: #fde8ec;
+  --color-brand-tint: #fef5f7;
+  --color-brand-line: #f5c9d2;
+
+  /* heat: how contested a topic is. NOT how good it is. */
+  --color-heat-split: #c41e3a;
+  --color-heat-split-bg: #fde8ec;
+  --color-heat-some: #b45309;
+  --color-heat-some-bg: #fdf1e3;
+  --color-heat-agreed: #78716c;
+  --color-heat-agreed-bg: #f1eeec;
+
+  /* warm neutrals, deliberately not the blue-greys every car portal uses */
+  --color-ink: #1a1614;
+  --color-ink-2: #453d3a;
+  --color-muted: #7a6f6a;
+  --color-faint: #a79c97;
+  --color-line: #e7e1de;
+  --color-line-soft: #f0ecea;
+  --color-surface: #ffffff;
+  --color-surface-2: #f4f0ee;
+  --color-canvas: #faf8f7;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-wordmark: "Revix Wordmark", Georgia, "Times New Roman", serif;
+
+  --radius-card: 12px;
+
+  --shadow-card: 0 1px 2px rgb(26 22 20 / 0.05), 0 8px 24px -12px rgb(26 22 20 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(26 22 20 / 0.05), 0 24px 48px -20px rgb(26 22 20 / 0.22);
+}
+
+/* The wordmark, subset to the five letters of "revix" and embedded rather
+   than linked, so the logo renders identically offline and nothing about the
+   brand depends on a CDN being reachable during a demo.
+   Playfair Display 900 Italic, Claus Eggers Sorensen, SIL OFL 1.1. */
+@font-face {
+  font-family: "Revix Wordmark";
+  font-style: italic;
+  font-weight: 900;
+  font-display: block;
+  src: url("/fonts/revix-wordmark.woff2") format("woff2");
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-weight: 640;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  ::selection {
+    background: var(--color-brand-soft);
+    color: var(--color-brand-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .wrap {
+    max-width: 1160px;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  /* ---------- wordmark ---------- */
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex: none;
+  }
+  .brand-mark {
+    font-family: var(--font-wordmark);
+    font-style: italic;
+    font-weight: 900;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--color-brand);
+    text-transform: lowercase;
+    padding-right: 3px;
+  }
+  .brand-tag {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: lowercase;
+    color: var(--color-faint);
+    white-space: nowrap;
+  }
+
+  /* ---------- surfaces ---------- */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .sec-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .sec-note {
+    font-size: 12.5px;
+    color: var(--color-faint);
+  }
+
+  /* ---------- the score track: ONE encoding, used on every screen ---------- */
+  .track {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+  }
+  /* midpoint tick at 5.0, without which the dot position means nothing */
+  .track::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    bottom: -3px;
+    width: 1px;
+    background: var(--color-line);
+  }
+  .track-band {
+    position: absolute;
+    inset-block: 0;
+    border-radius: 999px;
+    background: var(--color-heat-agreed);
+    opacity: 0.22;
+    left: calc(var(--lo) * 1%);
+    width: calc((var(--hi) - var(--lo)) * 1%);
+    transition: left 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .track-dot {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--v) * 1%);
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    border: 3px solid var(--color-surface);
+    box-shadow: 0 0 0 1px var(--color-line);
+    transition: left 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .track[data-heat="split"] .track-band { background: var(--color-heat-split); opacity: 0.24; }
+  .track[data-heat="split"] .track-dot { background: var(--color-heat-split); }
+  .track[data-heat="some"] .track-band { background: var(--color-heat-some); opacity: 0.22; }
+  .track[data-heat="some"] .track-dot { background: var(--color-heat-some); }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    color: var(--color-ink-2);
+    white-space: nowrap;
+  }
+  .chip[data-heat="split"] { background: var(--color-heat-split-bg); color: var(--color-heat-split); }
+  .chip[data-heat="some"] { background: var(--color-heat-some-bg); color: var(--color-heat-some); }
+  .chip[data-heat="agreed"] { background: var(--color-heat-agreed-bg); color: var(--color-heat-agreed); }
+  .chip-ghost {
+    background: transparent;
+    border: 1px solid var(--color-line);
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  /* ---------- the weighting switch, the flagship ---------- */
+  .seg {
+    display: inline-flex;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 3px;
+    flex-wrap: wrap;
+  }
+  .seg button {
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-ink-2);
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .seg button:hover { background: rgb(0 0 0 / 0.035); }
+  .seg button[aria-pressed="true"] {
+    background: var(--color-brand);
+    color: #fff;
+    box-shadow: 0 1px 2px rgb(196 30 58 / 0.35);
+  }
+  .seg button[aria-pressed="true"]:hover { background: var(--color-brand-deep); }
+
+  .delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 650;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    font-variant-numeric: tabular-nums;
+  }
+  .delta-down { color: var(--color-brand); border-color: var(--color-brand-line); background: var(--color-brand-soft); }
+  .delta-up { color: #166534; border-color: #cbe5d4; background: #eaf6ee; }
+  .delta-flat { color: var(--color-faint); }
+
+  /* ---------- tables ---------- */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .tbl th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-faint);
+    font-weight: 700;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--color-line);
+    white-space: nowrap;
+  }
+  .tbl td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--color-line-soft);
+    vertical-align: middle;
+  }
+  .tbl tbody tr:last-child td { border-bottom: 0; }
+  .tbl tbody tr:hover { background: var(--color-surface-2); }
+
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- animated numbers ---------- */
+  @keyframes score-in {
+    from { opacity: 0.35; transform: translateY(-3px); }
+    to { opacity: 1; transform: none; }
+  }
+  .score-anim { animation: score-in 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
