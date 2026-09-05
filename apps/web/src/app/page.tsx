@@ -5,7 +5,16 @@ import { Card, ScoreTrack, SectionHead, Unavailable } from "@/components/ui";
 import { api, tryGet, type VariantSummary } from "@/lib/api";
 import { agreementWord, heatOf } from "@/lib/format";
 
-export const revalidate = 300;
+// Rendered per request, never at build time. Two reasons, and the second one
+// is the one that bit us: a page baked during the build is a snapshot of
+// whatever the API happened to say then, and if the API is asleep during that
+// build the page bakes empty and stays empty until it revalidates. Vercel's
+// build machine has no business reaching our API.
+//
+// fetchCache keeps the data cache, which force-dynamic would otherwise turn
+// off, so repeat views still avoid the round trip.
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-cache";
 
 const PIPELINE = [
   ["Collect", "Owner reviews, expert reviews, forums, video transcripts and official records."],
