@@ -23,9 +23,29 @@ _KM = re.compile(
     re.IGNORECASE,
 )
 
-# 2 years | 18 months | 2.5 yrs | one year
+# 2 years | 18 months | 2.5 yrs | two years
+#
+# Words as well as digits, because an owner review is prose. "Bought it two
+# years ago" is one of the commonest ways these reviews state an ownership
+# period, and reading only digits discarded every one of them silently.
+_WORD_NUMBERS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "eleven": 11,
+    "twelve": 12,
+}
 _DURATION = re.compile(
-    r"(?<![\d.])(\d+(?:\.\d+)?)\s*(year|yr|yrs|years|month|months|mon|mos)\b",
+    r"(?<![\d.])(\d+(?:\.\d+)?|"
+    + "|".join(sorted(_WORD_NUMBERS, key=len, reverse=True))
+    + r")\s+(year|yr|yrs|years|month|months|mon|mos)\b",
     re.IGNORECASE,
 )
 
@@ -33,7 +53,8 @@ _DURATION = re.compile(
 # months for delivery" and "18 months warranty" are not ownership periods.
 _OWNERSHIP_CONTEXT = re.compile(
     r"\b(own|owned|owning|ownership|had|have had|driving|driven|riding|ridden|"
-    r"using|used|with (?:the|my|this) (?:car|bike|scooter|vehicle))\b",
+    r"using|used|bought|purchased|"
+    r"with (?:the|my|this) (?:car|bike|scooter|vehicle))\b",
     re.IGNORECASE,
 )
 
@@ -81,7 +102,8 @@ def ownership_months(text: str) -> int | None:
         window = text[max(0, match.start() - 60) : match.end() + 60]
         if _NOT_OWNERSHIP.search(window) or not _OWNERSHIP_CONTEXT.search(window):
             continue
-        value = float(match.group(1))
+        raw = match.group(1).lower()
+        value = float(_WORD_NUMBERS[raw]) if raw in _WORD_NUMBERS else float(raw)
         unit = match.group(2).lower()
         months = round(value * 12) if unit.startswith(("year", "yr")) else round(value)
         if not (1 <= months <= _MAX_MONTHS):
