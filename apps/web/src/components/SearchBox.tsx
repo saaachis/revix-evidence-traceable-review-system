@@ -112,6 +112,7 @@ export function SearchBox({ big = false }: { big?: boolean }) {
       {open && query.trim().length >= 2 && (
         <div
           id={listId}
+          data-search-results
           className="absolute top-[calc(100%+8px)] right-0 left-0 z-70 overflow-hidden rounded-xl border border-(--color-line) bg-(--color-surface) text-left shadow-[var(--shadow-lift)]"
         >
           {failed ? (

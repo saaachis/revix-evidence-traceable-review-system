@@ -31,7 +31,11 @@ class Settings(BaseSettings):
 
     # ---------- api ----------
     api_env: Literal["development", "production"] = "development"
-    cors_allowed_origins: str = "http://localhost:3000"
+    # Both loopback spellings, because a browser treats "localhost" and
+    # "127.0.0.1" as separate origins and the dev stack uses them
+    # interchangeably. Missing one blocks the type-ahead in the browser while
+    # the server still logs a healthy 200, which is a miserable thing to debug.
+    cors_allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     # ---------- language model ----------
     # Batch narration only. Section 16 of the proposal requires that a complete

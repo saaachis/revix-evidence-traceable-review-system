@@ -59,10 +59,22 @@ try {
     assert(family.includes("Revix Wordmark"), `wordmark font is ${family}`);
   });
 
+  // Scoped to the dropdown, not to the page. A bare a[href^="/v/"] also
+  // matches the vehicle links in the page body, so the test passed even when
+  // the type-ahead was returning nothing at all.
   await check("search finds a vehicle as you type", async () => {
     await page.fill('input[type="search"]', variant.model.slice(0, 5));
-    await page.waitForSelector(`a[href^="/v/"]`, { timeout: 5000 });
-    const count = await page.$$eval('a[href^="/v/"]', (els) => els.length);
+    const results = "[data-search-results]";
+    try {
+      await page.waitForSelector(`${results} a[href^="/v/"]`, { timeout: 5000 });
+    } catch {
+      // The dropdown always renders something, so quoting it says why. A
+      // blocked cross-origin fetch reads "Search is unavailable", which the
+      // API answers with a healthy 200 and would otherwise look fine.
+      const said = (await page.textContent(results).catch(() => "")).trim();
+      throw new Error(`the type-ahead returned no vehicle; it said: "${said.slice(0, 120)}"`);
+    }
+    const count = await page.$$eval(`${results} a[href^="/v/"]`, (els) => els.length);
     assert(count > 0, "type-ahead returned nothing");
   });
 
