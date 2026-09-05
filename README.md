@@ -57,6 +57,8 @@ Two documents are the source of truth. Everything else defers to them.
 | [**Review 1 — concept, market gap and literature review**](docs/review-1/01-concept-market-gap-and-literature-review.md) | The idea and what it means, the competitive gap analysis, the background study, and what we are and are not claiming |
 | [Milestone 2 — wireframe demo](docs/review-1/02-milestone-2-wireframe-demo.md) | What we are building by 14 August 2026, how, by whom, and by when |
 | [Contributing](CONTRIBUTING.md) | Branching, commits, reviews, local setup, how we collect data responsibly |
+| [Developing](DEVELOPING.md) | Running it locally, the quality gate, the live connectors, the fusion experiment |
+| [Deploying](DEPLOYING.md) | Neon, Render and Vercel, and the two settings that fail silently |
 
 ## Repository layout
 

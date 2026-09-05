@@ -16,9 +16,10 @@ import uuid
 from collections.abc import Sequence
 from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from revix_api.schemas import (
@@ -32,7 +33,7 @@ from revix_api.schemas import (
     VariantSummary,
     VerdictOut,
 )
-from revix_core.db import get_session
+from revix_core.db import get_session, session_scope
 from revix_core.enums import ASPECT_LABELS, AspectKey, RunStatus, VehicleClass
 from revix_core.models import (
     EvidenceSource,
@@ -123,10 +124,32 @@ def _resolve_config(session: Session, fusion: str | None) -> FusionConfig:
     return config
 
 
-@app.get("/health", response_model=Health, tags=["meta"])
-def health(session: SessionDep) -> Health:
-    variants = session.scalar(select(func.count()).select_from(VehicleVariant)) or 0
-    verdicts = session.scalar(select(func.count()).select_from(Verdict)) or 0
+@app.get(
+    "/health",
+    response_model=Health,
+    tags=["meta"],
+    responses={503: {"model": Health, "description": "The database is unreachable."}},
+)
+def health(response: Response) -> Health:
+    """Is this instance able to serve?
+
+    Deliberately not using the session dependency. If it did, an unreachable
+    database would raise during dependency resolution, before the handler ran,
+    and the health endpoint would answer 500 with a SQLAlchemy stack trace: no
+    diagnosis for us and a stack trace for everyone else. Opening the session
+    here means the failure is a value this function can report.
+
+    503 rather than 200 on failure, because a platform health check reads the
+    status code and nothing else, and an instance that cannot reach its
+    database must not be sent traffic.
+    """
+    try:
+        with session_scope() as session:
+            variants = session.scalar(select(func.count()).select_from(VehicleVariant)) or 0
+            verdicts = session.scalar(select(func.count()).select_from(Verdict)) or 0
+    except SQLAlchemyError:
+        response.status_code = 503
+        return Health(status="degraded", database=False, variants=0, verdicts=0)
     return Health(status="ok", database=True, variants=variants, verdicts=verdicts)
 
 

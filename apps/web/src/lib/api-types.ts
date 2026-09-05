@@ -11,7 +11,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health */
+        /**
+         * Health
+         * @description Is this instance able to serve?
+         *
+         *     Deliberately not using the session dependency. If it did, an unreachable
+         *     database would raise during dependency resolution, before the handler ran,
+         *     and the health endpoint would answer 500 with a SQLAlchemy stack trace: no
+         *     diagnosis for us and a stack trace for everyone else. Opening the session
+         *     here means the failure is a value this function can report.
+         *
+         *     503 rather than 200 on failure, because a platform health check reads the
+         *     status code and nothing else, and an instance that cannot reach its
+         *     database must not be sent traffic.
+         */
         get: operations["health_health_get"];
         put?: never;
         post?: never;
@@ -399,6 +412,15 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+            /** @description The database is unreachable. */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

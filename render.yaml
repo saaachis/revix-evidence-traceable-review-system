@@ -1,0 +1,40 @@
+# Render blueprint for the serving layer.
+#
+# The web app is not here. Next.js goes to Vercel, which builds it natively and
+# serves it from a CDN, and putting it behind the same container would give up
+# both for nothing. The database is not here either: Render's free Postgres
+# expires after 30 days, which is a bad thing to discover in week 11. See
+# DEPLOYING.md.
+#
+# To use: Render dashboard, New, Blueprint, point it at this repository.
+
+services:
+  - type: web
+    name: revix-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    # The repository root, because the API is one member of a uv workspace and
+    # the build needs its siblings.
+    dockerContext: .
+    plan: free
+    # Closest free region to Indian users. The p95 target in the proposal is
+    # 300 ms end to end, and Oregon would spend most of that budget crossing
+    # the Pacific twice before Postgres is even asked anything.
+    region: singapore
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      # Set by hand in the dashboard, never in this file. It is a live
+      # credential and this repository is public.
+      - key: DATABASE_URL
+        sync: false
+      # The deployed frontend's origin, comma separated. A browser treats
+      # every distinct host as its own origin, so the preview domain and the
+      # production domain both need naming if you want previews to work.
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: API_ENV
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"

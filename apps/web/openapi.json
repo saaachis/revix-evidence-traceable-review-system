@@ -12,10 +12,21 @@
           "meta"
         ],
         "summary": "Health",
+        "description": "Is this instance able to serve?\n\nDeliberately not using the session dependency. If it did, an unreachable\ndatabase would raise during dependency resolution, before the handler ran,\nand the health endpoint would answer 500 with a SQLAlchemy stack trace: no\ndiagnosis for us and a stack trace for everyone else. Opening the session\nhere means the failure is a value this function can report.\n\n503 rather than 200 on failure, because a platform health check reads the\nstatus code and nothing else, and an instance that cannot reach its\ndatabase must not be sent traffic.",
         "operationId": "health_health_get",
         "responses": {
           "200": {
             "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The database is unreachable.",
             "content": {
               "application/json": {
                 "schema": {
