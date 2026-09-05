@@ -29,6 +29,7 @@ from revix_pipeline.connectors.base import (
     CatalogSeed,
     Connector,
     EvidenceUnitDraft,
+    MissingCredentialsError,
 )
 from revix_pipeline.connectors.base import (
     RawPayload as RawPayloadDraft,
@@ -195,6 +196,13 @@ def run_connector(
 
         result.status = RunStatus.SUCCEEDED
 
+    except MissingCredentialsError as exc:
+        # Configuration, not failure. A stack trace here would suggest
+        # something is broken when the answer is a missing line in .env.
+        result.status = RunStatus.FAILED
+        result.error_count += 1
+        result.last_error = str(exc)
+        log.warning("%s is not configured: %s", connector.source_key, exc)
     except CircuitOpenError as exc:
         result.status = RunStatus.CIRCUIT_OPEN
         result.last_error = str(exc)

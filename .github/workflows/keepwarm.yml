@@ -1,0 +1,52 @@
+name: Keep the demo warm
+
+# Render's free tier stops a service after fifteen minutes without traffic, and
+# starting it again takes the better part of a minute. That is survivable for a
+# hobby project and not survivable for "open the link and look at it now",
+# which is exactly how this project will be assessed.
+#
+# So: a request every ten minutes, during the hours anyone would plausibly
+# look, and not overnight. This exists to avoid a cold start in front of an
+# audience, not to hold a free instance open around the clock. If the API moves
+# to a host that wakes quickly, delete this file rather than keeping it out of
+# habit.
+#
+# Set the API_BASE_URL repository variable (Settings, Secrets and variables,
+# Actions, Variables) or this does nothing and says so.
+
+on:
+  schedule:
+    # Every ten minutes between 03:00 and 17:00 UTC, which is 08:30 to 22:30
+    # IST. GitHub delays scheduled runs under load, so treat this as "roughly
+    # every ten minutes" rather than a guarantee.
+    - cron: "*/10 3-17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keepwarm
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wake the API
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          if [ -z "$API_BASE_URL" ]; then
+            echo "::notice::API_BASE_URL is not set, so there is nothing to keep warm."
+            exit 0
+          fi
+          # --max-time generously, because the whole point is that the first
+          # request after a spin-down is slow. A failure here is information,
+          # not an incident, so it warns rather than failing the workflow.
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 90 "$API_BASE_URL/health" || echo 000)
+          echo "GET $API_BASE_URL/health -> $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::The API answered $code. It may be starting, or it may be down."
+          fi

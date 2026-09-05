@@ -17,7 +17,9 @@ an orchestrator to hold state. See docs/adr/0002.
 
 from __future__ import annotations
 
+import json
 import logging
+import pathlib
 import time
 
 import typer
@@ -42,6 +44,7 @@ from revix_pipeline.enrichment import (
     resolve_listings,
     score_credibility,
 )
+from revix_pipeline.evaluation import ExperimentReport, run_fusion_experiment
 from revix_pipeline.reference import seed_all
 
 #: Kept as a named constant rather than inline, because a default naming a
@@ -61,10 +64,12 @@ db_app = typer.Typer(help="Database maintenance and reference data.", no_args_is
 catalogue_app = typer.Typer(help="The seeded vehicle catalogue.", no_args_is_help=True)
 enrich_app = typer.Typer(help="The nightly enrichment stages.", no_args_is_help=True)
 pipeline_app = typer.Typer(help="Whole-pipeline runs.", no_args_is_help=True)
+eval_app = typer.Typer(help="Does the weighting actually help?", no_args_is_help=True)
 app.add_typer(db_app, name="db")
 app.add_typer(catalogue_app, name="catalogue")
 app.add_typer(enrich_app, name="enrich")
 app.add_typer(pipeline_app, name="pipeline")
+app.add_typer(eval_app, name="eval")
 
 
 def redact_dsn(dsn: str) -> str:
@@ -225,6 +230,86 @@ def ingest(
     typer.echo(f"    errors                 {result.error_count:>8,}")
     if result.last_error:
         typer.secho(f"    last error: {result.last_error}", fg="yellow")
+    # `nightly` deliberately survives a dead source. A bare `ingest --source x`
+    # is different: one source was asked for, and reporting success when it
+    # produced nothing is how a green run that did no work gets missed.
+    if not result.ok:
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------- evaluation
+
+
+def _print_experiment(report: ExperimentReport) -> None:
+    typer.secho(
+        f"gold targets {report.gold_targets:,} across {report.eligible_variants:,} variants, "
+        f"{report.replicates:,} replicates",
+        bold=True,
+    )
+    typer.echo(f"    sources in the pool: {', '.join(report.sources_present) or 'none'}")
+
+    if not report.ran:
+        for note in report.notes:
+            typer.secho(f"\n{note}", fg="yellow")
+        return
+
+    for title, rows in (("with metadata", report.results), ("without metadata", report.ablation)):
+        if not rows:
+            continue
+        typer.secho(f"\n{title}", fg="cyan", bold=True)
+        typer.echo(
+            f"    {'strategy':22} {'k':>4} {'RMSE':>8} {'MAE':>8} "
+            f"{'bias':>8} {'rho':>7} {'(n)':>5} {'cover80':>8} {'ECE':>7}"
+        )
+        for row in sorted(rows, key=lambda r: (r.k, r.strategy)):
+            rho = row.spearman_mean
+            typer.echo(
+                f"    {row.strategy:22} {row.k:>4} {row.rmse:>8.3f} "
+                f"{row.mean_absolute_error:>8.3f} {row.bias:>+8.3f} "
+                f"{(f'{rho:.3f}' if rho == rho else '   n/a'):>7} "
+                f"{row.spearman_n_variants:>5} "
+                f"{row.coverage.get('0.80', float('nan')):>8.3f} "
+                f"{row.expected_calibration_error:>7.3f}"
+            )
+
+    for note in report.notes:
+        typer.secho(f"\n{note}", fg="yellow")
+
+
+@eval_app.command("fusion")
+def eval_fusion(
+    replicates: int = typer.Option(200, "--replicates", help="Random subsamples per target."),
+    ks: str = typer.Option("10,20,30,50", "--k", help="Comma-separated subsample sizes."),
+    limit_variants: int | None = typer.Option(None, "--limit", help="Only the first N variants."),
+    out: str | None = typer.Option(None, "--out", help="Write the full report as JSON."),
+) -> None:
+    """The section 18.1 experiment: does weighting beat counting?
+
+    Holds out verified long-term owners as the target, estimates them from
+    what is left, and scores every strategy against them. Reports the required
+    ablation alongside, because a credibility model that only restates the
+    platform's own verified flag has not learned anything.
+    """
+    sizes = tuple(int(k.strip()) for k in ks.split(",") if k.strip())
+    start = time.monotonic()
+    with session_scope() as session:
+        report = run_fusion_experiment(
+            session, variant_limit=limit_variants, ks=sizes, replicates=replicates
+        )
+
+    _print_experiment(report)
+    typer.secho(f"\nfinished in {time.monotonic() - start:.1f}s", bold=True)
+
+    if out:
+        path = pathlib.Path(out)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(report.as_dict(), indent=2), encoding="utf-8")
+        typer.echo(f"report written to {path}")
+
+    # Nothing measurable is not success. A silent zero here is exactly how a
+    # scheduled run reports "the experiment is fine" while measuring nothing.
+    if not report.ran:
+        raise typer.Exit(1)
 
 
 # ---------------------------------------------------------------- enrichment

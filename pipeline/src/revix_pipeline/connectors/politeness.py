@@ -170,6 +170,7 @@ class PoliteClient:
         respect_robots: bool = True,
         timeout: float | None = None,
         breaker: CircuitBreaker | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         settings = get_settings()
         self.source_key = source_key
@@ -180,16 +181,39 @@ class PoliteClient:
         self._client = httpx.Client(
             timeout=timeout or settings.default_request_timeout_s,
             follow_redirects=True,
-            headers={"User-Agent": settings.user_agent},
+            headers={"User-Agent": settings.user_agent, **(headers or {})},
         )
 
+    def set_header(self, name: str, value: str) -> None:
+        """For a bearer token obtained after the client was built."""
+        self._client.headers[name] = value
+
     def get(self, url: str, **kwargs: object) -> httpx.Response:
+        return self._request("GET", url, kwargs, check_robots=True)
+
+    def post(self, url: str, **kwargs: object) -> httpx.Response:
+        """Only for authentication handshakes.
+
+        Nothing in this project writes to a source. A POST here is an OAuth
+        token exchange and nothing else, which is also why robots is not
+        consulted for it: robots.txt governs crawlers, and a client presenting
+        credentials to a documented API endpoint is not crawling.
+        """
+        return self._request("POST", url, kwargs, check_robots=False)
+
+    def _request(
+        self, method: str, url: str, kwargs: dict[str, object], *, check_robots: bool
+    ) -> httpx.Response:
         self.breaker.check(self.source_key)
-        if self.respect_robots and not self.robots.allows(url, client=self._client):
+        if (
+            check_robots
+            and self.respect_robots
+            and not self.robots.allows(url, client=self._client)
+        ):
             raise RobotsDisallowedError(f"robots.txt disallows {url}")
         self.bucket.acquire()
         try:
-            response = self._fetch(url, **kwargs)
+            response = self._fetch(method, url, kwargs)
         except Exception:
             self.breaker.record_failure()
             raise
@@ -207,8 +231,8 @@ class PoliteClient:
         wait=wait_exponential(multiplier=1, min=1, max=20),
         reraise=True,
     )
-    def _fetch(self, url: str, **kwargs: object) -> httpx.Response:
-        return self._client.get(url, **kwargs)  # type: ignore[arg-type]
+    def _fetch(self, method: str, url: str, kwargs: dict[str, object]) -> httpx.Response:
+        return self._client.request(method, url, **kwargs)  # type: ignore[arg-type]
 
     def close(self) -> None:
         self._client.close()

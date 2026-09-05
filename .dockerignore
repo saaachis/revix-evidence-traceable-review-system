@@ -1,0 +1,33 @@
+# The API image needs Python source and the lockfile. Everything below is
+# either enormous, machine-specific, or a secret, and copying any of it would
+# make the build slower, less reproducible or unsafe.
+
+.git
+.github
+.venv
+**/.venv
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# The frontend is deployed separately and its node_modules alone would dwarf
+# the rest of the image.
+apps/web
+wireframes
+node_modules
+**/node_modules
+
+# Never. The image would carry live credentials to anyone who pulls it.
+.env
+.env.*
+!.env.example
+
+data/raw
+data/cache
+data/interim
+docs
+tests
+*.md

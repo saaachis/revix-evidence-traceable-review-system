@@ -25,6 +25,15 @@ from typing import Any, Protocol, runtime_checkable
 from revix_core.enums import Modality, SourceKind
 
 
+class MissingCredentialsError(RuntimeError):
+    """A connector was asked to run without the API credentials it needs.
+
+    Not a bug and not a source outage. It is a configuration state, so it is
+    reported by name rather than as a stack trace, and the message says which
+    variable is missing and where to get its value.
+    """
+
+
 @dataclass(frozen=True, slots=True)
 class CatalogSeed:
     """What a connector is being asked to look for."""

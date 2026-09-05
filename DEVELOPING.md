@@ -130,6 +130,92 @@ db/migrations/         Alembic
 docs/adr/              why things are the way they are
 ```
 
+## Running the live connectors
+
+Everything works without these. `fixture_owner`, `fixture_forum` and
+`fixture_expert` generate synthetic evidence, which is what CI runs and what
+you want while working on anything downstream of ingestion.
+
+The two live sources need credentials, and both are free. Neither takes longer
+than five minutes.
+
+**Reddit.** Go to <https://www.reddit.com/prefs/apps>, "create another app",
+choose type **script**, put anything in the redirect URI. Copy the id under the
+app name and the secret beside it into `.env`:
+
+```
+REDDIT_CLIENT_ID=...
+REDDIT_CLIENT_SECRET=...
+REDDIT_USER_AGENT=revix/0.1 (academic project; contact: you@example.com)
+```
+
+Reddit asks for a descriptive user agent with a contact in it. Give it a real
+one; a generic agent is how a client gets rate limited.
+
+**YouTube.** In a Google Cloud project, enable **YouTube Data API v3**, then
+create an API key under Credentials:
+
+```
+YOUTUBE_API_KEY=...
+```
+
+The free quota is 10,000 units a day. A search costs 100 and a page of comments
+costs 1, so a full run over 43 variants spends roughly 4,500. The connector
+refuses a call it cannot afford rather than letting the quota run out mid-run.
+
+Then:
+
+```bash
+uv run revix ingest --source reddit --limit 5     # start small
+uv run revix ingest --source youtube --limit 5
+uv run revix pipeline nightly --sources reddit,youtube
+```
+
+Without credentials these fail by name, telling you which variable is missing,
+and exit non-zero. That is a configuration state rather than a crash, and
+`revix pipeline nightly` still runs every other stage around a dead source.
+
+Which subreddits get read is configuration, not code:
+
+```
+REDDIT_SUBREDDITS_CAR=CarsIndia
+REDDIT_SUBREDDITS_TWO_WHEELER=indianbikes
+```
+
+**Confirm each name exists before a real run.** One that is private, renamed or
+misspelled is skipped silently, because failing the whole source over one bad
+name in a list would be worse.
+
+Note that with only two live sources, `min_evidence_units` and
+`min_distinct_sources` will suppress most verdicts. That is the evidence floor
+working, not a fault. See [ADR 0006](docs/adr/0006-official-apis-only-for-ingestion.md).
+
+## The fusion experiment
+
+The question the project rests on: does weighting evidence beat counting it?
+
+```bash
+uv run revix enrich score --recompute   # needed once, see below
+uv run revix eval fusion --replicates 200 --k 10,20,30,50 --out data/eval/fusion.json
+```
+
+It holds out verified owners with 12+ months and 10,000+ km as the target,
+estimates them from everything else, and scores each strategy on RMSE, Spearman
+across variants and interval coverage. The ablation runs alongside, with every
+metadata signal removed from the weighting, because a credibility model that
+only restates the platform's verified flag has not learned anything.
+
+`--recompute` is needed once because the ablation reads a `base_textual` figure
+that older credibility rows do not have. Without it the ablation understates
+the gap rather than inventing one, which is the safe direction to be wrong in
+but still wrong.
+
+**On fixture data the output is not a finding, and the report says so in
+capitals.** The numbers describe the generator we wrote. The experiment becomes
+a measurement only once real evidence is in the pool, and today it cannot run
+on Reddit or YouTube data at all, since neither verifies ownership and the gold
+set comes out empty. See [ADR 0007](docs/adr/0007-how-the-fusion-experiment-avoids-fooling-us.md).
+
 ## Useful commands
 
 ```bash
@@ -138,6 +224,7 @@ uv run revix db show-reference       # the nine aspects, the three strategies
 uv run revix sources                 # every registered connector
 uv run revix db status               # how much of everything exists
 uv run revix enrich fuse             # recompute verdicts without re-ingesting
+uv run revix eval fusion             # does weighting beat counting? (section 18.1)
 docker compose logs -f db            # database logs
 docker compose down -v               # wipe the database completely
 uv run pytest -m "not db"            # tests that need no database

@@ -122,6 +122,42 @@ def divergence_index(contributions: list[Contribution]) -> float:
     return round(disagreeing / total, 3) if total else 0.0
 
 
+def bootstrap_means(
+    contributions: list[Contribution],
+    *,
+    samples: int = BOOTSTRAP_SAMPLES,
+    seed: int = 20260905,
+) -> list[float]:
+    """Sorted resampled means, on the 0..10 scale.
+
+    Separated from the interval because the calibration study in section 18.3
+    reads several nominal levels off one resampling. Doing the work once and
+    slicing it is both faster and, more importantly, means every level
+    describes the same bootstrap rather than a different one.
+    """
+    if not contributions:
+        return []
+    rng = random.Random(seed)
+    n = len(contributions)
+    means = [
+        to_ten(weighted_mean([contributions[rng.randrange(n)] for _ in range(n)]))
+        for _ in range(samples)
+    ]
+    means.sort()
+    return means
+
+
+def interval_from_means(means: list[float], level: float) -> tuple[float, float]:
+    """A two-sided interval at `level`, from an already sorted bootstrap."""
+    if not means:
+        return 0.0, 0.0
+    samples = len(means)
+    tail = (1.0 - level) / 2.0
+    lo = means[max(0, int(tail * samples))]
+    hi = means[min(samples - 1, int((1.0 - tail) * samples))]
+    return round(lo, 2), round(hi, 2)
+
+
 def bootstrap_interval(
     contributions: list[Contribution],
     *,
@@ -137,18 +173,7 @@ def bootstrap_interval(
     if len(contributions) < 2:
         value = to_ten(weighted_mean(contributions)) if contributions else 0.0
         return value, value
-
-    rng = random.Random(seed)
-    n = len(contributions)
-    means: list[float] = []
-    for _ in range(samples):
-        resample = [contributions[rng.randrange(n)] for _ in range(n)]
-        means.append(to_ten(weighted_mean(resample)))
-    means.sort()
-    tail = (1.0 - level) / 2.0
-    lo = means[max(0, int(tail * samples))]
-    hi = means[min(samples - 1, int((1.0 - tail) * samples))]
-    return round(lo, 2), round(hi, 2)
+    return interval_from_means(bootstrap_means(contributions, samples=samples, seed=seed), level)
 
 
 #: Only characteristics that actually VARY between reviews of one variant.
@@ -271,10 +296,17 @@ def gather_contributions(
             weight *= float(source.default_source_prior)
         if params.get("use_spam"):
             weight *= 1.0 - float(unit.spam_probability or 0.0)
+        # The ablation section 18.1 requires: run the same strategy with every
+        # metadata signal removed, so the claim that textual and behavioural
+        # features carry weight on their own is tested rather than asserted.
+        # aspect fit and the launch-window correction are pure metadata, so
+        # they do not survive it at all.
+        use_metadata = params.get("use_metadata", True)
         cred = credibility_from_json(unit.credibility_json)
+        reliability_value = cred.base if use_metadata else cred.base_textual
         if params.get("use_reliability"):
-            weight *= cred.base if cred.base > 0 else 0.05
-        if params.get("use_aspect_fit"):
+            weight *= reliability_value if reliability_value > 0 else 0.05
+        if params.get("use_aspect_fit") and use_metadata:
             # base is already inside the per-group figure, so divide it back
             # out to avoid applying reliability twice.
             fit = cred.for_aspect(aspect) / cred.base if cred.base > 0 else 1.0
@@ -283,7 +315,7 @@ def gather_contributions(
             weight *= recency_decay(
                 unit, half_life_days=int(params.get("recency_half_life_days", 540))
             )
-        if params.get("use_launch_window"):
+        if params.get("use_launch_window") and use_metadata:
             weight *= launch_window_correction(unit)
 
         # Extraction confidence always applies. A guess about what a sentence
