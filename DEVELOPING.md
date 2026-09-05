@@ -190,6 +190,32 @@ Note that with only two live sources, `min_evidence_units` and
 `min_distinct_sources` will suppress most verdicts. That is the evidence floor
 working, not a fault. See [ADR 0006](docs/adr/0006-official-apis-only-for-ingestion.md).
 
+## The fusion experiment
+
+The question the project rests on: does weighting evidence beat counting it?
+
+```bash
+uv run revix enrich score --recompute   # needed once, see below
+uv run revix eval fusion --replicates 200 --k 10,20,30,50 --out data/eval/fusion.json
+```
+
+It holds out verified owners with 12+ months and 10,000+ km as the target,
+estimates them from everything else, and scores each strategy on RMSE, Spearman
+across variants and interval coverage. The ablation runs alongside, with every
+metadata signal removed from the weighting, because a credibility model that
+only restates the platform's verified flag has not learned anything.
+
+`--recompute` is needed once because the ablation reads a `base_textual` figure
+that older credibility rows do not have. Without it the ablation understates
+the gap rather than inventing one, which is the safe direction to be wrong in
+but still wrong.
+
+**On fixture data the output is not a finding, and the report says so in
+capitals.** The numbers describe the generator we wrote. The experiment becomes
+a measurement only once real evidence is in the pool, and today it cannot run
+on Reddit or YouTube data at all, since neither verifies ownership and the gold
+set comes out empty. See [ADR 0007](docs/adr/0007-how-the-fusion-experiment-avoids-fooling-us.md).
+
 ## Useful commands
 
 ```bash
@@ -198,6 +224,7 @@ uv run revix db show-reference       # the nine aspects, the three strategies
 uv run revix sources                 # every registered connector
 uv run revix db status               # how much of everything exists
 uv run revix enrich fuse             # recompute verdicts without re-ingesting
+uv run revix eval fusion             # does weighting beat counting? (section 18.1)
 docker compose logs -f db            # database logs
 docker compose down -v               # wipe the database completely
 uv run pytest -m "not db"            # tests that need no database

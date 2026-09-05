@@ -50,6 +50,11 @@ class Credibility:
     immediate: float
     service: float
     efficiency: float
+    #: The same figure with every metadata signal removed, so section 18.1's
+    #: required ablation is a lookup rather than a second scoring pass. If the
+    #: textual and behavioural features carry no weight on their own, this is
+    #: the number that shows it.
+    base_textual: float = 0.0
 
     def for_aspect(self, aspect: AspectKey) -> float:
         group = ASPECT_GROUPS[aspect]
@@ -63,6 +68,7 @@ class Credibility:
     def as_json(self) -> dict[str, object]:
         return {
             "base": self.base,
+            "base_textual": self.base_textual,
             "by_aspect_group": {
                 "durability": self.durability,
                 "immediate": self.immediate,
@@ -134,10 +140,16 @@ def spam_probability(unit: EvidenceUnit) -> float:
 # ---------------------------------------------------------------------------
 
 
-def reliability(unit: EvidenceUnit) -> float:
-    """Behavioural and textual signals, independent of topic."""
+def reliability(unit: EvidenceUnit, *, use_metadata: bool = True) -> float:
+    """Behavioural and textual signals, independent of topic.
+
+    `use_metadata=False` drops the platform's verified-owner flag and leaves
+    only what can be read from the writing itself. That is the ablation
+    section 18.1 demands, and it is a parameter rather than a separate
+    function so the two can never drift apart.
+    """
     score = 0.4
-    if unit.is_verified_owner:
+    if use_metadata and unit.is_verified_owner:
         score += 0.25
 
     words = len(unit.text.split())
@@ -216,9 +228,11 @@ def launch_window_correction(unit: EvidenceUnit) -> float:
 
 
 def compute_credibility(unit: EvidenceUnit) -> Credibility:
-    base = round(reliability(unit) * (1.0 - spam_probability(unit)), 3)
+    spam = spam_probability(unit)
+    base = round(reliability(unit) * (1.0 - spam), 3)
     return Credibility(
         base=base,
+        base_textual=round(reliability(unit, use_metadata=False) * (1.0 - spam), 3),
         durability=round(base * aspect_fit(unit, AspectGroup.DURABILITY), 3),
         immediate=round(base * aspect_fit(unit, AspectGroup.IMMEDIATE), 3),
         service=round(base * aspect_fit(unit, AspectGroup.SERVICE), 3),
@@ -244,16 +258,21 @@ def score_credibility(session: Session, *, recompute: bool = False) -> dict[str,
 def credibility_from_json(payload: dict[str, object] | None) -> Credibility:
     """Read back a stored vector, tolerating a unit that was never scored."""
     if not payload:
-        return Credibility(0.5, 0.5, 0.5, 0.5, 0.5)
+        return Credibility(0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
     groups = payload.get("by_aspect_group") or {}
     if not isinstance(groups, dict):  # pragma: no cover - defensive
         groups = {}
+    base = float(payload.get("base", 0.5))  # type: ignore[arg-type]
     return Credibility(
-        base=float(payload.get("base", 0.5)),  # type: ignore[arg-type]
+        base=base,
         durability=float(groups.get("durability", 0.5)),
         immediate=float(groups.get("immediate", 0.5)),
         service=float(groups.get("service", 0.5)),
         efficiency=float(groups.get("efficiency", 0.5)),
+        # Rows scored before the ablation existed have no textual figure. Fall
+        # back to the full one rather than to a default, so an un-rescored
+        # database understates the ablation gap instead of inventing one.
+        base_textual=float(payload.get("base_textual", base)),  # type: ignore[arg-type]
     )
 
 
