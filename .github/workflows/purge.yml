@@ -1,0 +1,73 @@
+name: Purge a source
+
+# Deletes every trace of a source from the database, and the verdicts built on
+# it. Written for one job: swapping the development fixtures for real reviews
+# without anyone needing the production connection string on their laptop.
+#
+# Deliberately separate from the nightly, deliberately manual, and deliberately
+# awkward. You have to type the word DELETE and you have to name each source.
+# A destructive operation should not be one careless click away from a routine
+# one, and this is the only workflow in the repository that can lose data.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Comma-separated source keys to remove, for example fixture_owner,fixture_forum,fixture_expert"
+        required: true
+      confirm:
+        description: "Type DELETE to confirm. Anything else stops the run."
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check the confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "DELETE" ]; then
+            echo "::error::confirm was '${{ inputs.confirm }}'. Type DELETE exactly. Nothing was touched."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --all-packages --frozen
+
+      # What is there now, so the log records what was lost as well as what
+      # was asked for.
+      - name: Before
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db status
+
+      - name: Purge
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          args=""
+          IFS=',' read -ra keys <<< "${{ inputs.sources }}"
+          for key in "${keys[@]}"; do
+            trimmed=$(echo "$key" | xargs)
+            [ -n "$trimmed" ] && args="$args --source $trimmed"
+          done
+          echo "purging:$args"
+          uv run revix db purge $args --yes
+
+      - name: After
+        if: always()
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db status
+
+      - name: What to do next
+        run: |
+          echo "::notice::Verdicts were cleared. Run the Nightly pipeline to rebuild them."
