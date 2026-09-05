@@ -24,6 +24,18 @@ type VariantsQuery = NonNullable<paths["/variants"]["get"]["parameters"]["query"
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
+/**
+ * Eight seconds, because a healthy response takes tens of milliseconds and
+ * anything slower than this is a sick API rather than a busy one.
+ *
+ * Without a timeout, a host that accepts the TCP connection and then says
+ * nothing hangs the render indefinitely. A local API that is simply not
+ * running refuses instantly and degrades cleanly, which is why this was
+ * invisible in development; a free-tier instance waking up does the opposite,
+ * and it took a failed production build to show the difference.
+ */
+const TIMEOUT_MS = 8_000;
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -50,9 +62,19 @@ async function get<T>(path: string, params?: Record<string, string | number | un
 
   let response: Response;
   try {
-    response = await fetch(url, { next: { revalidate: 300 } });
-  } catch {
-    throw new ApiError(0, path, `Could not reach the API at ${BASE}.`);
+    response = await fetch(url, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === "TimeoutError";
+    throw new ApiError(
+      0,
+      path,
+      timedOut
+        ? `The API at ${BASE} did not answer within ${TIMEOUT_MS / 1000}s.`
+        : `Could not reach the API at ${BASE}.`,
+    );
   }
 
   if (!response.ok) {

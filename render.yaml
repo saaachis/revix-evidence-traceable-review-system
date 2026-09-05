@@ -17,9 +17,10 @@ services:
     # the build needs its siblings.
     dockerContext: .
     plan: free
-    # Closest free region to Indian users. The p95 target in the proposal is
-    # 300 ms end to end, and Oregon would spend most of that budget crossing
-    # the Pacific twice before Postgres is even asked anything.
+    # Asked for, but not necessarily granted: the free plan placed our first
+    # deploy in Oregon regardless. Left here because it is what we want and
+    # costs nothing to ask for, but do not read it as a description of where
+    # the service actually runs. Check the service's host in the dashboard.
     region: singapore
     healthCheckPath: /health
     autoDeploy: true
