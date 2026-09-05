@@ -65,6 +65,18 @@ class Settings(BaseSettings):
     reddit_subreddits_two_wheeler: str = "indianbikes"
     youtube_api_key: str = ""
 
+    # ---------- model-level evidence ----------
+    # A review of "the Creta" is real evidence about a Creta SX(O) Turbo DCT,
+    # but weaker evidence than a review of that exact trim. This is the
+    # discount applied to it.
+    #
+    # 0.6 is a judgement, not a measurement, and it is here rather than inside
+    # the fusion code so that it is visible, tunable, and obviously a choice
+    # somebody made. It applies identically to every strategy, so it cannot
+    # flatter one of them in the section 18.1 comparison. Setting it to 0
+    # restores the old behaviour of ignoring model-level evidence entirely.
+    model_level_evidence_weight: float = 0.6
+
     # ---------- evidence floor ----------
     # A verdict is suppressed below these thresholds rather than published badly.
     min_evidence_units: int = 40

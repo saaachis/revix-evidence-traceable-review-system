@@ -185,6 +185,19 @@ function VerdictHeader({ verdict, price }: { verdict: VerdictOut; price: string 
 
         <p className="mt-5 border-t border-(--color-line-soft) pt-4 text-[12.5px] leading-relaxed text-(--color-muted)">
           <b className="num font-semibold text-(--color-ink-2)">{verdict.evidence_count}</b> reviews
+          {verdict.model_evidence_count > 0 && (
+            // Said plainly rather than buried. A review site asks which model
+            // you bought, not which trim, so most reviews describe the model.
+            // Counting those silently would be the same trick this project
+            // exists to expose.
+            <>
+              {", of which "}
+              <b className="num font-semibold text-(--color-ink-2)">
+                {verdict.model_evidence_count}
+              </b>{" "}
+              are about the model rather than this exact variant
+            </>
+          )}
           <Sep />
           <b className="num font-semibold text-(--color-ink-2)">{verdict.sources_used.length}</b>{" "}
           {verdict.sources_used.length === 1 ? "source" : "sources"}

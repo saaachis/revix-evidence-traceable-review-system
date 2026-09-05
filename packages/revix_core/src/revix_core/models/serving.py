@@ -76,6 +76,11 @@ class Verdict(Base):
     suppression_reason: Mapped[str | None] = mapped_column(Text)
 
     evidence_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    # How many of those units describe the model rather than this exact trim.
+    # Shown to the reader rather than hidden: "130 reviews of the Creta, 12 of
+    # this variant" is a different claim from "142 reviews of this variant",
+    # and pretending otherwise would undo the point of the whole project.
+    model_evidence_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     # Kish: (sum w)^2 / sum w^2. Two hundred low-weight reviews can carry a
     # smaller effective sample than thirty high-weight ones, which is why
     # weighting properly makes the interval wider rather than narrower.

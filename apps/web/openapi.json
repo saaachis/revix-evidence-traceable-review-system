@@ -1017,6 +1017,11 @@
             "title": "Evidence Count",
             "default": 0
           },
+          "model_evidence_count": {
+            "type": "integer",
+            "title": "Model Evidence Count",
+            "default": 0
+          },
           "is_suppressed": {
             "type": "boolean",
             "title": "Is Suppressed",
@@ -1105,6 +1110,10 @@
             "type": "integer",
             "title": "Evidence Count"
           },
+          "model_evidence_count": {
+            "type": "integer",
+            "title": "Model Evidence Count"
+          },
           "effective_sample_size": {
             "anyOf": [
               {
@@ -1143,6 +1152,7 @@
           "is_suppressed",
           "suppression_reason",
           "evidence_count",
+          "model_evidence_count",
           "effective_sample_size",
           "sources_used",
           "aspects"

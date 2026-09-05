@@ -47,6 +47,7 @@ class VariantSummary(BaseModel):
     confidence_low: float | None = None
     confidence_high: float | None = None
     evidence_count: int = 0
+    model_evidence_count: int = 0
     is_suppressed: bool = False
 
 
@@ -113,6 +114,10 @@ class VerdictOut(BaseModel):
     suppression_reason: str | None
 
     evidence_count: int
+    #: How many of those describe the model rather than this exact trim.
+    #: Shown to the reader, because a review of the Creta and a review of
+    #: the Creta SX(O) Turbo DCT are not the same claim.
+    model_evidence_count: int
     effective_sample_size: float | None
     # No defaults on these two. A field with a default is optional in the
     # generated OpenAPI schema, which would make the frontend treat an
