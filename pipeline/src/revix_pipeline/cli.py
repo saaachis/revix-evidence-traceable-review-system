@@ -23,12 +23,13 @@ import pathlib
 import time
 
 import typer
-from sqlalchemy import func, select, text
+from sqlalchemy import delete, func, select, text
 
 from revix_core.db import session_scope
 from revix_core.models import (
     Aspect,
     AspectOpinion,
+    EvidenceSource,
     EvidenceUnit,
     FusionConfig,
     SourceListing,
@@ -144,6 +145,65 @@ def db_show_reference() -> None:
     for c in configs:
         default = "  [default]" if c.is_default else ""
         typer.echo(f"  {c.display_order}  {c.name:22} {c.label}{default}")
+
+
+@db_app.command("purge")
+def db_purge(
+    source: list[str] = typer.Option(
+        ..., "--source", "-s", help="Source key to remove. Repeat for several."
+    ),
+    yes: bool = typer.Option(False, "--yes", help="Skip the confirmation prompt."),
+) -> None:
+    """Remove every trace of a source, and the verdicts built on it.
+
+    Written for one specific job: replacing generated development evidence
+    with real reviews, without hand-editing a production database.
+
+    Deleting the source row cascades to its raw payloads, ingest runs,
+    listings and evidence units, and from those to aspect opinions and claim
+    citations. Verdicts go too. They are fully derived, recomputing them costs
+    one `revix enrich fuse`, and leaving them would publish scores built on
+    evidence that no longer exists, with citations pointing at deleted rows.
+
+    The catalogue and the reference data are untouched.
+    """
+    with session_scope() as session:
+        rows = session.execute(
+            select(EvidenceSource.id, EvidenceSource.source_key, EvidenceSource.display_name).where(
+                EvidenceSource.source_key.in_(source)
+            )
+        ).all()
+        found = {r.source_key for r in rows}
+        missing = sorted(set(source) - found)
+        if missing:
+            typer.secho(f"unknown source(s): {', '.join(missing)}", fg="red")
+            raise typer.Exit(1)
+
+        units = session.scalar(
+            select(func.count())
+            .select_from(EvidenceUnit)
+            .where(EvidenceUnit.source_id.in_([r.id for r in rows]))
+        )
+        verdicts = session.scalar(select(func.count()).select_from(Verdict))
+
+        typer.secho("This will permanently delete:", fg="yellow", bold=True)
+        for row in rows:
+            typer.echo(f"    {row.source_key:20} {row.display_name}")
+        typer.echo(f"    {units:,} evidence units, and every opinion and citation from them")
+        typer.echo(f"    {verdicts:,} verdicts, which must be recomputed afterwards")
+
+        if not yes and not typer.confirm("\nProceed?"):
+            typer.echo("nothing was deleted.")
+            raise typer.Exit(1)
+
+        session.execute(delete(Verdict))
+        session.execute(delete(EvidenceSource).where(EvidenceSource.id.in_([r.id for r in rows])))
+
+    typer.secho("\npurged.", fg="green", bold=True)
+    with session_scope() as session:
+        remaining = session.scalar(select(func.count()).select_from(EvidenceUnit))
+        typer.echo(f"    {remaining:,} evidence units remain")
+    typer.secho("    now run: revix pipeline nightly --sources <the sources you want>", fg="cyan")
 
 
 @db_app.command("status")
