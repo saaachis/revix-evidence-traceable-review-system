@@ -1,0 +1,55 @@
+{
+  "_comment": [
+    "Models to add to the catalogue, and where each one lives on the source.",
+    "",
+    "Chosen for sales volume rather than interest, because review volume follows",
+    "sales and a catalogue of enthusiast vehicles would be a catalogue nobody has",
+    "written about. Every slug here was verified to return a schema.org",
+    "ProductGroup before it was written down; five candidates were dropped at that",
+    "step rather than added and left silently empty, which is what happened with",
+    "the Pulsar NS200 on BikeWale.",
+    "",
+    "Electric two-wheelers are deliberately absent. BikeDekho publishes no specs",
+    "for two-wheelers, so fuel is inferred from the body style, and that inference",
+    "is only safe while the list holds nothing electric.",
+    "",
+    "Run with: uv run revix catalogue discover"
+  ],
+
+  "manufacturers": [
+    { "slug": "toyota", "name": "Toyota", "country": "JP" },
+    { "slug": "skoda", "name": "Skoda", "country": "CZ" },
+    { "slug": "nissan", "name": "Nissan", "country": "JP" },
+    { "slug": "suzuki-motorcycle", "name": "Suzuki Motorcycle", "country": "JP" }
+  ],
+
+  "candidates": [
+    { "manufacturer": "Maruti Suzuki", "name": "Brezza", "slug": "brezza", "vehicle_class": "car", "body_style": "SUV", "segment": "compact", "launch_year": 2022, "source_make": "maruti-suzuki", "source_model": "brezza", "variants": 4 },
+    { "manufacturer": "Maruti Suzuki", "name": "Wagon R", "slug": "wagon-r", "vehicle_class": "car", "body_style": "Hatchback", "segment": "entry", "launch_year": 2019, "source_make": "maruti-suzuki", "source_model": "wagon-r", "variants": 4 },
+    { "manufacturer": "Maruti Suzuki", "name": "Dzire", "slug": "dzire", "vehicle_class": "car", "body_style": "Sedan", "segment": "compact", "launch_year": 2024, "source_make": "maruti-suzuki", "source_model": "dzire", "variants": 4 },
+    { "manufacturer": "Maruti Suzuki", "name": "Ertiga", "slug": "ertiga", "vehicle_class": "car", "body_style": "MPV", "segment": "midsize", "launch_year": 2018, "source_make": "maruti-suzuki", "source_model": "ertiga", "variants": 4 },
+    { "manufacturer": "Maruti Suzuki", "name": "Fronx", "slug": "fronx", "vehicle_class": "car", "body_style": "SUV", "segment": "compact", "launch_year": 2023, "source_make": "maruti-suzuki", "source_model": "fronx", "variants": 4 },
+    { "manufacturer": "Hyundai", "name": "Venue", "slug": "venue", "vehicle_class": "car", "body_style": "SUV", "segment": "compact", "launch_year": 2019, "source_make": "hyundai", "source_model": "venue", "variants": 4 },
+    { "manufacturer": "Hyundai", "name": "i20", "slug": "i20", "vehicle_class": "car", "body_style": "Hatchback", "segment": "premium", "launch_year": 2020, "source_make": "hyundai", "source_model": "i20", "variants": 4 },
+    { "manufacturer": "Hyundai", "name": "Exter", "slug": "exter", "vehicle_class": "car", "body_style": "SUV", "segment": "entry", "launch_year": 2023, "source_make": "hyundai", "source_model": "exter", "variants": 4 },
+    { "manufacturer": "Tata Motors", "name": "Punch", "slug": "punch", "vehicle_class": "car", "body_style": "SUV", "segment": "entry", "launch_year": 2021, "source_make": "tata", "source_model": "punch", "variants": 4 },
+    { "manufacturer": "Tata Motors", "name": "Altroz", "slug": "altroz", "vehicle_class": "car", "body_style": "Hatchback", "segment": "premium", "launch_year": 2020, "source_make": "tata", "source_model": "altroz", "variants": 4 },
+    { "manufacturer": "Mahindra", "name": "Scorpio N", "slug": "scorpio-n", "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2022, "source_make": "mahindra", "source_model": "scorpio-n", "variants": 4 },
+    { "manufacturer": "Mahindra", "name": "Thar", "slug": "thar", "vehicle_class": "car", "body_style": "SUV", "segment": "lifestyle", "launch_year": 2020, "source_make": "mahindra", "source_model": "thar", "variants": 4 },
+    { "manufacturer": "Kia", "name": "Sonet", "slug": "sonet", "vehicle_class": "car", "body_style": "SUV", "segment": "compact", "launch_year": 2020, "source_make": "kia", "source_model": "sonet", "variants": 4 },
+    { "manufacturer": "Toyota", "name": "Urban Cruiser Hyryder", "slug": "hyryder", "vehicle_class": "car", "body_style": "SUV", "segment": "midsize", "launch_year": 2022, "source_make": "toyota", "source_model": "hyryder", "variants": 4 },
+    { "manufacturer": "Honda", "name": "City", "slug": "city", "vehicle_class": "car", "body_style": "Sedan", "segment": "midsize", "launch_year": 2020, "source_make": "honda", "source_model": "city", "variants": 4 },
+    { "manufacturer": "Skoda", "name": "Slavia", "slug": "slavia", "vehicle_class": "car", "body_style": "Sedan", "segment": "midsize", "launch_year": 2022, "source_make": "skoda", "source_model": "slavia", "variants": 4 },
+    { "manufacturer": "Nissan", "name": "Magnite", "slug": "magnite", "vehicle_class": "car", "body_style": "SUV", "segment": "compact", "launch_year": 2020, "source_make": "nissan", "source_model": "magnite", "variants": 4 },
+
+    { "manufacturer": "Hero MotoCorp", "name": "HF Deluxe", "slug": "hf-deluxe", "vehicle_class": "two_wheeler", "body_style": "Commuter", "segment": "entry", "launch_year": 2018, "source_make": "hero", "source_model": "hf-deluxe", "variants": 4 },
+    { "manufacturer": "Hero MotoCorp", "name": "Glamour", "slug": "glamour", "vehicle_class": "two_wheeler", "body_style": "Commuter", "segment": "entry", "launch_year": 2021, "source_make": "hero", "source_model": "glamour", "variants": 3 },
+    { "manufacturer": "Honda", "name": "Dio", "slug": "dio", "vehicle_class": "two_wheeler", "body_style": "Scooter", "segment": "entry", "launch_year": 2020, "source_make": "honda", "source_model": "dio", "variants": 3 },
+    { "manufacturer": "TVS Motor", "name": "Raider", "slug": "raider", "vehicle_class": "two_wheeler", "body_style": "Commuter", "segment": "entry", "launch_year": 2021, "source_make": "tvs", "source_model": "raider", "variants": 4 },
+    { "manufacturer": "TVS Motor", "name": "Apache RTR 160", "slug": "apache-rtr-160", "vehicle_class": "two_wheeler", "body_style": "Sport", "segment": "commuter-sport", "launch_year": 2018, "source_make": "tvs", "source_model": "apache-rtr-160", "variants": 4 },
+    { "manufacturer": "TVS Motor", "name": "Ntorq 125", "slug": "ntorq-125", "vehicle_class": "two_wheeler", "body_style": "Scooter", "segment": "premium", "launch_year": 2018, "source_make": "tvs", "source_model": "ntorq-125", "variants": 4 },
+    { "manufacturer": "Royal Enfield", "name": "Bullet 350", "slug": "bullet-350", "vehicle_class": "two_wheeler", "body_style": "Cruiser", "segment": "midsize", "launch_year": 2023, "source_make": "royal-enfield", "source_model": "bullet-350", "variants": 4 },
+    { "manufacturer": "Royal Enfield", "name": "Meteor 350", "slug": "meteor-350", "vehicle_class": "two_wheeler", "body_style": "Cruiser", "segment": "midsize", "launch_year": 2020, "source_make": "royal-enfield", "source_model": "meteor-350", "variants": 4 },
+    { "manufacturer": "Suzuki Motorcycle", "name": "Access 125", "slug": "access-125", "vehicle_class": "two_wheeler", "body_style": "Scooter", "segment": "premium", "launch_year": 2023, "source_make": "suzuki", "source_model": "access-125", "variants": 4 }
+  ]
+}

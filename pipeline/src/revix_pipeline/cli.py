@@ -21,6 +21,7 @@ import json
 import logging
 import pathlib
 import time
+from typing import Any
 
 import typer
 from sqlalchemy import delete, func, select, text
@@ -177,6 +178,108 @@ def probe(
     if not drafts:
         typer.secho("\n    fetched, but parsed nothing. The markup may have changed.", fg="red")
         raise typer.Exit(1)
+
+
+@catalogue_app.command("discover")
+def catalogue_discover(
+    candidates: str = typer.Option("data/seed/candidates.json", "--candidates"),
+    catalogue: str = typer.Option("data/seed/catalogue.json", "--catalogue"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Report, write nothing."),
+) -> None:
+    """Read variant specs from the sources and add them to the catalogue.
+
+    Run by hand, never in the nightly. A catalogue that changes under a
+    running pipeline is a catalogue nobody can reason about.
+
+    Specs come from the same sites the reviews do, under the same permission:
+    CarDekho publishes a schema.org ProductGroup per model and a Car object
+    per variant carrying fuel, gearbox, displacement and the ARAI figure.
+    Typing those by hand would scale badly and, worse, would mean a spec
+    somebody half-remembered.
+    """
+    from revix_pipeline.catalogue_discovery import Candidate, discover
+    from revix_pipeline.connectors.politeness import PoliteClient
+
+    src = json.loads(pathlib.Path(candidates).read_text(encoding="utf-8"))
+    book = json.loads(pathlib.Path(catalogue).read_text(encoding="utf-8"))
+    known_models = {m["slug"] for m in book["models"]}
+    known_makes = {m["slug"] for m in book["manufacturers"]}
+    # A model refers to its manufacturer by slug, not by display name. Writing
+    # the name here produced a catalogue that looked right and blew up in the
+    # seeder with KeyError: 'Maruti Suzuki'.
+    slug_for_make = {m["name"]: m["slug"] for m in book["manufacturers"]}
+    slug_for_make.update({m["name"]: m["slug"] for m in src.get("manufacturers", [])})
+
+    client = PoliteClient("catalogue", rate_limit_rpm=10, respect_robots=True)
+    added_models: list[dict[str, Any]] = []
+    empty: list[str] = []
+    start = time.monotonic()
+
+    for row in src["candidates"]:
+        if row["slug"] in known_models:
+            continue
+        candidate = Candidate(**{k: v for k, v in row.items() if k != "notes"})
+        variants = discover(candidate, client)
+        label = f"{candidate.manufacturer} {candidate.name}"
+        if not variants:
+            # Recorded rather than skipped silently. A model that yields
+            # nothing is a slug that has moved, and finding that out three
+            # weeks later from an empty page is the expensive way.
+            empty.append(label)
+            typer.secho(f"  {label:34} nothing found", fg="yellow")
+            continue
+        typer.secho(f"  {label:34} {len(variants)} variants", fg="green")
+        make_slug = slug_for_make.get(candidate.manufacturer)
+        if make_slug is None:
+            typer.secho(
+                f"  {label:34} unknown manufacturer, add it to the candidates file",
+                fg="red",
+            )
+            empty.append(label)
+            continue
+        added_models.append(
+            {
+                "manufacturer": make_slug,
+                "slug": candidate.slug,
+                "name": candidate.name,
+                "vehicle_class": candidate.vehicle_class,
+                "body_style": candidate.body_style,
+                "segment": candidate.segment,
+                "launch_year": candidate.launch_year,
+                "variants": [v.as_dict() for v in variants],
+            }
+        )
+
+    new_makes = [m for m in src.get("manufacturers", []) if m["slug"] not in known_makes]
+    total_variants = sum(len(m["variants"]) for m in added_models)
+
+    typer.secho(
+        f"\n{len(added_models)} models, {total_variants} variants, "
+        f"{len(new_makes)} new manufacturers, in {time.monotonic() - start:.0f}s",
+        bold=True,
+    )
+    if empty:
+        typer.secho(f"    {len(empty)} yielded nothing: {', '.join(empty)}", fg="yellow")
+
+    if dry_run:
+        typer.echo("    dry run, nothing written")
+        return
+    if not added_models:
+        typer.secho("    nothing new to add", fg="yellow")
+        return
+
+    book["manufacturers"].extend(new_makes)
+    book["models"].extend(added_models)
+    pathlib.Path(catalogue).write_text(
+        json.dumps(book, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    grand = sum(len(m.get("variants", [])) for m in book["models"])
+    typer.secho(
+        f"    {catalogue} now holds {len(book['models'])} models and {grand} variants",
+        fg="green",
+        bold=True,
+    )
+    typer.secho("    now run: uv run revix catalogue seed", fg="cyan")
 
 
 # ---------------------------------------------------------------- gold sets
