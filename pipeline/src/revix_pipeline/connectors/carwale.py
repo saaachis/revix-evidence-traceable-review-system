@@ -17,18 +17,32 @@ where CarDekho ignores the parameter and hands back page one. So this source
 can supply the volume the evidence floor needs, rather than the thirty reviews
 per model that CarDekho caps at.
 
-Cars only, deliberately. BikeWale is the same publisher's two-wheeler site and
-exposes exactly one review in its JSON-LD however many pages you ask for, and
-its manufacturer slugs are inconsistent with CarWale's. Two-wheelers are
-covered by BikeDekho and YouTube instead.
+Two-wheelers come from BikeWale, the same publisher's bike site, under the
+same source key because it is the same publisher and counting it separately
+would inflate our own source count.
+
+BikeWale needs a different technique. Its JSON-LD carries exactly one review
+however many pages you ask for, so the ten on the page have to be read from
+the markup. Ten, not the forty anchors you will count in the DOM: each review
+is linked about four times over, from its title, its image and its footer. The anchor is each review's permalink, /{make}-bikes/{model}/
+reviews/{id}/, and from there the enclosing card is read by the shape of its
+children rather than by class name: the class names are hashed and change on
+every deploy, while a card that holds a title, a date, a body and a helpful
+count is a structure nobody rewrites casually.
+
+That gives two-wheelers what they were missing. Before this they had BikeDekho
+and YouTube, which is two sources and roughly twenty usable reviews per model,
+and every bike on the site sat under the evidence floor.
 """
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from dateutil import parser as date_parser
+from selectolax.parser import HTMLParser, Node
 
 from revix_core.enums import Modality, SourceKind
 from revix_pipeline.connectors.base import (
@@ -50,6 +64,28 @@ from revix_pipeline.connectors.schema_org import (
 )
 
 HOST = "https://www.carwale.com"
+BIKE_HOST = "https://www.bikewale.com"
+
+#: BikeWale's own spellings, which are not our catalogue's. "Royal Enfield"
+#: is one word there and "Hero MotoCorp" loses its second half. A model we
+#: cannot address simply 404s and contributes nothing, which is the right
+#: failure: no evidence rather than the wrong evidence.
+BIKE_MAKE_SLUGS: dict[str, str] = {
+    "royal enfield": "royalenfield",
+    "hero motocorp": "hero",
+    "bajaj auto": "bajaj",
+    "tvs motor": "tvs",
+}
+
+#: A review's permalink. The one thing on a BikeWale card that is not a hashed
+#: class name, and therefore the only thing worth anchoring to.
+_REVIEW_LINK = re.compile(r"^/[a-z0-9-]+-bikes/[a-z0-9-]+/reviews/(\d+)/$")
+
+#: "6 years ago". Searched for anywhere in a line rather than anchored, since
+#: the card renders it as "6 years ago Soutam Ghosh" with the name attached.
+_AGE = re.compile(r"\b(\d+)\s+(day|week|month|year)s?\s+ago\b", re.IGNORECASE)
+_HELPFUL = re.compile(r"helpful\?\s*(\d+)\s+(\d+)", re.IGNORECASE)
+_AGE_DAYS = {"day": 1, "week": 7, "month": 30, "year": 365}
 
 #: Deliberately slow. Five pages across sixteen models is eighty requests a
 #: night, which at this rate takes eight minutes and inconveniences nobody.
@@ -105,15 +141,23 @@ class CarWaleConnector:
     # ---------- the contract ----------
 
     def discover(self, seed: CatalogSeed) -> Iterable[ExternalRef]:
+        label = f"{seed.manufacturer} {seed.model}"
         if seed.vehicle_class == "two_wheeler":
-            # BikeWale exposes one review per page whatever you ask for. Two
-            # wheelers come from BikeDekho and YouTube instead.
+            # One page only. BikeWale ignores ?page and returns the same ten
+            # reviews, so there is nothing further to ask it for.
+            make = BIKE_MAKE_SLUGS.get(seed.manufacturer.casefold(), slug(seed.manufacturer))
+            url = f"{BIKE_HOST}/{make}-bikes/{slug(seed.model)}/reviews/"
+            if url in self._seen:
+                return
+            self._seen.add(url)
+            yield ExternalRef(
+                external_id=url, url=url, seed=seed, hint={"model": label, "page": "1"}
+            )
             return
         base = f"{HOST}/{slug(seed.manufacturer)}-cars/{slug(seed.model)}/reviews/"
         if base in self._seen:
             return
         self._seen.add(base)
-        label = f"{seed.manufacturer} {seed.model}"
         for page in range(1, self.pages_per_model + 1):
             url = base if page == 1 else f"{base}?page={page}"
             yield ExternalRef(
@@ -133,12 +177,71 @@ class CarWaleConnector:
             content_type=response.headers.get("content-type"),
         )
 
+    def _parse_bikewale(
+        self,
+        html: str,
+        raw: RawPayload,
+        model_label: str,
+        seed: CatalogSeed | None,
+    ) -> list[EvidenceUnitDraft]:
+        """Ten reviews a page, read from the markup rather than JSON-LD."""
+        tree = HTMLParser(html)
+        drafts: list[EvidenceUnitDraft] = []
+        seen: set[str] = set()
+
+        for anchor in tree.css("a[href]"):
+            href = anchor.attributes.get("href") or ""
+            match = _REVIEW_LINK.match(href)
+            if not match or match.group(1) in seen:
+                continue
+            card = _card_of(anchor)
+            if card is None:
+                continue
+            seen.add(match.group(1))
+
+            title = " ".join(anchor.text().split())
+            parsed = _parse_card(card, title)
+            body = str(parsed["body"])
+            if len(body) < MIN_BODY_CHARS:
+                continue
+            text = f"{title}. {body}" if title else body
+            author = parsed["author"]
+
+            drafts.append(
+                EvidenceUnitDraft(
+                    external_id=review_id(f"{BIKE_HOST}{href}", title, body),
+                    text=text,
+                    modality=Modality.TEXT,
+                    url=f"{BIKE_HOST}{href}",
+                    author_ref=str(author) if author else None,
+                    lang=None,
+                    published_at=parsed["published"],  # type: ignore[arg-type]
+                    # BikeWale shows stars in markup we would have to guess at,
+                    # so no rating rather than a guessed one.
+                    rating_raw=None,
+                    rating_scale_max=None,
+                    is_verified_owner=None,
+                    helpful_votes=parsed["helpful"],  # type: ignore[arg-type]
+                    total_votes=parsed["total"],  # type: ignore[arg-type]
+                    ownership_duration_months=ownership_months(text),
+                    km_driven=km_driven(text),
+                    listing_title=listing_title(model_label, text),
+                    variant_hint=variant_tokens(text) or None,
+                    model_hint=model_label
+                    or (f"{seed.manufacturer} {seed.model}" if seed else None),
+                )
+            )
+        return drafts
+
     def parse(self, raw: RawPayload) -> list[EvidenceUnitDraft]:
         if raw.http_status != 200 or not raw.body:
             return []
         html = raw.body.decode("utf-8", errors="replace")
         seed = raw.ref.seed
         model_label = str(raw.ref.hint.get("model") or "")
+
+        if raw.ref.url.startswith(BIKE_HOST):
+            return self._parse_bikewale(html, raw, model_label, seed)
 
         drafts: list[EvidenceUnitDraft] = []
         for review in reviews_in(html):
@@ -173,6 +276,73 @@ class CarWaleConnector:
                 )
             )
         return drafts
+
+
+def _card_of(anchor: Node) -> Node | None:
+    """The element holding one whole review, found by walking up from its link.
+
+    Identified by what it contains rather than by its class, which is hashed,
+    or by its size, which was the first thing I tried and was wrong: a card is
+    a card whether the review inside it is four hundred characters or eighty,
+    and a size threshold silently dropped the short ones.
+
+    A review card is the first ancestor that also holds the posting date, so
+    that is what we look for.
+    """
+    node = anchor
+    for _ in range(7):
+        parent = node.parent
+        if parent is None:
+            return None
+        node = parent
+        text = " ".join(node.text(separator=" ").split())
+        if _AGE.search(text) or _HELPFUL.search(text):
+            return node
+    return None
+
+
+def _age_to_date(text: str) -> datetime | None:
+    """ "6 years ago" into a date.
+
+    Approximate on purpose, and approximate is worth having: the recency
+    weighting cares whether a review is from this year or from 2018, not which
+    Tuesday it was written.
+    """
+    match = _AGE.match(text.strip())
+    if not match:
+        return None
+    amount, unit = int(match.group(1)), match.group(2).lower()
+    return datetime.now(UTC) - timedelta(days=amount * _AGE_DAYS[unit])
+
+
+def _parse_card(card: Node, title: str) -> dict[str, object]:
+    """Read a card by the shape of its children, not their class names."""
+    out: dict[str, object] = {
+        "body": "",
+        "author": None,
+        "published": None,
+        "helpful": None,
+        "total": None,
+    }
+    longest = ""
+    for child in card.iter():
+        text = " ".join(child.text(separator=" ").split())
+        if not text or text == title:
+            continue
+        if (dated := _age_to_date(text)) is not None:
+            out["published"] = dated
+            # "6 years ago Soutam Ghosh": the name is whatever follows the age.
+            remainder = _AGE.sub("", text).strip()
+            out["author"] = remainder or None
+            continue
+        if (votes := _HELPFUL.search(text)) is not None:
+            helpful, unhelpful = int(votes.group(1)), int(votes.group(2))
+            out["helpful"], out["total"] = helpful, helpful + unhelpful
+            continue
+        if len(text) > len(longest):
+            longest = text
+    out["body"] = longest
+    return out
 
 
 def _published(value: object) -> datetime | None:
