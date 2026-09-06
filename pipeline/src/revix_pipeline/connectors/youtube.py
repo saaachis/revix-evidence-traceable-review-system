@@ -43,11 +43,21 @@ API_BASE = "https://www.googleapis.com/youtube/v3"
 # nightly run from looking like a burst to anyone watching.
 RATE_LIMIT_RPM = 60
 
-# Eight videos per model rather than four. The search is the expensive call at
-# 100 quota units and happens once per model either way; each extra video's
-# comments cost 1. Doubling the videos roughly doubles the evidence for about
-# 130 extra units a night out of 10,000, and it is what carries the
-# two-wheelers over the evidence floor.
+# Sixteen videos per model. The search is the expensive call at 100 quota
+# units and happens once per model either way, while each extra video's
+# comments cost 1. Counted rather than estimated: 24 models is 2,400 for the
+# searches and 384 for the comment pages, so 2,784 of the 10,000 we get a day,
+# which leaves room for three runs. Quota is not what limits this.
+#
+# Raised from eight because five two-wheelers sat between 19 and 34 units
+# against a floor of 40, and the alternative was lowering the floor. Adding
+# evidence and lowering the bar are not the same move, and only one of them
+# leaves the number meaning what it did yesterday.
+#
+# The cost is real and worth stating: this is the source with the lowest prior
+# in the project, so its share of the corpus grows. The credibility weighting
+# is what is meant to absorb that, and whether it does is measurable rather
+# than assumed.
 #
 # Comments are shorter than forum posts, so the floor is lower than Reddit's.
 # "Best bike" is not evidence; two clauses about the clutch is.
@@ -74,7 +84,7 @@ class YouTubeConnector:
     def __init__(
         self,
         *,
-        videos_per_variant: int = 8,
+        videos_per_variant: int = 16,
         comments_per_video: int = 100,
         daily_quota: int = 10_000,
     ) -> None:
