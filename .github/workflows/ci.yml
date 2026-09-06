@@ -219,6 +219,12 @@ jobs:
       # opacity-65 sat at 2.5:1, and the rows it made hardest to read were the
       # ones saying we do not have enough evidence.
       - name: Accessibility
+        # Its own env block. A step does not inherit the previous step's, so
+        # without CHROME_PATH this falls back to the Windows default and
+        # cannot find a browser on the runner. The servers from the step above
+        # are still running; those are processes, not environment.
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
         run: npm run a11y --prefix apps/web
 
   image:
