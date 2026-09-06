@@ -27,6 +27,14 @@ from revix_core.models import AspectOpinion, EvidenceUnit
 from revix_core.settings import get_settings
 
 #: Topic cues. Multi-word phrases first so "service centre" wins over "service".
+#:
+#: Two-wheeler vocabulary sits alongside the car vocabulary rather than in a
+#: separate table. A cue list per vehicle class would need the extractor to
+#: know which class a unit belongs to before it has been resolved to a vehicle,
+#: which is the wrong way round: resolution happens after extraction. The cost
+#: of one shared list is that "chain" could in principle fire on a car review
+#: about a timing chain, which is a fair trade for the 21 of 30 real bike
+#: reviews that previously produced nothing at all.
 ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
     AspectKey.ENGINE_GEARBOX: (
         "gearbox",
@@ -39,14 +47,26 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "shifts",
         "torque",
         "acceleration",
+        "performance",
         "dct",
         "amt",
         "cvt",
+        # Two-wheeler drivetrain. A bike has no gearbox worth the name to
+        # a rider; it has a clutch, a chain and a kick start.
+        "chain",
+        "kick start",
+        "self start",
+        "gear shift",
+        "top speed",
+        "refinement",
+        "vibration",
     ),
     AspectKey.RIDE_HANDLING_NVH: (
         "ride quality",
         "suspension",
         "handling",
+        "handles",
+        "handle",
         "nvh",
         "road noise",
         "cabin noise",
@@ -55,6 +75,15 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "steering",
         "bumps",
         "ride",
+        # A rider feels the road through the bars and the seat, so the
+        # vocabulary is different from a car cabin.
+        "handlebar",
+        "handle bar",
+        "cornering",
+        "stability",
+        "riding comfort",
+        "shocks",
+        "balance",
     ),
     AspectKey.RUNNING_COST: (
         "mileage",
@@ -65,6 +94,15 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "fuel consumption",
         "petrol cost",
         "diesel cost",
+        # "milage" outnumbers "mileage" in Indian owner reviews and is not
+        # a typo we can afford to be precious about.
+        "milage",
+        "average",
+        "fuel average",
+        "km per litre",
+        "kmph per litre",
+        "maintenance cost",
+        "petrol",
     ),
     AspectKey.SPACE_COMFORT: (
         "rear seat",
@@ -77,6 +115,13 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "pillion",
         "seats",
         "storage",
+        "seat height",
+        "seat",
+        "footrest",
+        "foot rest",
+        "riding position",
+        "under seat",
+        "leg space",
     ),
     AspectKey.FEATURES: (
         "touchscreen",
@@ -88,6 +133,13 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "carplay",
         "instrument cluster",
         "software",
+        "headlight",
+        "head light",
+        "led",
+        "console",
+        "digital meter",
+        "usb",
+        "bluetooth",
     ),
     AspectKey.BUILD_QUALITY: (
         "build quality",
@@ -99,6 +151,12 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "paint",
         "doors shut",
         "materials",
+        "body panel",
+        "plastic quality",
+        "rusting",
+        "rust",
+        "finishing",
+        "sturdy",
     ),
     AspectKey.SAFETY: (
         "airbag",
@@ -111,6 +169,12 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "brakes",
         "safety",
         "visibility",
+        "brake",
+        "disc brake",
+        "grip",
+        "tyre grip",
+        "skid",
+        "helmet",
     ),
     AspectKey.SERVICE_AFTERSALES: (
         "service centre",
@@ -124,6 +188,11 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "advisor",
         "service cost",
         "servicing",
+        "service",
+        "showroom",
+        "mechanic",
+        "parts",
+        "warranty claim",
     ),
     AspectKey.LONG_TERM_RELIABILITY: (
         "reliability",
@@ -136,10 +205,36 @@ ASPECT_CUES: dict[AspectKey, tuple[str, ...]] = {
         "issues",
         "problems",
         "electrical",
+        "durability",
+        "durable",
+        "long run",
+        "years of use",
+        "no issue",
+        "trouble",
+        "starting problem",
+        "wear",
     ),
 }
 
 POSITIVE_CUES: tuple[str, ...] = (
+    # How people actually write when they like something, which is not how a
+    # car magazine writes. "best" was missing entirely, and it is close to the
+    # most common evaluative word in an Indian owner review.
+    "best",
+    "perfect",
+    "awesome",
+    "amazing",
+    "superb",
+    "fantastic",
+    "love",
+    "loved",
+    "nice",
+    "worth",
+    "satisfied",
+    "recommend",
+    "no vibration",
+    "no issues",
+    "no problem",
     "excellent",
     "great",
     "good",
@@ -169,6 +264,30 @@ POSITIVE_CUES: tuple[str, ...] = (
 )
 
 NEGATIVE_CUES: tuple[str, ...] = (
+    # Things breaking. All of these were absent, which meant "the self start
+    # failed within a year" scored as neutral: a reliability complaint read as
+    # a shrug, on the aspect the proposal says matters most.
+    "failed",
+    "fails",
+    "failure",
+    "broke",
+    "broken",
+    "stopped working",
+    "leaking",
+    "damaged",
+    "annoying",
+    "worst",
+    "waste",
+    "disappointing",
+    "disappointed",
+    "vibration",
+    "vibrations",
+    "weak",
+    "uncomfortable",
+    "complaint",
+    "complaints",
+    "regret",
+    "avoid",
     "poor",
     "bad",
     "terrible",
@@ -223,9 +342,22 @@ class Extraction:
 
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
+#: Runs of dots are one pause, not four sentence endings. Indian owner reviews
+#: use "....." the way other people use a comma, and splitting on each dot
+#: produced fragments like "It....." and "And the good one is....." that carry
+#: no topic and no sentiment and were then counted as reviews saying nothing.
+_ELLIPSIS = re.compile(r"\.{2,}")
+
+#: Below this a fragment cannot carry an opinion about a topic, and letting one
+#: through means a stray "It." is scored and discarded as a real observation.
+MIN_SENTENCE_CHARS = 15
+
 
 def split_sentences(text: str) -> list[str]:
-    return [s.strip() for s in _SENTENCE_SPLIT.split(text) if s.strip()]
+    normalised = _ELLIPSIS.sub(". ", text)
+    return [
+        s.strip() for s in _SENTENCE_SPLIT.split(normalised) if len(s.strip()) >= MIN_SENTENCE_CHARS
+    ]
 
 
 def _count(text: str, cues: tuple[str, ...]) -> int:

@@ -26,7 +26,11 @@ from revix_pipeline.enrichment.credibility import (
     reliability,
     spam_probability,
 )
-from revix_pipeline.enrichment.extract import extract_from_text, score_sentence
+from revix_pipeline.enrichment.extract import (
+    extract_from_text,
+    score_sentence,
+    split_sentences,
+)
 from revix_pipeline.enrichment.fuse import (
     Contribution,
     attribute_divergence,
@@ -300,3 +304,53 @@ def _contribution(weight: float, polarity: float, *, verified: bool | None = Non
         ownership_months=24,
         km_driven=20000,
     )
+
+
+class TestTwoWheelerExtraction:
+    """The lexicon was written by somebody thinking about a car.
+
+    Measured on real BikeDekho reviews, 21 of 30 Pulsar NS200 reviews produced
+    no opinion at all, which is why every two-wheeler on the site sat under the
+    evidence floor. The source had the data; we were discarding it.
+    """
+
+    @pytest.mark.parametrize(
+        "sentence",
+        [
+            "Chain needs adjustment every 2000 km which is annoying.",
+            "Kick start works but the self start failed within a year.",
+            "Handlebar vibration at 80 kmph is really bad.",
+            "Seat height is too much for short riders and it feels awkward.",
+            "The milage is around 55 kmpl which is very good for this segment.",
+            "Disc brake grip is excellent even in the rain.",
+        ],
+    )
+    def test_a_bike_review_produces_an_opinion(self, sentence: str) -> None:
+        assert extract_from_text(sentence), f"nothing extracted from: {sentence}"
+
+    def test_best_is_a_positive_word(self) -> None:
+        """It was missing, and it is close to the most common evaluative word
+        in an Indian owner review."""
+        polarity, confidence = score_sentence("Best bike in this segment, engine is superb.")
+        assert polarity > 0
+        assert confidence >= 0.2
+
+
+class TestSentenceSplitting:
+    """Indian owner reviews use "....." the way other people use a comma."""
+
+    def test_a_run_of_dots_is_one_pause_not_four_sentences(self) -> None:
+        parts = split_sentences("The engine is smooth..... but the seat is hard.")
+        assert len(parts) == 2
+        assert all("....." not in p for p in parts)
+
+    def test_fragments_too_short_to_carry_an_opinion_are_dropped(self) -> None:
+        """ "It....." used to survive as a sentence and be scored as evidence."""
+        assert "It" not in split_sentences("It..... the mileage is genuinely good here.")
+
+    def test_a_decimal_does_not_end_a_sentence(self) -> None:
+        parts = split_sentences("It is powered by a 199.5 cc engine which feels strong.")
+        assert len(parts) == 1
+
+    def test_ordinary_sentences_still_split(self) -> None:
+        assert len(split_sentences("The ride is good. The service is poor.")) == 2
