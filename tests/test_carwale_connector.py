@@ -108,9 +108,29 @@ class TestDiscovery:
         assert refs[0].url.endswith("/reviews/")
         assert refs[3].url.endswith("?page=4")
 
-    def test_two_wheelers_are_skipped_on_purpose(self) -> None:
-        """BikeWale exposes one review per page however many you ask for."""
-        assert list(CarWaleConnector().discover(BIKE)) == []
+    def test_two_wheelers_go_to_bikewale(self) -> None:
+        """Same publisher, so the same source key: counting BikeWale
+        separately from CarWale would inflate our own source count."""
+        refs = list(CarWaleConnector().discover(BIKE))
+        assert len(refs) == 1
+        assert refs[0].url == "https://www.bikewale.com/royalenfield-bikes/classic-350/reviews/"
+
+    def test_bikewale_uses_its_own_spelling_of_a_manufacturer(self) -> None:
+        """ "Royal Enfield" is one word there, "Hero MotoCorp" loses half."""
+        for mfr, expected in (
+            ("Hero MotoCorp", "hero"),
+            ("TVS Motor", "tvs"),
+            ("Bajaj Auto", "bajaj"),
+        ):
+            seed = CatalogSeed("9", mfr, "Some Model", "Base", "two_wheeler")
+            url = next(iter(CarWaleConnector().discover(seed))).url
+            assert f"/{expected}-bikes/" in url, url
+
+    def test_a_bike_page_asks_for_one_page_only(self) -> None:
+        """BikeWale ignores ?page and returns the same ten reviews."""
+        refs = list(CarWaleConnector(pages_per_model=5).discover(BIKE))
+        assert len(refs) == 1
+        assert "?page=" not in refs[0].url
 
     def test_one_model_is_visited_once_however_many_variants_share_it(self) -> None:
         connector = CarWaleConnector(pages_per_model=2)
@@ -134,3 +154,66 @@ class TestRegistration:
         assert "carwale" in registry
         assert "cardekho" in registry
         assert registry.get("carwale").source_key != registry.get("cardekho").source_key
+
+
+BIKEWALE_CARD = """
+<html><body>
+  <div class="o-xY">
+    <a href="/honda-bikes/activa-125/reviews/271352/">Best scooty in 125cc</a>
+    <div></div>
+    <div>6 years ago Soutam Ghosh</div>
+    <div>Mileage is genuinely good at 57 km per litre in city riding, and the
+         front disc brake gives real confidence in traffic. Seat is comfortable
+         for a pillion on longer rides too.</div>
+    <div>Was this review helpful? 41 9</div>
+  </div>
+  <div class="o-xY">
+    <a href="/honda-bikes/activa-125/reviews/271353/">Short</a>
+    <div>2 months ago Someone</div>
+    <div>ok</div>
+    <div>Was this review helpful? 1 0</div>
+  </div>
+</body></html>
+"""
+
+
+class TestBikeWaleCards:
+    """Read by the shape of the card, because the class names are hashed and
+    change on every deploy while a title/date/body/votes card does not."""
+
+    def _raw(self) -> RawPayload:
+        url = "https://www.bikewale.com/honda-bikes/activa-125/reviews/"
+        return RawPayload(
+            ref=ExternalRef(external_id=url, url=url, seed=BIKE, hint={"model": "Honda Activa"}),
+            body=BIKEWALE_CARD.encode("utf-8"),
+            fetched_at=datetime.now(UTC),
+            http_status=200,
+        )
+
+    def test_a_substantial_card_becomes_evidence_and_a_one_word_one_does_not(self) -> None:
+        assert len(CarWaleConnector().parse(self._raw())) == 1
+
+    def test_the_body_is_the_longest_child_not_the_first(self) -> None:
+        draft = CarWaleConnector().parse(self._raw())[0]
+        assert "57 km per litre" in draft.text
+        assert "Was this review helpful" not in draft.text
+
+    def test_the_author_is_read_from_the_date_line(self) -> None:
+        assert CarWaleConnector().parse(self._raw())[0].author_ref == "Soutam Ghosh"
+
+    def test_a_relative_age_becomes_an_approximate_date(self) -> None:
+        """Approximate is worth having: recency weighting cares about the year,
+        not which Tuesday it was."""
+        draft = CarWaleConnector().parse(self._raw())[0]
+        assert draft.published_at is not None
+        assert 2000 < draft.published_at.year < datetime.now(UTC).year + 1
+
+    def test_helpful_votes_are_captured(self) -> None:
+        """CarDekho has none of these, so they are worth reading here."""
+        draft = CarWaleConnector().parse(self._raw())[0]
+        assert draft.helpful_votes == 41
+        assert draft.total_votes == 50
+
+    def test_ownership_is_still_never_asserted(self) -> None:
+        for draft in CarWaleConnector().parse(self._raw()):
+            assert draft.is_verified_owner is None
