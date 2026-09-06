@@ -135,6 +135,24 @@ try {
     assert(body.includes("The reviews behind"), "evidence heading missing");
   });
 
+  await check("compare suggests two different vehicles, not one twice", async () => {
+    // Variants arrive ordered by model, so pairing adjacent entries produced
+    // "Activa vs Activa": twelve trims of one scooter, compared with itself.
+    await page.goto(`${BASE}/compare`, { waitUntil: "load" });
+    const labels = await page.$$eval('a[href^="/compare?a="]', (els) =>
+      els.map((e) => e.textContent.trim()),
+    );
+    assert(labels.length > 0, "no suggested pairs at all");
+    const selfPairs = labels.filter((l) => {
+      const [left, right] = l.split(" vs ").map((s) => s.trim());
+      return left && right && left === right;
+    });
+    assert(
+      selfPairs.length === 0,
+      `a vehicle is being compared with itself: ${selfPairs.join(", ")}`,
+    );
+  });
+
   await check("every top-level page answers", async () => {
     for (const path of ["/method", "/accuracy", "/sources", "/status", "/compare"]) {
       const response = await page.goto(`${BASE}${path}`, { waitUntil: "domcontentloaded" });
