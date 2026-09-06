@@ -210,8 +210,9 @@ def gold_sample(
 
     save_gold(existing + drawn, path)
     typer.secho(f"{len(drawn):,} new sentences written to {path}", fg="green", bold=True)
-    typer.echo('    Label each by filling in "aspects" and "labelled_by".')
-    typer.echo("    An empty list is a real answer. Leave labelled_by blank to skip one.")
+    typer.secho("    READ docs/labelling-the-gold-set.md BEFORE LABELLING.", fg="yellow", bold=True)
+    typer.echo("    It covers how to split the work, what an empty list means, and")
+    typer.echo("    why agreeing with the lexicon out of laziness ruins the whole set.")
     _report("gold set", coverage(load_gold(path)), 0.0)
 
 
@@ -224,7 +225,13 @@ def gold_status(path: str = typer.Option("data/gold/aspects.jsonl", "--path")) -
     if not items:
         typer.secho(f"no gold set at {path}. Run: revix gold sample", fg="yellow")
         raise typer.Exit(1)
-    _report("gold set", coverage(items), 0.0)
+    stats = coverage(items)
+    _report("gold set", stats, 0.0)
+    if stats["unlabelled"]:
+        typer.secho(
+            f"    {stats['unlabelled']:,} still to label. See docs/labelling-the-gold-set.md",
+            fg="yellow",
+        )
 
 
 # ---------------------------------------------------------------- the model
@@ -281,7 +288,8 @@ def model_evaluate(
     if not labelled:
         typer.secho(
             f"nothing labelled in {gold_path}. A classifier with no gold set is a "
-            "lexicon with extra steps, so this refuses to print a number.",
+            "lexicon with extra steps, so this refuses to print a number. "
+            "    Start here: docs/labelling-the-gold-set.md",
             fg="red",
         )
         raise typer.Exit(1)

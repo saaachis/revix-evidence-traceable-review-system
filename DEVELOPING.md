@@ -223,7 +223,9 @@ uv run revix gold sample --per-aspect 40
 ```
 
 That writes `data/gold/aspects.jsonl`, stratified by topic. **Somebody now has
-to read it.** For each line, fill in `aspects` and put your name in
+to read it, and the full instructions are in
+[docs/labelling-the-gold-set.md](docs/labelling-the-gold-set.md). Read that
+before starting, not after.** For each line, fill in `aspects` and put your name in
 `labelled_by`:
 
 ```json

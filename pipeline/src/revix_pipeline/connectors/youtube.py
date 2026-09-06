@@ -43,6 +43,12 @@ API_BASE = "https://www.googleapis.com/youtube/v3"
 # nightly run from looking like a burst to anyone watching.
 RATE_LIMIT_RPM = 60
 
+# Eight videos per model rather than four. The search is the expensive call at
+# 100 quota units and happens once per model either way; each extra video's
+# comments cost 1. Doubling the videos roughly doubles the evidence for about
+# 130 extra units a night out of 10,000, and it is what carries the
+# two-wheelers over the evidence floor.
+#
 # Comments are shorter than forum posts, so the floor is lower than Reddit's.
 # "Best bike" is not evidence; two clauses about the clutch is.
 MIN_BODY_CHARS = 60
@@ -68,7 +74,7 @@ class YouTubeConnector:
     def __init__(
         self,
         *,
-        videos_per_variant: int = 4,
+        videos_per_variant: int = 8,
         comments_per_video: int = 100,
         daily_quota: int = 10_000,
     ) -> None:
