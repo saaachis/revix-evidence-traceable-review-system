@@ -55,11 +55,13 @@ HOST = "https://www.carwale.com"
 #: night, which at this rate takes eight minutes and inconveniences nobody.
 RATE_LIMIT_RPM = 10
 
-#: Ten reviews a page, so five pages is fifty per model: comfortably past the
-#: forty-unit evidence floor without asking for the whole archive. A model
+#: Ten reviews a page, so eight pages is eighty per model. Five cleared the
+#: forty-unit floor on paper and did not in practice: not every sentence
+#: carries an opinion the extractor can use, and eleven of the twenty-eight
+#: cars still published nothing. A model
 #: with fewer reviews than this returns repeats on the trailing pages, and the
 #: framework drops them by content hash.
-PAGES_PER_MODEL = 5
+PAGES_PER_MODEL = 8
 
 MIN_BODY_CHARS = 60
 

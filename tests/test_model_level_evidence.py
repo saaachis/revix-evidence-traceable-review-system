@@ -106,3 +106,25 @@ class TestWhatTheDatabaseHolds:
         for verdict in thin:
             assert verdict.is_suppressed
             assert verdict.overall_score is None
+
+
+class TestTheEvidenceFloor:
+    """The floor moved from three sources to two. That was a decision, and a
+    decision that is only in a settings file is one nobody can find later."""
+
+    def test_two_independent_sources_is_the_floor(self) -> None:
+        """One is an echo of a single platform's culture. Two is not.
+
+        For two-wheelers only two publishers permit us at all: ZigWheels
+        forbids review paths, 91wheels is Disallow: / outright, BikeWale
+        exposes one review per model. See ADR 0009.
+        """
+        assert Settings().min_distinct_sources == 2
+
+    def test_the_unit_floor_did_not_move(self) -> None:
+        """Nothing we learned suggested 40 was wrong, so it stayed."""
+        assert Settings().min_evidence_units == 40
+
+    def test_the_floor_still_refuses_a_single_source(self) -> None:
+        """Lowering it to 1 would make the floor decorative."""
+        assert Settings().min_distinct_sources > 1

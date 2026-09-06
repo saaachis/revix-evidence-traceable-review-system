@@ -59,6 +59,7 @@ Two documents are the source of truth. Everything else defers to them.
 | [Contributing](CONTRIBUTING.md) | Branching, commits, reviews, local setup, how we collect data responsibly |
 | [Developing](DEVELOPING.md) | Running it locally, the quality gate, the live connectors, the fusion experiment |
 | [Deploying](DEPLOYING.md) | Neon, Render and Vercel, and the two settings that fail silently |
+| [Labelling the gold set](docs/labelling-the-gold-set.md) | The one task no tool can do for us, and why a number without it is a lie with decimals |
 
 ## Repository layout
 

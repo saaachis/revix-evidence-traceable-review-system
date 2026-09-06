@@ -92,7 +92,20 @@ class Settings(BaseSettings):
     # ---------- evidence floor ----------
     # A verdict is suppressed below these thresholds rather than published badly.
     min_evidence_units: int = 40
-    min_distinct_sources: int = 3
+    # Two, not three. Three was chosen before we knew what the Indian review
+    # landscape actually permits, and it turned out to be a number about a
+    # market we had not surveyed yet. For two-wheelers there are only two
+    # publishers that allow us at all: ZigWheels forbids review paths,
+    # 91wheels is Disallow: / outright, BikeWale exposes one review per model.
+    # Holding out for a third meant every one of the fifteen bikes in the
+    # catalogue published nothing.
+    #
+    # Two genuinely independent platforms is a real guard against one
+    # platform's culture dominating a verdict, which is what this floor is
+    # for. One is not. And the verdict page prints the source count, so a
+    # reader can weigh a two-source verdict for themselves rather than taking
+    # our word for it. See ADR 0009.
+    min_distinct_sources: int = 2
 
     @field_validator("cors_allowed_origins")
     @classmethod
