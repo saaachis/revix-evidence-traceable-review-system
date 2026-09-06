@@ -213,6 +213,14 @@ jobs:
           npx --prefix apps/web wait-on http-get://127.0.0.1:8000/health http-get://127.0.0.1:3000 -t 90000
           npm run e2e --prefix apps/web
 
+      # Automated accessibility checks catch perhaps a third of real problems,
+      # so passing this is a floor rather than a certificate. It is here
+      # because the failure it caught was invisible by eye: text dimmed with
+      # opacity-65 sat at 2.5:1, and the rows it made hardest to read were the
+      # ones saying we do not have enough evidence.
+      - name: Accessibility
+        run: npm run a11y --prefix apps/web
+
   image:
     name: API image
     runs-on: ubuntu-latest

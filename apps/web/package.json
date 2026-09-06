@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "openapi": "uv run python -c \"import json;from revix_api.main import app;print(json.dumps(app.openapi(),indent=2))\" > openapi.json && npm run types",
     "types": "openapi-typescript openapi.json -o src/lib/api-types.ts",
-    "e2e": "node e2e/smoke.mjs"
+    "e2e": "node e2e/smoke.mjs",
+    "a11y": "node e2e/a11y.mjs"
   },
   "dependencies": {
     "next": "^16.3.4",
@@ -22,6 +23,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "axe-core": "^4.13.0",
     "eslint": "^9.18.0",
     "eslint-config-next": "^16.3.4",
     "openapi-typescript": "^7.5.0",

@@ -31,8 +31,12 @@ export function VariantTable({ variants }: { variants: VariantSummary[] }) {
         <tbody>
           {variants.map((v) => {
             const scored = !v.is_suppressed && v.overall_score != null;
+            // A tinted row rather than dimmed text. opacity-65 pushed every
+            // cell in an unscored row to 2.5:1, which made the rows a reader
+            // most needs help with into the hardest ones to read: they are
+            // the ones saying we do not know.
             return (
-              <tr key={v.id} className={scored ? "" : "opacity-65"}>
+              <tr key={v.id} className={scored ? "" : "bg-(--color-surface-2)"}>
                 <td className="font-semibold text-(--color-ink)">
                   <Link href={`/v/${v.id}`} className="hover:text-(--color-brand)">
                     {v.manufacturer} {v.model}
