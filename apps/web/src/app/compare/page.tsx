@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card, Empty, PageHead, Pill, ScoreTrack, Unavailable } from "@/components/ui";
-import { api, tryGet, type VerdictOut } from "@/lib/api";
+import { api, tryGet, type VariantSummary, type VerdictOut } from "@/lib/api";
 import { heatOf, priceRange } from "@/lib/format";
 
 export const revalidate = 300;
@@ -186,9 +186,48 @@ function Banner({ close, children }: { close: boolean; children: React.ReactNode
   );
 }
 
+/**
+ * Pairs worth offering.
+ *
+ * The old version took the first twelve scored variants and paired each with
+ * its neighbour. Variants arrive ordered by model, so the first twelve were
+ * all Activas and every pair was a model against itself: "Activa vs Activa".
+ *
+ * Two rules fix it and both are about what a person is actually deciding
+ * between. One entry per model, because nobody cross-shops two trims of the
+ * same scooter on a comparison page. And pairs drawn from the same vehicle
+ * class at adjacent prices, because a scooter against an SUV is not a
+ * comparison, it is a category error.
+ */
+function suggestedPairs(variants: VariantSummary[]): [VariantSummary, VariantSummary][] {
+  // One variant per model, the best supported one, so a suggested comparison
+  // is never built on the thinnest evidence we hold for that vehicle.
+  const byModel = new Map<string, VariantSummary>();
+  for (const v of variants) {
+    const key = `${v.manufacturer}|${v.model}`;
+    const held = byModel.get(key);
+    if (!held || (v.evidence_count ?? 0) > (held.evidence_count ?? 0)) byModel.set(key, v);
+  }
+
+  const pairs: [VariantSummary, VariantSummary][] = [];
+  for (const cls of ["car", "two_wheeler"] as const) {
+    const inClass = [...byModel.values()]
+      .filter((v) => v.vehicle_class === cls)
+      .sort((a, b) => (a.price_min ?? 0) - (b.price_min ?? 0));
+    // Neighbours by price: the vehicles a buyer is genuinely choosing between.
+    for (let i = 0; i + 1 < inClass.length; i += 1) {
+      const left = inClass[i];
+      const right = inClass[i + 1];
+      if (left && right) pairs.push([left, right]);
+    }
+  }
+  return pairs;
+}
+
 async function Picker() {
   const variants = await tryGet(() => api.variants({ limit: 200 }));
-  const scored = (variants ?? []).filter((v) => !v.is_suppressed).slice(0, 12);
+  const scored = (variants ?? []).filter((v) => !v.is_suppressed);
+  const pairs = suggestedPairs(scored);
 
   return (
     <>
@@ -197,7 +236,7 @@ async function Picker() {
         real and where it is inside the noise.
       </PageHead>
 
-      {scored.length < 2 ? (
+      {pairs.length === 0 ? (
         <Card className="my-5">
           <Empty title="Nothing to compare yet" action={<Pill href="/browse" active>Browse ›</Pill>}>
             <p>At least two vehicles need a verdict before a comparison means anything.</p>
@@ -207,22 +246,26 @@ async function Picker() {
         <section className="my-5">
           <Card className="p-6">
             <p className="mb-4 text-[13.5px] text-(--color-muted)">
-              A few pairs worth looking at:
+              Vehicles people cross-shop, priced within reach of each other:
             </p>
             <div className="flex flex-wrap gap-2">
-              {scored.slice(0, 6).map((left, i) => {
-                const right = scored[(i + 1) % scored.length];
-                if (!right || right.id === left.id) return null;
-                return (
-                  <Pill key={left.id} href={`/compare?a=${left.id}&b=${right.id}`}>
-                    {left.model} vs {right.model}
-                  </Pill>
-                );
-              })}
+              {pairs.map(([left, right]) => (
+                <Pill key={`${left.id}-${right.id}`} href={`/compare?a=${left.id}&b=${right.id}`}>
+                  {left.model} vs {right.model}
+                </Pill>
+              ))}
             </div>
+            <p className="mt-4 text-[12.5px] text-(--color-muted)">
+              Or open any vehicle from{" "}
+              <Link href="/browse" className="font-semibold text-(--color-brand)">
+                browse
+              </Link>{" "}
+              and compare from there.
+            </p>
           </Card>
         </section>
       )}
     </>
   );
 }
+
