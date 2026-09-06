@@ -21,7 +21,11 @@ permissions:
 jobs:
   nightly:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # The catalogue went from 16 models to 42, and ingest cost scales with
+    # models: CarWale alone is eight pages for each of twenty-five cars at a
+    # deliberate ten requests a minute. The last 16-model run took 19 minutes,
+    # so 45 was no longer a ceiling with room in it, it was a coin flip.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
