@@ -31,14 +31,25 @@
   --color-heat-split-bg: #fde8ec;
   --color-heat-some: #b45309;
   --color-heat-some-bg: #fdf1e3;
-  --color-heat-agreed: #78716c;
+  /* 4.15:1 on its own chip background before, which is the one heat colour
+     that failed. Darkened the minimum needed to reach 4.53:1; the split and
+     some variants already passed at 4.99 and 4.51. */
+  --color-heat-agreed: #726b66;
   --color-heat-agreed-bg: #f1eeec;
 
   /* warm neutrals, deliberately not the blue-greys every car portal uses */
   --color-ink: #1a1614;
   --color-ink-2: #453d3a;
-  --color-muted: #7a6f6a;
-  --color-faint: #a79c97;
+  /* Both darkened to clear WCAG AA (4.5:1) on every surface they are used
+     on, checked against white, surface-2, brand-tint and line rather than
+     against white alone. The old faint was 2.36:1 on a tinted card, which is
+     a decorative grey rather than readable text.
+
+     Note the ordering is deliberate: faint is used on 11px uppercase labels,
+     and small text needs MORE contrast than body text, not less. The previous
+     palette had that backwards. */
+  --color-muted: #615651;
+  --color-faint: #736863;
   --color-line: #e7e1de;
   --color-line-soft: #f0ecea;
   --color-surface: #ffffff;
