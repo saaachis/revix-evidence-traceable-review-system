@@ -28,6 +28,14 @@ class Settings(BaseSettings):
     database_url: PostgresDsn = Field(default=LOCAL_DSN)  # type: ignore[assignment]
     db_echo: bool = False
     db_pool_size: int = 5
+    # Bounds on every way a database call can wait. See get_engine for why
+    # each one is here rather than left at its default.
+    db_connect_timeout_seconds: int = 5
+    db_pool_timeout_seconds: int = 10
+    # Neon drops idle connections, and a connection the server has already
+    # closed fails on first use. Recycling under that window means the pool
+    # retires them before the server does.
+    db_pool_recycle_seconds: int = 240
 
     # ---------- api ----------
     api_env: Literal["development", "production"] = "development"
@@ -36,6 +44,22 @@ class Settings(BaseSettings):
     # interchangeably. Missing one blocks the type-ahead in the browser while
     # the server still logs a healthy 200, which is a miserable thing to debug.
     cors_allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+
+    # Requests per minute per client address. Generous on purpose: the browse
+    # page fires a handful of calls on load and a type-ahead fires one per
+    # keystroke, so a real person can reach thirty in a burst without doing
+    # anything unusual. This is a ceiling on abuse, not a throttle on use.
+    rate_limit_per_minute: int = 120
+    # Off by default in tests and local work, where the client is one machine
+    # and a limit would only ever fire on ourselves.
+    rate_limit_enabled: bool = True
+
+    # How long a browser or CDN may reuse a response. The pipeline writes once
+    # a night, so anything shorter is asking clients to re-fetch rows that
+    # cannot have changed. Five minutes rather than hours because the demo
+    # involves running the pipeline and then showing the result, and a
+    # long-lived cache would show yesterday's answer on stage.
+    cache_max_age_seconds: int = 300
 
     # ---------- language model ----------
     # Batch narration only. Section 16 of the proposal requires that a complete
