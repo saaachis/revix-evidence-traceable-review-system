@@ -217,3 +217,82 @@ class TestBikeWaleCards:
     def test_ownership_is_still_never_asserted(self) -> None:
         for draft in CarWaleConnector().parse(self._raw()):
             assert draft.is_verified_owner is None
+
+
+class TestPaginationStopsWhenAModelRunsOut:
+    """discover() has to yield every page up front, since it cannot know where
+    a model's list ends. fetch() is where that guess gets corrected."""
+
+    def _page(self, url: str, body: bytes = b"", status: int | None = 200) -> RawPayload:
+        return RawPayload(
+            ref=ExternalRef(external_id=url, url=url, seed=CAR, hint={"model": "Hyundai Creta"}),
+            body=body,
+            fetched_at=datetime.now(UTC),
+            http_status=status,
+        )
+
+    def _html(self, *titles: str) -> bytes:
+        product = {
+            "@type": "Product",
+            "review": [
+                {
+                    "@type": "Review",
+                    "author": {"@type": "Person", "name": "A Person"},
+                    "datePublished": "2024-09-07T00:32:40+05:30",
+                    "name": title,
+                    "reviewBody": (
+                        f"{title}: the ride is comfortable and the mileage is genuinely "
+                        "good in city traffic, no complaints after a year."
+                    ),
+                    "reviewRating": {"@type": "Rating", "ratingValue": "4"},
+                }
+                for title in titles
+            ],
+        }
+        return (
+            f'<html><script type="application/ld+json">{json.dumps(product)}</script></html>'
+        ).encode()
+
+    def test_an_empty_page_ends_the_model(self) -> None:
+        """Past the last page CarWale serves the shell with no reviews in it.
+
+        The first version required a page to be non-empty before it counted as
+        exhausted, so the early stop never fired and every model paid for all
+        twenty pages.
+        """
+        c = CarWaleConnector()
+        base = "https://www.carwale.com/hyundai-cars/creta/reviews/"
+        c.parse(self._page(base, self._html("One", "Two")))
+        c.parse(self._page(f"{base}?page=2", self._html()))
+
+        after = c.fetch(ExternalRef(external_id=f"{base}?page=3", url=f"{base}?page=3", seed=CAR))
+        assert after.http_status is None, "a request was made after the list ended"
+        assert after.body == b""
+
+    def test_a_page_that_only_repeats_earlier_reviews_ends_the_model(self) -> None:
+        c = CarWaleConnector()
+        base = "https://www.carwale.com/hyundai-cars/creta/reviews/"
+        c.parse(self._page(base, self._html("One", "Two")))
+        c.parse(self._page(f"{base}?page=2", self._html("One", "Two")))
+
+        after = c.fetch(ExternalRef(external_id=f"{base}?page=3", url=f"{base}?page=3", seed=CAR))
+        assert after.http_status is None
+
+    def test_a_page_with_new_reviews_does_not_end_the_model(self) -> None:
+        c = CarWaleConnector()
+        base = "https://www.carwale.com/hyundai-cars/creta/reviews/"
+        c.parse(self._page(base, self._html("One", "Two")))
+        c.parse(self._page(f"{base}?page=2", self._html("Three", "Four")))
+        assert base not in c._exhausted
+
+    def test_one_model_running_out_does_not_stop_another(self) -> None:
+        c = CarWaleConnector()
+        creta = "https://www.carwale.com/hyundai-cars/creta/reviews/"
+        venue = "https://www.carwale.com/hyundai-cars/venue/reviews/"
+        c.parse(self._page(creta, self._html()))
+        assert creta in c._exhausted
+        assert venue not in c._exhausted
+
+    def test_the_ceiling_is_a_ceiling_not_a_target(self) -> None:
+        refs = list(CarWaleConnector().discover(CAR))
+        assert len(refs) == 20

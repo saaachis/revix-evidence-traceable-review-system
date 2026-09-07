@@ -12,10 +12,10 @@ Two things it has that CarDekho does not.
 all, which means the recency weighting has had nothing to work with on real
 evidence until now.
 
-**Pages.** `?page=N` returns genuinely different reviews, verified to page 12,
-where CarDekho ignores the parameter and hands back page one. So this source
-can supply the volume the evidence floor needs, rather than the thirty reviews
-per model that CarDekho caps at.
+**Pages.** `?page=N` returns genuinely different reviews, where CarDekho
+ignores the parameter and hands back page one. The Creta runs to 173 reviews
+before the pages come back empty. So this source can supply the volume the
+evidence floor needs, rather than the thirty per model CarDekho caps at.
 
 Two-wheelers come from BikeWale, the same publisher's bike site, under the
 same source key because it is the same publisher and counting it separately
@@ -87,17 +87,23 @@ _AGE = re.compile(r"\b(\d+)\s+(day|week|month|year)s?\s+ago\b", re.IGNORECASE)
 _HELPFUL = re.compile(r"helpful\?\s*(\d+)\s+(\d+)", re.IGNORECASE)
 _AGE_DAYS = {"day": 1, "week": 7, "month": 30, "year": 365}
 
-#: Deliberately slow. Five pages across sixteen models is eighty requests a
-#: night, which at this rate takes eight minutes and inconveniences nobody.
+#: Deliberately slow. Around ten pages across twenty-five car models is a
+#: couple of hundred requests a night, which at this rate takes under half an
+#: hour and inconveniences nobody.
 RATE_LIMIT_RPM = 10
 
-#: Ten reviews a page, so eight pages is eighty per model. Five cleared the
-#: forty-unit floor on paper and did not in practice: not every sentence
-#: carries an opinion the extractor can use, and eleven of the twenty-eight
-#: cars still published nothing. A model
-#: with fewer reviews than this returns repeats on the trailing pages, and the
-#: framework drops them by content hash.
-PAGES_PER_MODEL = 8
+#: A ceiling, not a target. Ten reviews a page, and the Creta runs to 173
+#: before repeating, so eight pages was leaving more than half of a popular
+#: model's reviews on the table. YouTube was supplying 83% of the whole corpus
+#: while being the source with the lowest prior in the project, and the only
+#: way to shift that ratio is to take more from the review sites: adding
+#: models cannot do it, because YouTube scales with models too.
+#:
+#: Most models never reach twenty. The connector stops asking as soon as a
+#: page returns nothing it has not already seen, so a model with forty reviews
+#: costs five requests rather than twenty, and the ceiling only binds on the
+#: handful of vehicles that genuinely have that much written about them.
+PAGES_PER_MODEL = 20
 
 MIN_BODY_CHARS = 60
 
@@ -106,7 +112,7 @@ _PLACEHOLDER_AUTHORS = frozenset({"user", "User", "Anonymous", "CarWale User", "
 
 
 class CarWaleConnector:
-    """Five pages of owner reviews per car model."""
+    """Owner reviews, as deep as each model goes."""
 
     source_key = "carwale"
     display_name = "CarWale owner reviews"
@@ -124,8 +130,14 @@ class CarWaleConnector:
         self._client: PoliteClient | None = None
         # One connector instance serves one run, because the CLI is a fresh
         # process each time. Six Creta variants would otherwise fetch the same
-        # five pages six times over.
+        # pages six times over.
         self._seen: set[str] = set()
+        #: Review ids already returned for a model, so a page that repeats
+        #: earlier reviews can be recognised as the end of the list.
+        self._ids_by_model: dict[str, set[str]] = {}
+        #: Models whose pagination has run out. Asking again would spend a
+        #: request to be told the same thing.
+        self._exhausted: set[str] = set()
 
     def _http(self) -> PoliteClient:
         if self._client is None:
@@ -167,7 +179,16 @@ class CarWaleConnector:
                 hint={"model": label, "page": str(page)},
             )
 
+    def _model_key(self, ref: ExternalRef) -> str:
+        """A model's pages share everything before the query string."""
+        return ref.url.split("?")[0]
+
     def fetch(self, ref: ExternalRef) -> RawPayload:
+        # Nothing left on this model, so do not spend a request finding out
+        # again. discover() has to yield every page up front, since it cannot
+        # know where the list ends; this is where that guess gets corrected.
+        if self._model_key(ref) in self._exhausted:
+            return RawPayload(ref=ref, body=b"", fetched_at=datetime.now(UTC), http_status=None)
         response = self._http().get(ref.url)
         return RawPayload(
             ref=ref,
@@ -231,7 +252,26 @@ class CarWaleConnector:
                     or (f"{seed.manufacturer} {seed.model}" if seed else None),
                 )
             )
+        self._note_page(raw, [d.external_id for d in drafts])
         return drafts
+
+    def _note_page(self, raw: RawPayload, ids: list[str]) -> None:
+        """Record what this page held, and whether the model is finished.
+
+        A page returning nothing new means the list has ended. CarWale serves
+        the last page's contents again rather than a 404, so repetition is the
+        only end-of-list signal there is.
+        """
+        key = self._model_key(raw.ref)
+        seen = self._ids_by_model.setdefault(key, set())
+        # An empty page is the clearest end-of-list signal there is: past the
+        # last page CarWale serves the shell with no reviews in it. The first
+        # version of this required a page to be non-empty before it counted as
+        # exhausted, which meant every model fetched all twenty pages and the
+        # early stop never fired once.
+        if not ids or all(i in seen for i in ids):
+            self._exhausted.add(key)
+        seen.update(ids)
 
     def parse(self, raw: RawPayload) -> list[EvidenceUnitDraft]:
         if raw.http_status != 200 or not raw.body:
@@ -275,6 +315,7 @@ class CarWaleConnector:
                     or (f"{seed.manufacturer} {seed.model}" if seed else None),
                 )
             )
+        self._note_page(raw, [d.external_id for d in drafts])
         return drafts
 
 
