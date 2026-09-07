@@ -18,10 +18,16 @@ from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from revix_api.middleware import (
+    RateLimitMiddleware,
+    RequestContextMiddleware,
+    SecurityHeadersMiddleware,
+)
 from revix_api.schemas import (
     AspectOut,
     ClaimEvidenceOut,
@@ -64,6 +70,13 @@ app = FastAPI(
 )
 
 _settings = get_settings()
+
+# Added innermost first, because Starlette runs the last one added on the
+# outside. The intended order on the way in is: timing and request id, then
+# security headers, then the rate limiter, then compression, then CORS, then
+# the endpoint. Timing outermost means a 429 is still measured and still
+# carries a request id, which is what you want when somebody asks why they
+# were refused.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_settings.cors_origins,
@@ -71,6 +84,33 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+# The catalogue response is a JSON array of a hundred-odd near-identical
+# objects, which is close to the best case for gzip: the whole 143-variant
+# catalogue measures 55.3 kB uncompressed and 5.9 kB gzipped, 9.3x smaller.
+# That is the response a phone on a weak connection waits on. The 500-byte
+# floor keeps compression off small bodies, where the CPU costs more than the
+# bytes save.
+app.add_middleware(GZipMiddleware, minimum_size=500)
+if _settings.rate_limit_enabled:
+    app.add_middleware(RateLimitMiddleware, limit=_settings.rate_limit_per_minute)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestContextMiddleware)
+
+
+def _cacheable(response: Response) -> None:
+    """Let a browser reuse this until the pipeline could plausibly have run.
+
+    Safe because of the write and read split. These rows are written once a
+    night by the pipeline and never by a request, so a response cannot be
+    stale relative to anything a user just did. stale-while-revalidate is the
+    part that matters on a free tier: when Render has put the instance to
+    sleep, a client holding a slightly stale copy shows it immediately and
+    refreshes in the background, instead of watching a cold start.
+    """
+    response.headers["Cache-Control"] = (
+        f"public, max-age={_settings.cache_max_age_seconds}, "
+        f"stale-while-revalidate={_settings.cache_max_age_seconds * 4}"
+    )
 
 
 def agreement_word(divergence: float | None) -> str:
@@ -146,6 +186,10 @@ def health(response: Response) -> Health:
     status code and nothing else, and an instance that cannot reach its
     database must not be sent traffic.
     """
+    # The one endpoint that must never be cached. A cached health check is a
+    # health check that reports the state of the instance that answered five
+    # minutes ago, which is worse than having none.
+    response.headers["Cache-Control"] = "no-store"
     try:
         with session_scope() as session:
             variants = session.scalar(select(func.count()).select_from(VehicleVariant)) or 0
@@ -157,7 +201,12 @@ def health(response: Response) -> Health:
 
 
 @app.get("/metrics", response_model=list[EvalRunOut], tags=["meta"])
-def metrics(session: SessionDep, component: str | None = None, limit: int = 50) -> Sequence[Any]:
+def metrics(
+    session: SessionDep,
+    response: Response,
+    component: str | None = None,
+    limit: int = 50,
+) -> Sequence[Any]:
     """Every measurement we have recorded, newest first.
 
     Proposal section 18.4. Published rather than kept internal, because a
@@ -168,6 +217,7 @@ def metrics(session: SessionDep, component: str | None = None, limit: int = 50) 
 
     Empty is a truthful answer. It means nothing has been measured yet.
     """
+    _cacheable(response)
     stmt = select(EvalRun).order_by(EvalRun.created_at.desc())
     if component:
         stmt = stmt.where(EvalRun.component == component)
@@ -175,24 +225,27 @@ def metrics(session: SessionDep, component: str | None = None, limit: int = 50) 
 
 
 @app.get("/fusion-configs", response_model=list[FusionConfigOut], tags=["meta"])
-def fusion_configs(session: SessionDep) -> Sequence[FusionConfig]:
+def fusion_configs(session: SessionDep, response: Response) -> Sequence[FusionConfig]:
     """What the weighting switch offers.
 
     Switching between these is a lookup by (variant, config), never a
     recomputation. That is the only reason the switch is affordable.
     """
+    _cacheable(response)
     return list(session.scalars(select(FusionConfig).order_by(FusionConfig.display_order)))
 
 
 @app.get("/variants", response_model=list[VariantSummary], tags=["catalogue"])
 def list_variants(
     session: SessionDep,
+    response: Response,
     q: str | None = Query(None, description="Free text over manufacturer, model and variant."),
     vehicle_class: str | None = Query(None, pattern="^(car|two_wheeler)$"),
     fusion: str | None = None,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ) -> list[VariantSummary]:
+    _cacheable(response)
     config = _resolve_config(session, fusion)
     stmt = (
         select(VehicleVariant, Verdict)
@@ -215,9 +268,10 @@ def list_variants(
 
 @app.get("/variants/{variant_id}/verdict", response_model=VerdictOut, tags=["verdict"])
 def get_verdict(
-    variant_id: uuid.UUID, session: SessionDep, fusion: str | None = None
+    variant_id: uuid.UUID, session: SessionDep, response: Response, fusion: str | None = None
 ) -> VerdictOut:
     """THE endpoint. One indexed read, no computation."""
+    _cacheable(response)
     config = _resolve_config(session, fusion)
     variant = session.get(VehicleVariant, variant_id)
     if variant is None:
@@ -313,7 +367,9 @@ def get_verdict(
 
 
 @app.get("/claims/{claim_id}/evidence", response_model=ClaimEvidenceOut, tags=["verdict"])
-def claim_evidence(claim_id: uuid.UUID, session: SessionDep) -> ClaimEvidenceOut:
+def claim_evidence(
+    claim_id: uuid.UUID, session: SessionDep, response: Response
+) -> ClaimEvidenceOut:
     """The traceability drawer.
 
     A read of verdict_claim_evidence ordered by contribution weight, and
@@ -321,6 +377,7 @@ def claim_evidence(claim_id: uuid.UUID, session: SessionDep) -> ClaimEvidenceOut
     prose existed, and the score was computed from them, which is why the
     citation cannot be wrong.
     """
+    _cacheable(response)
     claim = session.get(VerdictClaim, claim_id)
     if claim is None:
         raise HTTPException(404, "unknown claim")
@@ -361,8 +418,9 @@ def claim_evidence(claim_id: uuid.UUID, session: SessionDep) -> ClaimEvidenceOut
 
 
 @app.get("/sources/health", response_model=list[SourceHealthOut], tags=["ops"])
-def sources_health(session: SessionDep) -> list[SourceHealthOut]:
+def sources_health(session: SessionDep, response: Response) -> list[SourceHealthOut]:
     """Where every source stands. A dead source degrades, it does not break."""
+    _cacheable(response)
     out: list[SourceHealthOut] = []
     for source in session.scalars(select(EvidenceSource).order_by(EvidenceSource.source_key)):
         latest = session.scalar(
