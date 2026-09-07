@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>non-functional-requirements</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+:root {
+--ink: #16181d;
+--muted: #5b6270;
+--rule: #d8dce4;
+--brand: #1f5fbf;
+--wash: #f5f7fa;
+--accent-bg: #eef3fb;
+}
+html {
+font-size: 15px;
+}
+body {
+font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+color: var(--ink);
+line-height: 1.62;
+max-width: 46rem;
+margin: 0 auto;
+padding: 2.5rem 1.6rem 4rem;
+background: #fff;
+-webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+h4 {
+line-height: 1.22;
+font-weight: 650;
+letter-spacing: -0.012em;
+margin: 2.2em 0 0.6em;
+page-break-after: avoid;
+}
+h1 {
+font-size: 2.05rem;
+margin-top: 0;
+letter-spacing: -0.028em;
+}
+h2 {
+font-size: 1.42rem;
+padding-bottom: 0.32em;
+border-bottom: 2px solid var(--rule);
+margin-top: 2.6em;
+}
+h3 {
+font-size: 1.12rem;
+color: #23262d;
+}
+h4 {
+font-size: 1rem;
+color: var(--muted);
+}
+p,
+li {
+margin: 0.62em 0;
+}
+a {
+color: var(--brand);
+text-decoration: none;
+border-bottom: 1px solid rgba(31, 95, 191, 0.3);
+}
+strong {
+font-weight: 650;
+color: #0d0f13;
+}
+
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1.3em 0;
+font-size: 0.9rem;
+page-break-inside: avoid;
+}
+th,
+td {
+border: 1px solid var(--rule);
+padding: 0.5em 0.68em;
+text-align: left;
+vertical-align: top;
+}
+th {
+background: var(--wash);
+font-weight: 650;
+}
+tbody tr:nth-child(even) {
+background: #fbfcfd;
+}
+
+thead tr:empty,
+thead th:empty {
+display: none;
+}
+blockquote {
+margin: 1.2em 0;
+padding: 0.7em 1.1em;
+background: var(--accent-bg);
+border-left: 3px solid var(--brand);
+page-break-inside: avoid;
+}
+blockquote p {
+margin: 0.35em 0;
+}
+code {
+font-family: "Cascadia Mono", Consolas, "SF Mono", monospace;
+font-size: 0.855em;
+background: var(--wash);
+padding: 0.12em 0.36em;
+border-radius: 3px;
+border: 1px solid #e7eaf0;
+}
+pre {
+background: var(--wash);
+border: 1px solid var(--rule);
+border-radius: 5px;
+padding: 0.9em 1.05em;
+overflow-x: auto;
+font-size: 0.85rem;
+line-height: 1.5;
+page-break-inside: avoid;
+}
+pre code {
+background: none;
+border: none;
+padding: 0;
+font-size: 1em;
+}
+hr {
+border: none;
+border-top: 1px solid var(--rule);
+margin: 2.4em 0;
+}
+
+ul {
+padding-left: 1.35em;
+}
+@media print {
+body {
+max-width: none;
+padding: 0;
+font-size: 10.5pt;
+}
+h1 {
+font-size: 19pt;
+}
+h2 {
+font-size: 14pt;
+margin-top: 1.8em;
+}
+a {
+border-bottom: none;
+}
+
+h2 {
+page-break-before: auto;
+}
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">non-functional-requirements</h1>
+</header>
+<h1 id="non-functional-requirements">Non-functional requirements</h1>
+<p>Functional requirements say what Revix does. These say how well it
+has to do it, and they are the requirements that decide whether anybody
+can actually use the thing on the day.</p>
+<p>This document works through the nine standard categories. For each
+one it says what the requirement is for a project of this shape, where
+in the code it is met, how we know, and what is still missing. Where
+something is not implemented it says so plainly, with the reason,
+because a requirement we consciously declined is a different thing from
+one we forgot.</p>
+<p>Every measurement quoted here is one we took, and the command that
+produces it is given so it can be taken again.</p>
+<hr />
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Requirement</th>
+<th>State</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Performance</td>
+<td>Met, measured</td>
+<td>Write/read split, gzip, cache headers,
+<code>X-Response-Time-ms</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Scalability</td>
+<td>Met for the stated load</td>
+<td>Pagination caps, bounded pool, nightly batch</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Portability</td>
+<td>Met</td>
+<td>Docker, uv lockfile, env-only config, no host assumptions</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Usability</td>
+<td>Met, audited</td>
+<td>WCAG 2.1 AA clean on all nine pages, enforced in CI</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Compatibility</td>
+<td>Met</td>
+<td>Generated API client, responsive layout, standard browsers</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Security</td>
+<td>Met at this threat model</td>
+<td>Headers, CORS allow-list, rate limit, read-only API, no secrets in
+repo</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Reliability</td>
+<td>Met</td>
+<td>Degrades per source, bounded timeouts, no traceback ever leaves</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Maintainability</td>
+<td>Met</td>
+<td>Strict types, 14 test modules, ADRs, generated client</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Availability</td>
+<td>Partly met, honestly</td>
+<td>503 health contract, keep-warm; single instance is the known
+limit</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-performance">1. Performance</h2>
+<p><strong>Requirement.</strong> A verdict page answers in under 300 ms
+at the 95th percentile, and stays there while the corpus grows.</p>
+<p><strong>How it is met.</strong> Not by optimisation. By the
+architectural decision in proposal section 8: the write path and the
+read path are strictly separated, and no model runs during a user
+request. Fusion, scoring, bootstrap intervals and claim generation all
+happen in the nightly pipeline and land in the <code>serving</code>
+schema as finished rows. Every endpoint is one indexed read of a row
+that already exists. There is nothing on the read path that can get
+slower as the corpus grows, because the corpus is not on the read
+path.</p>
+<p>That decision is load-bearing for four other things at once, which is
+why it is worth naming: it also removes inference cost per request,
+removes the rate-limit exposure of a third-party model, and removes the
+possibility of a live demo failing because somebody else&#39;s API is
+down.</p>
+<p>Three things were added on top of it:</p>
+<ul>
+<li><strong>Compression.</strong> <code>GZipMiddleware</code> at a
+500-byte floor. The full catalogue response is 55.3 kB uncompressed and
+5.9 kB gzipped, 9.3 times smaller. That is the response a phone on a
+weak connection waits on. Small bodies are left alone, because
+compressing 40 bytes spends CPU to save nothing.</li>
+<li><strong>Cache directives.</strong>
+<code>Cache-Control: public, max-age=300, stale-while-revalidate=1200</code>
+on every read endpoint, <code>no-store</code> on <code>/health</code>.
+Safe only because of the write/read split: these rows are written once a
+night and never by a request, so a cached response cannot be stale
+relative to something the user just did.
+<code>stale-while-revalidate</code> is the part that earns its place on
+a free tier, where it lets a client show a slightly old copy instantly
+while refreshing behind it, instead of watching a cold start.</li>
+<li><strong>A measurable claim.</strong> Every response carries
+<code>X-Response-Time-ms</code>. The 300 ms target used to be checkable
+only by a benchmark we ran on ourselves; now anyone can read it off a
+response.</li>
+</ul>
+<p><strong>Measured.</strong> Endpoints answer in 22 to 35 ms warm
+locally, and 96 to 247 ms from India against the deployed instance,
+inside the 300 ms target end to end including the network. The compare
+page renders in 0.35 s warm.</p>
+<p><strong>Known limit.</strong> A cold start on Render&#39;s free tier is
+several seconds, which is a platform property and not a code path.
+<code>keepwarm.yml</code> pings the instance on a schedule to keep it
+out of that state; see Availability.</p>
+<h2 id="2-scalability">2. Scalability</h2>
+<p><strong>Requirement.</strong> Growth in the catalogue or the corpus
+must not degrade the service, and one caller must not be able to consume
+it.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>Reads do not scale with the corpus at all.</strong> A
+verdict is one row. Going from 1,235 evidence units to 100,000 changes
+how long the nightly pipeline takes and changes nothing about a
+request.</li>
+<li><strong>Every list endpoint is paginated with a hard
+ceiling.</strong> <code>/variants</code> takes <code>limit</code>
+(default 50, maximum 200) and <code>offset</code>, validated by FastAPI
+before the handler runs, so no caller can ask for the whole table.
+<code>/metrics</code> is clamped the same way.</li>
+<li><strong>The connection pool is bounded</strong>, with overflow and a
+10 s wait ceiling. Under a burst, requests queue briefly and then fail
+fast rather than piling up behind browsers that have already given
+up.</li>
+<li><strong>The expensive work is batch and off the request
+path.</strong> The nightly run takes 53m28s inside a 120-minute timeout,
+and nobody is waiting on it.</li>
+<li><strong>Rate limiting</strong> bounds what one client can take: 120
+requests per minute per address, sliding window.</li>
+</ul>
+<p><strong>Known limit, stated rather than hidden.</strong> The rate
+limiter holds its counters in process memory. Two instances would each
+allow the full rate, so it bounds what one instance absorbs rather than
+enforcing a global quota. That is the correct shape for the actual risk
+here, which is one scraper walking every variant id until the connection
+pool is exhausted, not a distributed attack. A global quota needs Redis,
+and adding a second network dependency to the read path in order to
+protect the read path is a bad trade at this size. If Revix ever ran
+more than one instance, this is the first thing that would need
+replacing.</p>
+<h2 id="3-portability">3. Portability</h2>
+<p><strong>Requirement.</strong> The system runs the same on a developer
+laptop, in CI, and in production, on any of the three operating systems
+the team uses.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>The API ships as a Docker image</strong>, multi-stage, 364
+MB, running as a non-root user. Nothing in it depends on the host.</li>
+<li><strong>Dependencies are locked.</strong> A uv workspace with a
+single <code>uv.lock</code> across all three Python packages, so CI and
+a laptop resolve to identical versions.</li>
+<li><strong>All configuration is environment variables</strong>, read
+through one Pydantic <code>Settings</code> class with typed defaults.
+There is no configuration file to copy, no path hard-coded to anybody&#39;s
+machine, and no code that behaves differently because of where it is
+running. Changing the database, the CORS origins, the rate limit or the
+evidence floor is an environment change.</li>
+<li><strong>Postgres is the only external requirement</strong>, and the
+same DSN drives the app, the CLI and Alembic.</li>
+<li><strong>Developed on Windows, built and tested on Linux in CI,
+deployed to Linux.</strong> That is the portability claim tested
+continuously rather than asserted.</li>
+</ul>
+<h2 id="4-usability">4. Usability</h2>
+<p><strong>Requirement.</strong> A person choosing a vehicle can reach
+an answer and see what it rests on, including a person using a screen
+reader or a keyboard.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>Accessibility is audited, not assumed.</strong> axe-core
+runs against all nine pages under WCAG 2.1 AA and CI fails on a
+violation. <code>npm run a11y</code>. The colour palette was reworked
+once specifically because contrast failed, and the audit is what caught
+it.</li>
+<li><strong>Semantic HTML and real routes.</strong> Every page is
+server-rendered with a URL worth sharing; the evidence drawer is its own
+page rather than a modal, so a citation can be linked to.</li>
+<li><strong>The interface answers in words.</strong> Divergence is shown
+as &quot;broad agreement&quot;, &quot;some disagreement&quot; or &quot;sharply split&quot; rather than
+0.61, and the number stays available underneath for anyone who wants
+it.</li>
+<li><strong>Uncertainty is visible.</strong> Verdicts carry the evidence
+count, the effective sample size and their sources, and a verdict below
+the evidence floor is suppressed and says so rather than being quietly
+shown as fact.</li>
+<li><strong>Failure states exist.</strong> <code>error.tsx</code>,
+<code>loading.tsx</code> and <code>not-found.tsx</code> at the app root,
+so a dead API produces a message rather than a blank page.</li>
+<li><strong>The client never hangs.</strong> An 8-second fetch timeout,
+added after a host that accepted the connection and then stalled hung a
+build indefinitely.</li>
+</ul>
+<h2 id="5-compatibility">5. Compatibility</h2>
+<p><strong>Requirement.</strong> The frontend and backend cannot drift
+apart, and the site works across current browsers and screen sizes.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>The API contract is generated, not written twice.</strong>
+The OpenAPI schema is the source of truth and the TypeScript client is
+generated from it with <code>openapi-typescript</code>. A response shape
+that changes without the frontend changing is a type error at build
+time, not a runtime surprise. This is the strongest compatibility
+guarantee in the project and it is structural.</li>
+<li><strong>Standards, not vendor features.</strong> Plain JSON over
+HTTP, schema.org JSON-LD for structured data, no browser-specific API
+anywhere.</li>
+<li><strong>Responsive layout</strong> via Tailwind breakpoints,
+verified down to phone widths.</li>
+<li><strong>The browser matrix is whatever Next.js targets</strong>,
+which is current Chrome, Firefox, Safari and Edge. E2e runs headless
+Chromium in CI.</li>
+<li><strong>CORS is explicit</strong>, listing both loopback spellings,
+because a browser treats <code>localhost</code> and
+<code>127.0.0.1</code> as different origins. Getting this wrong produced
+a healthy 200 in the server log and a broken type-ahead in the browser,
+which is exactly the failure this category exists to catch.</li>
+</ul>
+<h2 id="6-security">6. Security</h2>
+<p><strong>Requirement.</strong> Revix holds no user accounts and no
+personal data, so the threat model is narrow and worth stating
+precisely: protect the credentials that reach our sources, do not become
+a vector against the reader&#39;s browser, and do not let one caller degrade
+the service for everybody.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>The API is read-only.</strong> Every endpoint is a GET, CORS
+permits only GET, and there is no write path exposed to the internet at
+all. The entire class of injection-through-mutation vulnerabilities has
+no surface here.</li>
+<li><strong>No raw SQL.</strong> Everything goes through SQLAlchemy&#39;s
+typed ORM with bound parameters, including the free-text search, which
+is the one place user input reaches a query.</li>
+<li><strong>Secrets are never in the repository</strong>, which is
+public. <code>.env</code> is gitignored, credentials live in GitHub
+Secrets and Render&#39;s dashboard, and CI runs a hygiene check that fails
+the build on a committed secret. The <code>revix probe</code> command
+exists so a key can be verified by whoever holds it without anybody
+having to send it.</li>
+<li><strong>Security headers on the web app.</strong>
+Content-Security-Policy, <code>X-Content-Type-Options: nosniff</code>,
+<code>X-Frame-Options: DENY</code>,
+<code>Referrer-Policy: strict-origin-when-cross-origin</code>,
+<code>Permissions-Policy</code> declining camera, microphone and
+location, and HSTS for two years. Vercel adds none of these by default,
+so before this the site shipped with a sniffable content type, no
+framing rule, and a full referrer travelling to every outbound link, and
+every outbound link here goes to a review on somebody else&#39;s site.</li>
+<li><strong>The same headers on the API</strong>, applied by middleware
+so they are present on errors and refusals too, not only on the happy
+path.</li>
+<li><strong>CORS is an allow-list</strong>, never a wildcard, with
+credentials disabled.</li>
+<li><strong>Rate limiting</strong>, 120 requests per minute per client,
+sliding window, with <code>Retry-After</code> and the remaining budget
+published so a well-behaved client can slow down before it is refused.
+<code>/health</code> is exempt, because rate limiting a health check
+means taking the instance down in order to protect it.</li>
+<li><strong>No traceback ever reaches a caller.</strong> A catch-all
+returns a fixed JSON shape carrying a request id and logs the exception
+server-side. The test for this asserts that a filesystem path raised
+inside a handler does not appear in the response body.</li>
+<li><strong>The container runs as a non-root user</strong> on an
+unprivileged uid.</li>
+<li><strong>Our own outbound behaviour is part of this too.</strong> The
+connectors obey <code>robots.txt</code>, rate limit themselves, and
+identify honestly. Sources that refuse us are left alone rather than
+worked around.</li>
+</ul>
+<p><strong>One trade-off, made deliberately.</strong> The CSP allows
+<code>&#39;unsafe-inline&#39;</code> for scripts. Next&#39;s App Router bootstraps
+hydration from inline script tags, and the alternative is a per-request
+nonce, which opts every page out of static rendering. That would spend
+the one non-functional requirement with a number attached to it,
+latency, to defend a surface this app does not have: no authentication,
+no cookie or token worth stealing, no user-generated content, and the
+only user text that reaches a page is the search box, which React
+escapes. It is written down in <code>next.config.ts</code> so it stays a
+decision rather than becoming an oversight.</p>
+<p><strong>Not implemented, and why.</strong> There is no
+authentication, because there are no accounts and nothing to authorise.
+If the admin dashboard is built it will need one, and that is noted as
+its first requirement rather than an afterthought.</p>
+<h2 id="7-reliability">7. Reliability</h2>
+<p><strong>Requirement.</strong> A failure in one part must not become a
+failure of the whole, and the system must tell the truth about what
+state it is in.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>Sources degrade, they do not break.</strong> A connector
+that fails records the failure on its ingest run and the pipeline
+continues with the others. <code>/sources/health</code> publishes where
+every source stands, so a dead source is visible rather than silently
+absent. Team-BHP returning 403 and two sites disallowing us in
+<code>robots.txt</code> are all visible states, not crashes.</li>
+<li><strong>A demo does not depend on anything remote.</strong> Because
+no model runs on the read path, the site keeps working when a
+third-party API is down, over quota, or slow. This was the explicit
+reason for the architecture.</li>
+<li><strong>Every wait is bounded.</strong> Database connect timeout 5
+s, pool wait 10 s, pool recycle 240 s ahead of Neon dropping idle
+connections, plus <code>pool_pre_ping</code>. This one was a real gap
+found while writing this document: <code>/health</code> is written to
+report an unreachable database as a 503, but without a connect timeout
+it never got the chance, because psycopg waited on the operating
+system&#39;s TCP timeout while the platform&#39;s probe gave up first. A hang is
+a worse failure than an error, and it was turning a correct 503 into no
+answer at all.</li>
+<li><strong>The health contract is honest.</strong> <code>/health</code>
+opens its own session rather than taking the dependency, precisely so a
+database failure is a value the handler can report instead of an
+exception thrown before the handler runs. It answers 503 with
+<code>database: false</code>, which is what a platform probe reads.</li>
+<li><strong>The pipeline is idempotent and re-runnable.</strong> Ingest
+is content-hashed and deduplicated, so a partial run can be repeated
+without double-counting.</li>
+<li><strong>The container stops cleanly.</strong> <code>CMD</code> uses
+exec form so uvicorn actually receives SIGTERM, which was wrong once and
+meant in-flight requests were killed on every deploy.</li>
+<li><strong>Every request is identifiable.</strong> A request id on
+every response, echoed from the caller if supplied, and quoted in error
+bodies, so a report of &quot;it broke&quot; becomes a single grep.</li>
+</ul>
+<h2 id="8-maintainability">8. Maintainability</h2>
+<p><strong>Requirement.</strong> Three people work on this at once, and
+it has to survive a handover to whoever reads it next.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>Types are enforced, not decorative.</strong> mypy strict
+across all three Python packages, TypeScript strict on the frontend,
+SQLAlchemy 2.0 typed ORM, Pydantic v2 at the boundaries.</li>
+<li><strong>One linter and formatter, run in CI.</strong> ruff for
+both.</li>
+<li><strong>Tests.</strong> 14 test modules covering connectors, fusion,
+extraction, schema, the API contract, CORS, health, and now the
+non-functional guarantees themselves, plus Playwright e2e and an
+accessibility audit. The suite has caught real defects: a macro-F1
+averaged over zero-support aspects, a connector recording our own search
+term as the source&#39;s answer, an unordered LIMIT that made ingest and
+fusion disagree about which variant they meant.</li>
+<li><strong>Decisions are written down.</strong> ADRs for the choices
+that would otherwise look arbitrary later, including why we use official
+APIs only, why the fusion experiment is built the way it is, and why the
+source floor is two rather than three.</li>
+<li><strong>Generated code where duplication would rot.</strong> The API
+client is generated from the schema, so the frontend cannot drift from
+the backend by hand.</li>
+<li><strong>Configuration is one class</strong>, with every knob
+defaulted and documented in place, so behaviour is changed in one file
+rather than hunted for.</li>
+<li><strong>Separation by lifecycle.</strong> Four Postgres schemas,
+<code>raw</code>, <code>core</code>, <code>analysis</code>,
+<code>serving</code>, so it is always obvious which layer a table
+belongs to and what may write to it.</li>
+</ul>
+<h2 id="9-availability">9. Availability</h2>
+<p><strong>Requirement.</strong> The site is up when somebody looks at
+it, and specifically on 16 October.</p>
+<p><strong>How it is met.</strong></p>
+<ul>
+<li><strong>The read path has one dependency</strong>, Postgres. No
+model, no third-party API, nothing that has to be reachable for a page
+to render.</li>
+<li><strong><code>keepwarm.yml</code></strong> pings the instance on a
+schedule so Render&#39;s free tier does not idle it into a cold start.</li>
+<li><strong>The health endpoint is a real contract</strong>, 503 when
+the database is unreachable, so the platform stops routing to an
+instance that cannot serve instead of sending traffic to one that will
+fail.</li>
+<li><strong>Static assets are on Vercel&#39;s CDN</strong>, so the frontend
+stays up independently of the API, and with the cache directives above a
+browser holding a recent response can render while the API wakes.</li>
+<li><strong>Failures are contained.</strong> A nightly pipeline failure
+leaves yesterday&#39;s verdicts serving; the site does not go down because
+an ingest run did.</li>
+</ul>
+<p><strong>Known limit, stated rather than hidden.</strong> This is a
+single instance on a free tier. There is no redundancy, no failover, and
+no multi-region deployment, so the honest availability claim is
+&quot;resilient to its dependencies failing&quot;, not &quot;highly available&quot;. Buying
+that would mean paying for at least two instances and a load balancer,
+which is outside what this project is. The mitigations above target the
+failure mode that actually threatens a demo, a cold start or a sleeping
+database, rather than the one that does not, a datacentre losing
+power.</p>
+<hr />
+<h2 id="what-this-pass-changed">What this pass changed</h2>
+<p>Six of the nine categories were already met by decisions made
+earlier, mostly by the write/read split, which quietly satisfies
+performance, scalability, reliability and availability at once. The
+audit found and fixed:</p>
+<ol type="1">
+<li><strong>No security headers anywhere.</strong> Neither the web app
+nor the API sent any. Now both do, including on errors.</li>
+<li><strong>No rate limiting.</strong> One caller could exhaust the
+connection pool.</li>
+<li><strong>No compression or cache directives</strong>, so every client
+re-fetched 55 kB of rows that change once a night.</li>
+<li><strong>Unbounded database waits.</strong> The most serious of the
+four, because it defeated the <code>/health</code> 503 contract that was
+already written and tested: the handler could not report an unreachable
+database because it never regained control to do so.</li>
+<li><strong>No request identity and no request logging.</strong> A
+failure report could not be tied to a request.</li>
+</ol>
+<h2 id="reproducing-the-measurements">Reproducing the measurements</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest tests/test_nfr.py <span class="at">-q</span>      <span class="co"># the guarantees, asserted</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> apps/web <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> run a11y             <span class="co"># WCAG 2.1 AA, all nine pages</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sI</span> <span class="va">$API</span>/variants <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-Ei</span> <span class="st">&#39;cache-control|x-response-time|x-ratelimit&#39;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-H</span> <span class="st">&#39;Accept-Encoding: gzip&#39;</span>  <span class="at">-o</span> /dev/null <span class="at">-w</span> <span class="st">&#39;%{size_download}\n&#39;</span> <span class="va">$API</span>/variants<span class="pp">?</span>limit=200</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-H</span> <span class="st">&#39;Accept-Encoding: identity&#39;</span> <span class="at">-o</span> /dev/null <span class="at">-w</span> <span class="st">&#39;%{size_download}\n&#39;</span> <span class="va">$API</span>/variants<span class="pp">?</span>limit=200</span></code></pre></div>
+</body>
+</html>

@@ -43,9 +43,10 @@ It is a review **system**, not a review summariser. Three differences:
 
 | | |
 |---|---|
-| **Stage** | S1 Business Need submitted. Repository initialised, week 1 of 12. |
-| **Live URL** | Not deployed yet |
-| **Next milestone** | **Milestone 2 — Wireframe Demo, Friday 14 August 2026.** [Plan](docs/review-1/02-milestone-2-wireframe-demo.md) |
+| **Stage** | S1 and S2 submitted. Pipeline, API and site all live on real data. |
+| **Live URL** | [revix-reviews.vercel.app](https://revix-reviews.vercel.app), API at [revix-api-tcyq.onrender.com](https://revix-api-tcyq.onrender.com) |
+| **Next milestone** | **S3 Lab work, Friday 2 October 2026.** [What we submit](docs/s3-lab-work/01-lab-work-submission.md) |
+| **Then** | S3 Working demo, Friday 16 October 2026. [Runbook](docs/s3-working-demo/01-working-demo-runbook.md) |
 
 ## Documentation
 
@@ -56,6 +57,9 @@ Two documents are the source of truth. Everything else defers to them.
 | [**Full proposal**](docs/proposal.md) | The complete concept note and software design specification — architecture, data model, fusion engine, evaluation strategy, twelve-week roadmap, scope and glossary |
 | [**Review 1 — concept, market gap and literature review**](docs/review-1/01-concept-market-gap-and-literature-review.md) | The idea and what it means, the competitive gap analysis, the background study, and what we are and are not claiming |
 | [Milestone 2 — wireframe demo](docs/review-1/02-milestone-2-wireframe-demo.md) | What we are building by 14 August 2026, how, by whom, and by when |
+| [**Non-functional requirements**](docs/non-functional-requirements.md) | All nine categories audited against the code: where each is met, how it was measured, and the two limits we state rather than hide |
+| [S3 lab work](docs/s3-lab-work/01-lab-work-submission.md) | What the 2 October submission contains, mapped to the four marks, with a [speaking script](docs/s3-lab-work/02-lab-work-speaking-script.md) |
+| [S3 working demo](docs/s3-working-demo/01-working-demo-runbook.md) | The 16 October demo: pre-flight checks, the flow, what to do when something breaks, with a [speaking script](docs/s3-working-demo/02-working-demo-speaking-script.md) |
 | [Contributing](CONTRIBUTING.md) | Branching, commits, reviews, local setup, how we collect data responsibly |
 | [Developing](DEVELOPING.md) | Running it locally, the quality gate, the live connectors, the fusion experiment |
 | [Deploying](DEPLOYING.md) | Neon, Render and Vercel, and the two settings that fail silently |

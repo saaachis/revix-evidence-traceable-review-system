@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>01-lab-work-submission</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+:root {
+--ink: #16181d;
+--muted: #5b6270;
+--rule: #d8dce4;
+--brand: #1f5fbf;
+--wash: #f5f7fa;
+--accent-bg: #eef3fb;
+}
+html {
+font-size: 15px;
+}
+body {
+font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+color: var(--ink);
+line-height: 1.62;
+max-width: 46rem;
+margin: 0 auto;
+padding: 2.5rem 1.6rem 4rem;
+background: #fff;
+-webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+h4 {
+line-height: 1.22;
+font-weight: 650;
+letter-spacing: -0.012em;
+margin: 2.2em 0 0.6em;
+page-break-after: avoid;
+}
+h1 {
+font-size: 2.05rem;
+margin-top: 0;
+letter-spacing: -0.028em;
+}
+h2 {
+font-size: 1.42rem;
+padding-bottom: 0.32em;
+border-bottom: 2px solid var(--rule);
+margin-top: 2.6em;
+}
+h3 {
+font-size: 1.12rem;
+color: #23262d;
+}
+h4 {
+font-size: 1rem;
+color: var(--muted);
+}
+p,
+li {
+margin: 0.62em 0;
+}
+a {
+color: var(--brand);
+text-decoration: none;
+border-bottom: 1px solid rgba(31, 95, 191, 0.3);
+}
+strong {
+font-weight: 650;
+color: #0d0f13;
+}
+
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1.3em 0;
+font-size: 0.9rem;
+page-break-inside: avoid;
+}
+th,
+td {
+border: 1px solid var(--rule);
+padding: 0.5em 0.68em;
+text-align: left;
+vertical-align: top;
+}
+th {
+background: var(--wash);
+font-weight: 650;
+}
+tbody tr:nth-child(even) {
+background: #fbfcfd;
+}
+
+thead tr:empty,
+thead th:empty {
+display: none;
+}
+blockquote {
+margin: 1.2em 0;
+padding: 0.7em 1.1em;
+background: var(--accent-bg);
+border-left: 3px solid var(--brand);
+page-break-inside: avoid;
+}
+blockquote p {
+margin: 0.35em 0;
+}
+code {
+font-family: "Cascadia Mono", Consolas, "SF Mono", monospace;
+font-size: 0.855em;
+background: var(--wash);
+padding: 0.12em 0.36em;
+border-radius: 3px;
+border: 1px solid #e7eaf0;
+}
+pre {
+background: var(--wash);
+border: 1px solid var(--rule);
+border-radius: 5px;
+padding: 0.9em 1.05em;
+overflow-x: auto;
+font-size: 0.85rem;
+line-height: 1.5;
+page-break-inside: avoid;
+}
+pre code {
+background: none;
+border: none;
+padding: 0;
+font-size: 1em;
+}
+hr {
+border: none;
+border-top: 1px solid var(--rule);
+margin: 2.4em 0;
+}
+
+ul {
+padding-left: 1.35em;
+}
+@media print {
+body {
+max-width: none;
+padding: 0;
+font-size: 10.5pt;
+}
+h1 {
+font-size: 19pt;
+}
+h2 {
+font-size: 14pt;
+margin-top: 1.8em;
+}
+a {
+border-bottom: none;
+}
+
+h2 {
+page-break-before: auto;
+}
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">01-lab-work-submission</h1>
+</header>
+<h1 id="s3-lab-work">S3: Lab Work</h1>
+<p><strong>Revix</strong> · <em>driven by reviews.</em> What we submit,
+where each mark lives, and how to walk through it.</p>
+<table>
+<tbody>
+<tr>
+<td><strong>Submission</strong></td>
+<td>S3 Lab work</td>
+</tr>
+<tr>
+<td><strong>Weight</strong></td>
+<td><strong>40 marks</strong> of 100</td>
+</tr>
+<tr>
+<td><strong>Due</strong></td>
+<td><strong>Friday 2 October 2026</strong></td>
+</tr>
+<tr>
+<td><strong>Team</strong></td>
+<td>Aditya Nariyapara, Devika Jonjale, Saachi Shinde</td>
+</tr>
+<tr>
+<td><strong>Repository</strong></td>
+<td><code>saaachis/revix-evidence-traceable-review-system</code></td>
+</tr>
+<tr>
+<td><strong>Live API</strong></td>
+<td><code>https://revix-api-tcyq.onrender.com</code></td>
+</tr>
+<tr>
+<td><strong>Live site</strong></td>
+<td><code>https://revix-reviews.vercel.app</code></td>
+</tr>
+<tr>
+<td><strong>Comes after</strong></td>
+<td><a href="../review-1/01-concept-market-gap-and-literature-review.md">Review
+1: concept, market gap and literature review</a></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Figures in this document were taken on 7 September
+2026.</strong> They grow with every nightly run. Refresh them before
+submitting: section 7 gives the two commands that produce every number
+quoted here.</p>
+</blockquote>
+<hr />
+<h2 id="1-the-four-things-being-marked">1. The four things being
+marked</h2>
+<p>The rubric splits 40 marks four ways. This document is organised in
+exactly that order, so each section can be opened against the mark it
+answers.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Marked on</th>
+<th>Marks</th>
+<th>Section</th>
+<th>The one-line answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Codebase</td>
+<td>10</td>
+<td><a href="#3-codebase-10-marks">§3</a></td>
+<td>Three Python packages and a Next.js app, ~15,200 lines, running on
+real data</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Frameworks with justification</td>
+<td>10</td>
+<td><a href="#4-frameworks-with-justification-10-marks">§4</a></td>
+<td>Every choice is written down as a decision record, including what we
+rejected</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Code quality</td>
+<td>10</td>
+<td><a href="#5-code-quality-10-marks">§5</a></td>
+<td>Strict types, 233 tests, six CI jobs, and defects our own tests
+caught</td>
+</tr>
+<tr>
+<td>4</td>
+<td>NFRs achieved</td>
+<td>10</td>
+<td><a href="#6-nfrs-achieved-10-marks">§6</a></td>
+<td>All nine categories audited; six met by design, five gaps found and
+closed</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-what-revix-is-in-sixty-seconds">2. What Revix is, in sixty
+seconds</h2>
+<p>Star ratings hide more than they show. A 4.2 average tells you
+nothing about <em>who</em> rated, <em>what</em> they cared about, or
+<em>whether they agreed</em>. Revix rebuilds the verdict from the
+reviews underneath it and keeps every number traceable to the sentences
+it came from.</p>
+<p>Three claims, and the screen has to prove each one:</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>What proves it on screen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>We weight by trust, not by star average</td>
+<td>A switch that changes the numbers when flipped</td>
+</tr>
+<tr>
+<td>We are honest about uncertainty</td>
+<td>A confidence range, not a single decimal</td>
+</tr>
+<tr>
+<td>Every number is traceable</td>
+<td>Every score opens the reviews behind it</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Where the data comes from.</strong> Owner reviews from
+CarWale and BikeWale, CarDekho and BikeDekho, and comments on YouTube
+review videos. All of it real, all of it collected under the sources&#39;
+own rules.</p>
+<p><strong>Current scale.</strong></p>
+<table>
+<tbody>
+<tr>
+<td>Evidence units</td>
+<td><strong>15,853</strong></td>
+</tr>
+<tr>
+<td>Variants in the catalogue</td>
+<td><strong>143</strong> across 42 models and 16 manufacturers</td>
+</tr>
+<tr>
+<td>Variants with a published verdict</td>
+<td><strong>134</strong> (9 held back below the evidence floor)</td>
+</tr>
+<tr>
+<td>Two-wheelers</td>
+<td>47 in the catalogue, 42 published</td>
+</tr>
+<tr>
+<td>Verdicts stored</td>
+<td>429 (143 variants × 3 weighting schemes)</td>
+</tr>
+<tr>
+<td>Evidence attributed to verdicts</td>
+<td>14,137 units, averaging 99 per variant</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-codebase-10-marks">3. Codebase (10 marks)</h2>
+<h3 id="31-shape">3.1 Shape</h3>
+<p>A uv workspace holding three Python packages and one Next.js
+application.</p>
+<pre><code>revix/
+├── packages/revix_core/   models, settings, session          1,294 lines
+├── pipeline/              ingest, extract, resolve, fuse      6,716 lines
+├── apps/api/              the read-only serving layer           857 lines
+├── apps/web/              Next.js 16 frontend                 3,529 lines
+├── tests/                 15 modules, 233 tests               2,808 lines
+└── docs/                  ADRs, proposal, this document</code></pre>
+<p>Roughly <strong>15,200 lines</strong> across <strong>56 Python
+files</strong> and <strong>21 TypeScript files</strong>, not counting
+generated code or lockfiles.</p>
+<h3 id="32-the-one-rule-that-holds-it-together">3.2 The one rule that
+holds it together</h3>
+<p>Dependencies run in one direction only:</p>
+<pre><code>  revix-api ──────┐
+                  ├──&gt; revix-core   (models, settings, session)
+  revix-pipeline ─┘</code></pre>
+<p><code>revix_core</code> never imports from the other two. That is
+what stops the read path and the write path tangling into each other,
+and it is <strong>enforced by import linting in CI</strong>, not left to
+discipline. Worth pointing at directly: architecture that is only a
+diagram decays, and architecture a build fails on does not.</p>
+<h3 id="33-the-database-mirrors-the-same-idea">3.3 The database mirrors
+the same idea</h3>
+<p>Four Postgres schemas, separated by lifecycle rather than by
+subject:</p>
+<table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>Holds</th>
+<th>Written by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>raw</code></td>
+<td>Fetched payloads, content-hashed</td>
+<td>Ingest</td>
+</tr>
+<tr>
+<td><code>core</code></td>
+<td>Catalogue, sources, evidence units</td>
+<td>Ingest and resolution</td>
+</tr>
+<tr>
+<td><code>analysis</code></td>
+<td>Aspect scores, evaluation runs</td>
+<td>Enrichment and fusion</td>
+</tr>
+<tr>
+<td><code>serving</code></td>
+<td>Finished verdicts, claims, citations</td>
+<td>Fusion, read by the API</td>
+</tr>
+</tbody>
+</table>
+<p>You can always tell which layer a table belongs to and what is
+allowed to write to it. Schema changes go through Alembic migrations,
+and CI checks they apply, that they match the models, and that they
+<strong>reverse cleanly</strong>.</p>
+<h3 id="34-it-runs-on-real-data-unattended">3.4 It runs on real data,
+unattended</h3>
+<p>A scheduled GitHub Actions workflow runs the whole pipeline nightly:
+fetch, extract, resolve, fuse, publish. The most recent full run took
+<strong>53m 28s</strong> inside a 120-minute timeout. Nobody starts it
+and nobody watches it.</p>
+<h3 id="35-what-to-open-in-order">3.5 What to open, in order</h3>
+<ol type="1">
+<li><code>pyproject.toml</code>, the workspace and the dependency rule,
+with the diagram in a comment</li>
+<li><code>packages/revix_core/src/revix_core/models/</code>, the typed
+ORM, four schemas</li>
+<li><code>pipeline/src/revix_pipeline/</code>, connectors, enrichment,
+fusion</li>
+<li><code>apps/api/src/revix_api/main.py</code>, every endpoint, each
+one an indexed read</li>
+<li><code>apps/web/src/app/</code>, ten routes, all server-rendered</li>
+</ol>
+<hr />
+<h2 id="4-frameworks-with-justification-10-marks">4. Frameworks with
+justification (10 marks)</h2>
+<p><strong>The artefact for this mark is the ADR folder.</strong> Eight
+architecture decision records in <a href="../adr/"><code>docs/adr/</code></a>, each stating the decision,
+the alternatives, and the consequence we accepted. This section
+summarises them; open the ADR itself for any the examiner pushes on.</p>
+<h3 id="41-backend">4.1 Backend</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Why this one</th>
+<th>What we did not do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FastAPI</strong></td>
+<td>Contract-first. The OpenAPI schema is the source of truth and the
+frontend&#39;s TypeScript client is generated from it, so the two
+<em>cannot</em> drift</td>
+<td>Flask, which would have meant hand-writing and hand-syncing the
+client</td>
+</tr>
+<tr>
+<td><strong>Pydantic v2</strong></td>
+<td>Validation at the boundary, so a malformed request never reaches a
+query</td>
+<td>Manual validation scattered through handlers</td>
+</tr>
+<tr>
+<td><strong>SQLAlchemy 2.0</strong> typed ORM</td>
+<td>Bound parameters everywhere, so injection has no surface, and the
+models type-check</td>
+<td>Raw SQL, faster to write and impossible to refactor safely</td>
+</tr>
+<tr>
+<td><strong>Alembic</strong></td>
+<td>Reversible migrations, verified in CI</td>
+<td>Hand-applied schema changes</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL 16</strong> with <code>pgvector</code> and
+<code>pg_trgm</code></td>
+<td>One datastore does relational, vector similarity <em>and</em> fuzzy
+text. Variant resolution needs trigram matching; near-duplicate
+detection needs vectors</td>
+<td>A separate vector database, which is a second service to deploy and
+keep consistent for a workload this size</td>
+</tr>
+<tr>
+<td><strong>Typer</strong></td>
+<td>The pipeline is a CLI, so every stage is runnable and debuggable on
+its own</td>
+<td>A monolithic script</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-frontend">4.2 Frontend</h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Why this one</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Next.js 16, App Router</strong></td>
+<td>Server rendering, so a verdict page is a real URL that can be shared
+and indexed. Structured data matters for a review product</td>
+</tr>
+<tr>
+<td><strong>React 19</strong></td>
+<td>Component model, and what Next targets</td>
+</tr>
+<tr>
+<td><strong>Tailwind v4</strong></td>
+<td>CSS-first <code>@theme</code>, so the palette is one place. It had
+to be reworked once for contrast, and one place is why that was
+cheap</td>
+</tr>
+<tr>
+<td><strong>openapi-typescript</strong></td>
+<td>Generates the client from the live schema. See §5.2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-the-two-choices-worth-defending-out-loud">4.3 The two choices
+worth defending out loud</h3>
+<p><strong>GitHub Actions instead of Airflow or Prefect</strong> (<a href="../adr/0002-scheduled-ci-instead-of-prefect.md">ADR 0002</a>). An
+orchestrator is a server to run, secure and pay for. Our pipeline is one
+nightly batch with no fan-out and no backfill. Actions already holds our
+secrets, already runs on a schedule, and already gives logs and
+alerting. Choosing the heavier tool would have been choosing a tool
+because it looks professional rather than because the problem needs
+it.</p>
+<p><strong>A uv workspace with three packages instead of one flat
+project</strong> (<a href="../adr/0003-uv-workspace-with-three-packages.md">ADR 0003</a>).
+Three packages make the dependency rule in §3.2 real: the API physically
+cannot import the pipeline. One package would have made that a naming
+convention, and naming conventions lose.</p>
+<h3 id="44-machine-learning-and-the-honest-result">4.4 Machine learning,
+and the honest result</h3>
+<p>We built a distant-supervision aspect classifier: lexicon labels
+train a TF-IDF into a one-vs-rest logistic regression. Held against the
+lexicon it learned from, <strong>it lost by 0.29 macro F1, so it ships
+disabled</strong>.</p>
+<p>That is the measurement working, not the project failing. The
+alternative was shipping a model because we had built one. <a href="../adr/0004-lexicon-baseline-before-a-classifier.md">ADR 0004</a>
+records why the baseline came first and why it stayed.</p>
+<hr />
+<h2 id="5-code-quality-10-marks">5. Code quality (10 marks)</h2>
+<h3 id="51-enforced-not-encouraged">5.1 Enforced, not encouraged</h3>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type checking</td>
+<td><strong>mypy strict</strong> across all three Python packages;
+TypeScript strict</td>
+</tr>
+<tr>
+<td>Linting</td>
+<td><strong>ruff</strong> check and format, both failing the build</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td><strong>233 tests</strong> in 15 modules; 215 run without a
+database, the rest are database-marked and run in CI</td>
+</tr>
+<tr>
+<td>Browser</td>
+<td>Playwright end-to-end smoke test</td>
+</tr>
+<tr>
+<td>Accessibility</td>
+<td><strong>axe-core against all nine pages</strong>, WCAG 2.1 AA,
+failing the build on a violation</td>
+</tr>
+</tbody>
+</table>
+<p>Six CI jobs run on every pull request. Beyond the usual, they check
+that <strong>migrations reverse cleanly</strong>, that the
+<strong>pipeline runs end to end</strong>, that <strong>no secret and no
+raw scraped payload is ever committed</strong>, and that <strong>every
+internal documentation link resolves</strong>.</p>
+<h3 id="52-the-contract-cannot-drift">5.2 The contract cannot drift</h3>
+<p>CI regenerates the TypeScript client from the live OpenAPI schema and
+<strong>fails if the committed types differ</strong>. A response shape
+that changes without the frontend changing is a red build, not a runtime
+surprise a user finds. This is the single strongest quality guarantee in
+the project because it is structural: it does not depend on anybody
+remembering.</p>
+<h3 id="53-defects-our-own-tests-caught">5.3 Defects our own tests
+caught</h3>
+<p>The most useful evidence that the tests are real is what they found.
+Offer these if asked how we know the suite is worth anything:</p>
+<table>
+<thead>
+<tr>
+<th>Defect</th>
+<th>Why it mattered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Macro-F1 averaged over zero-support aspects</td>
+<td>A perfect system scored 0.22 on a two-topic set. Our evaluation was
+lying to us in our favour</td>
+</tr>
+<tr>
+<td>A connector recorded our own search term as the source&#39;s answer</td>
+<td>We would have been citing ourselves as evidence</td>
+</tr>
+<tr>
+<td>An unordered <code>LIMIT</code> in fusion</td>
+<td>Ingest and fusion silently disagreed about which variant they
+meant</td>
+</tr>
+<tr>
+<td>Security headers added inside the rate limiter</td>
+<td>A 429, the response most likely to reach a hostile client, was the
+one response going out bare</td>
+</tr>
+<tr>
+<td>A migration emitting <code>NOT NULL</code> with no default</td>
+<td>Would have failed against the 129 verdict rows already in
+production</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-comments-explain-the-why">5.4 Comments explain the why</h3>
+<p>House style is that a comment explains a decision, never restates the
+code. A representative example, on why <code>/health</code> opens its
+own session:</p>
+<blockquote>
+<p><em>Deliberately not using the session dependency. If it did, an
+unreachable database would raise during dependency resolution, before
+the handler ran, and the health endpoint would answer 500 with a
+SQLAlchemy stack trace: no diagnosis for us and a stack trace for
+everyone else.</em></p>
+</blockquote>
+<p>That is the kind of comment that survives a rewrite, because it
+carries information the code cannot.</p>
+<hr />
+<h2 id="6-nfrs-achieved-10-marks">6. NFRs achieved (10 marks)</h2>
+<p><strong>The artefact for this mark is <a href="../non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a>.</strong>
+It works through all nine standard categories against the actual code
+rather than against what our proposal claimed. Open it directly; this is
+a summary.</p>
+<h3 id="61-all-nine-and-where-each-is-met">6.1 All nine, and where each
+is met</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Requirement</th>
+<th>State</th>
+<th>Where it is met</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Performance</strong></td>
+<td>Met, measured</td>
+<td>No model runs on the read path; every endpoint is one indexed read
+of a precomputed row</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Scalability</strong></td>
+<td>Met for the stated load</td>
+<td>Pagination capped at 200, bounded pool, expensive work batched
+overnight</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Portability</strong></td>
+<td>Met</td>
+<td>Docker, uv lockfile, configuration only through environment
+variables</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Usability</strong></td>
+<td>Met, audited</td>
+<td>WCAG 2.1 AA clean on all nine pages, enforced in CI</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Compatibility</strong></td>
+<td>Met</td>
+<td>Generated API client, responsive layout, standards only</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Security</strong></td>
+<td>Met at this threat model</td>
+<td>Headers, CORS allow-list, rate limiting, read-only API, no secrets
+in the repo</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Reliability</strong></td>
+<td>Met</td>
+<td>Sources degrade independently, every wait bounded, no traceback ever
+leaves</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Maintainability</strong></td>
+<td>Met</td>
+<td>Strict types, 233 tests, ADRs, generated client</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Availability</strong></td>
+<td>Partly met, stated honestly</td>
+<td>503 health contract and keep-warm; a single free-tier instance is
+the known limit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-the-point-worth-making-first">6.2 The point worth making
+first</h3>
+<p>Six of the nine were already satisfied, and <strong>almost all of
+them by a single architectural decision</strong>: the strict separation
+of the write path from the read path. No model runs during a user
+request. Every endpoint reads a row the nightly pipeline already
+computed.</p>
+<p>That one decision simultaneously delivers performance (nothing on the
+read path grows with the corpus), scalability (reads do not scale with
+data at all), reliability (a page cannot fail because a third-party
+model is down) and availability (a demo depends on nothing remote).</p>
+<p><strong>Say this before the list.</strong> It is the difference
+between &quot;we implemented nine things&quot; and &quot;we made one decision that
+satisfied six requirements, and then closed the rest deliberately.&quot;</p>
+<h3 id="63-what-the-audit-found-and-fixed">6.3 What the audit found and
+fixed</h3>
+<p>Five real gaps, found by reading the code rather than the
+proposal:</p>
+<ol type="1">
+<li><p><strong>No security headers anywhere.</strong> Neither Vercel nor
+FastAPI adds any by default, so the site shipped sniffable, framable,
+and sending a full referrer to every outbound link, and every outbound
+link here points at a review on somebody else&#39;s site. Both now send CSP,
+<code>nosniff</code>, <code>DENY</code>,
+<code>strict-origin-when-cross-origin</code>,
+<code>Permissions-Policy</code> and HSTS.</p></li>
+<li><p><strong>Unbounded database waits, which defeated a contract we
+had already written and tested.</strong> This is the one to lead with;
+see §6.4.</p></li>
+<li><p><strong>No rate limiting.</strong> One scraper walking every
+variant id could exhaust the connection pool every other reader was
+queued behind. Now a sliding window, 120 requests per minute per client,
+with <code>Retry-After</code> and the remaining budget published so a
+well-behaved client can slow down <em>before</em> it is
+refused.</p></li>
+<li><p><strong>No compression or caching.</strong> Every client
+re-fetched the full catalogue uncompressed. Measured at <strong>55.3 kB
+down to 5.9 kB gzipped, 9.3× smaller</strong>, plus cache directives
+that are only safe because of the write/read split.</p></li>
+<li><p><strong>No request identity.</strong> A failure report could not
+be tied to a request. Every response now carries
+<code>X-Request-ID</code> and <code>X-Response-Time-ms</code>, which
+also makes our p95-under-300ms claim checkable from outside the process
+instead of only by a benchmark we ran on ourselves.</p></li>
+</ol>
+<h3 id="64-the-finding-to-lead-with">6.4 The finding to lead with</h3>
+<p><code>/health</code> was deliberately built to report an unreachable
+database as a 503 rather than a 500 with a stack trace. It was written
+that way on purpose, and it was tested.</p>
+<p><strong>It could not actually do it.</strong> With no connect
+timeout, psycopg waited on the operating system&#39;s TCP timeout while the
+platform&#39;s health probe gave up first. A correct 503 became no answer at
+all, and a hang is a worse failure than an error because nothing
+downstream can react to it.</p>
+<p>What led us there was our own test run hanging for four hundred
+seconds against a machine with no Postgres. Every database wait is now
+bounded: connect 5s, pool wait 10s, recycle 240s ahead of Neon dropping
+idle connections.</p>
+<p>This is worth telling as a story because it shows the difference
+between <em>writing</em> a non-functional requirement and
+<em>verifying</em> one. We had the code, the intent and the test, and
+the requirement still was not met.</p>
+<h3 id="65-measured-not-asserted">6.5 Measured, not asserted</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API response, warm, local</td>
+<td>22–35 ms</td>
+</tr>
+<tr>
+<td>API response from India, deployed</td>
+<td>96–247 ms (target: p95 under 300 ms)</td>
+</tr>
+<tr>
+<td>Compare page render, warm</td>
+<td>0.35 s</td>
+</tr>
+<tr>
+<td>Catalogue payload</td>
+<td>55.3 kB → 5.9 kB gzipped</td>
+</tr>
+<tr>
+<td>Accessibility</td>
+<td>0 violations, WCAG 2.1 AA, nine pages</td>
+</tr>
+<tr>
+<td>API container image</td>
+<td>364 MB, non-root uid 10001</td>
+</tr>
+<tr>
+<td>Nightly pipeline</td>
+<td>53m 28s inside a 120-minute timeout</td>
+</tr>
+</tbody>
+</table>
+<p><strong>13 tests in <code>tests/test_nfr.py</code></strong> assert
+the headers, the limiter, the error shape and the compression. These are
+exactly the things that work the day they are added and quietly stop
+working six commits later, because nothing looks broken when they are
+gone.</p>
+<h3 id="66-two-limits-we-state-rather-than-hide">6.6 Two limits we state
+rather than hide</h3>
+<p>Both are in the audit document in writing:</p>
+<ul>
+<li>The rate limiter is <strong>per instance, in memory</strong>. It is
+not a global quota. Two instances would each allow the full rate.</li>
+<li>A single free-tier instance is <strong>resilient to its dependencies
+failing, not highly available</strong>. There is no redundancy or
+failover.</li>
+</ul>
+<p>Both are the right call at this size, and both are the first thing
+that would need replacing if Revix grew. Stating the limit before being
+asked reads as engineering judgement; being caught at it does not.</p>
+<hr />
+<h2 id="7-refreshing-every-number-in-this-document">7. Refreshing every
+number in this document</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Codebase and tests</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> packages pipeline apps/api tests <span class="at">-name</span> <span class="st">&quot;*.py&quot;</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">&quot;*/__pycache__/*&quot;</span> <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">-q</span>                       <span class="co"># test count</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ruff check . <span class="kw">&amp;&amp;</span> <span class="ex">uv</span> run mypy packages/revix_core/src pipeline/src apps/api/src</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Live scale, straight from the deployed API</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> https://revix-api-tcyq.onrender.com/health</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> https://revix-api-tcyq.onrender.com/sources/health</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The NFR guarantees</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest tests/test_nfr.py <span class="at">-q</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> apps/web <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> run a11y</span></code></pre></div>
+<hr />
+<h2 id="8-handing-it-in">8. Handing it in</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>The repository, <code>main</code> branch, green CI</td>
+<td>GitHub</td>
+</tr>
+<tr>
+<td>2</td>
+<td>This document</td>
+<td><code>docs/s3-lab-work/</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>The NFR audit</td>
+<td><a href="../non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Eight architecture decision records</td>
+<td><a href="../adr/"><code>docs/adr/</code></a></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Live API and live site</td>
+<td>Links in the header</td>
+</tr>
+</tbody>
+</table>
+<p>Before submitting: confirm <code>main</code> is green, re-run the
+commands in §7 and update any figure that has moved, and check the live
+site loads from a phone as well as a laptop.</p>
+</body>
+</html>
