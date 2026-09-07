@@ -9,11 +9,12 @@ source. Proposal section 12.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     Enum,
     ForeignKey,
     Index,
@@ -247,3 +248,34 @@ class EvidenceUnit(Base, TimestampMixin):
     credibility_json: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
     source: Mapped[EvidenceSource] = relationship()
+
+
+class ApiQuotaLedger(Base, TimestampMixin):
+    """How much of a metered API's daily allowance a day has already spent.
+
+    Without this, a quota budget is per process, so every run starts believing
+    it has the whole day's allowance. That is fine for one run a night and
+    wrong the moment somebody triggers the pipeline by hand: six runs on one
+    quota day spent roughly thirty thousand units against a ten thousand unit
+    ceiling, and YouTube answered 403 for everything after the third. The
+    circuit breaker caught it and the other sources carried on, so the only
+    visible symptom was a source stuck at circuit_open on the status page.
+
+    Keyed by the provider's own reset day, not ours. Google's YouTube quota
+    resets at midnight Pacific, and our nightly runs at 00:13 UTC, which is
+    the previous afternoon in California. Storing a UTC date here would put
+    two runs either side of a boundary that does not exist and let the ledger
+    disagree with the counter it is meant to mirror.
+    """
+
+    __tablename__ = "api_quota_ledger"
+    __table_args__ = (
+        UniqueConstraint("source_key", "quota_date", name="uq_api_quota_source_day"),
+        {"schema": SCHEMA_CORE},
+    )
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    source_key: Mapped[str] = mapped_column(String(64), nullable=False)
+    #: The provider's reset day, in the provider's own timezone.
+    quota_date: Mapped[date] = mapped_column(Date, nullable=False)
+    units_spent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
