@@ -1,0 +1,189 @@
+/* Print and screen styling for the submission documents.
+ *
+ * These get read three ways: on a laptop the night before, projected in a
+ * one-to-one, and on paper. So the type is larger than a web page would use,
+ * the tables have visible rules because a projector washes out subtle ones,
+ * and page breaks are controlled so a table never splits across sheets.
+ */
+
+:root {
+  --ink: #16181d;
+  --muted: #5b6270;
+  --rule: #d8dce4;
+  --brand: #1f5fbf;
+  --wash: #f5f7fa;
+  --accent-bg: #eef3fb;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  line-height: 1.62;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.6rem 4rem;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.22;
+  font-weight: 650;
+  letter-spacing: -0.012em;
+  margin: 2.2em 0 0.6em;
+  page-break-after: avoid;
+}
+
+h1 {
+  font-size: 2.05rem;
+  margin-top: 0;
+  letter-spacing: -0.028em;
+}
+
+h2 {
+  font-size: 1.42rem;
+  padding-bottom: 0.32em;
+  border-bottom: 2px solid var(--rule);
+  margin-top: 2.6em;
+}
+
+h3 {
+  font-size: 1.12rem;
+  color: #23262d;
+}
+
+h4 {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+p,
+li {
+  margin: 0.62em 0;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(31, 95, 191, 0.3);
+}
+
+strong {
+  font-weight: 650;
+  color: #0d0f13;
+}
+
+/* Tables carry most of the information in these documents. */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.3em 0;
+  font-size: 0.9rem;
+  page-break-inside: avoid;
+}
+
+th,
+td {
+  border: 1px solid var(--rule);
+  padding: 0.5em 0.68em;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--wash);
+  font-weight: 650;
+}
+
+tbody tr:nth-child(even) {
+  background: #fbfcfd;
+}
+
+/* The two-column key/value tables in each header have no useful head row. */
+thead tr:empty,
+thead th:empty {
+  display: none;
+}
+
+blockquote {
+  margin: 1.2em 0;
+  padding: 0.7em 1.1em;
+  background: var(--accent-bg);
+  border-left: 3px solid var(--brand);
+  page-break-inside: avoid;
+}
+
+blockquote p {
+  margin: 0.35em 0;
+}
+
+code {
+  font-family: "Cascadia Mono", Consolas, "SF Mono", monospace;
+  font-size: 0.855em;
+  background: var(--wash);
+  padding: 0.12em 0.36em;
+  border-radius: 3px;
+  border: 1px solid #e7eaf0;
+}
+
+pre {
+  background: var(--wash);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.9em 1.05em;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  page-break-inside: avoid;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1em;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 2.4em 0;
+}
+
+/* A checklist reads better with room to tick. */
+ul {
+  padding-left: 1.35em;
+}
+
+@media print {
+  body {
+    max-width: none;
+    padding: 0;
+    font-size: 10.5pt;
+  }
+
+  h1 {
+    font-size: 19pt;
+  }
+
+  h2 {
+    font-size: 14pt;
+    margin-top: 1.8em;
+  }
+
+  a {
+    border-bottom: none;
+  }
+
+  /* Each numbered section starts cleanly rather than orphaned at a page foot. */
+  h2 {
+    page-break-before: auto;
+  }
+}
