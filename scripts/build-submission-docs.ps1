@@ -18,11 +18,12 @@ $repo = Split-Path -Parent $PSScriptRoot
 $css = Join-Path $repo "scripts/docs.css"
 
 $targets = @(
-    "docs/s3-lab-work/01-lab-work-submission.md",
-    "docs/s3-lab-work/02-lab-work-speaking-script.md",
-    "docs/s3-working-demo/01-working-demo-runbook.md",
-    "docs/s3-working-demo/02-working-demo-speaking-script.md",
-    "docs/non-functional-requirements.md"
+    "docs/s3-lab-work/work/01-lab-work-submission.md",
+    "docs/s3-lab-work/work/02-lab-work-speaking-script.md",
+    "docs/s3-lab-work/work/03-code-review-report.md",
+    "docs/s4-working-demo/01-working-demo-runbook.md",
+    "docs/s4-working-demo/02-working-demo-speaking-script.md",
+    "docs/s3-lab-work/work/non-functional-requirements.md"
 )
 
 # Edge lives in one of two places depending on how Windows was installed.
@@ -95,6 +96,26 @@ foreach ($rel in $targets) {
     else {
         Write-Warning "Edge not found; open the HTML and print to PDF manually"
     }
+}
+
+# The presentation document is hand-authored HTML rather than generated from
+# markdown, because it is laid out as discrete A4 sheets and markdown has no
+# way to say where a page ends. It renders through Playwright rather than Edge:
+# Edge's --print-to-pdf quietly disagrees with the stylesheet's @page rule,
+# and preferCSSPageSize makes the stylesheet authoritative.
+$presentation = Join-Path $repo "docs/s3-lab-work/work/00-presentation.html"
+if (Test-Path $presentation) {
+    Push-Location (Join-Path $repo "apps/web")
+    try {
+        node e2e/render-doc.mjs `
+            "../../docs/s3-lab-work/work/00-presentation.html" `
+            "../../docs/s3-lab-work/work/00-presentation.pdf"
+        Write-Output "pdf   docs/s3-lab-work/work/00-presentation.html"
+    }
+    catch {
+        Write-Warning "presentation PDF failed: $($_.Exception.Message)"
+    }
+    finally { Pop-Location }
 }
 
 Write-Output ""

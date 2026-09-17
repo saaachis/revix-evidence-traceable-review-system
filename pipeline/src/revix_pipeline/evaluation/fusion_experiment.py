@@ -305,7 +305,27 @@ def _collect(
     return targets, pools, sorted(sources)
 
 
-def _evaluate(
+@dataclass(slots=True)
+class _Trials:
+    """Everything the sampling loop observed, before any of it is summarised.
+
+    Kept as a value rather than three loose dictionaries so that the two
+    halves of the experiment can be read, tested and changed separately. They
+    used to be one function scoring E on cyclomatic complexity, the worst
+    grade in the codebase, earned entirely by stacking a five-deep sampling
+    loop on top of an aggregation with nested loops of its own. Neither half
+    is complicated. Doing both in one place was.
+    """
+
+    #: (strategy, k) -> estimate minus gold, once per draw
+    errors: dict[tuple[str, int], list[float]]
+    #: (strategy, k, aspect) -> variant -> estimates
+    per_variant: dict[tuple[str, int, str], dict[Any, list[float]]]
+    #: (strategy, k, level) -> 1 if the interval contained gold, else 0
+    hits: dict[tuple[str, int, float], list[int]]
+
+
+def _draw(
     targets: list[GoldConsensus],
     pools: dict[tuple[Any, AspectKey, str], dict[Any, Contribution]],
     strategies: list[str],
@@ -314,15 +334,18 @@ def _evaluate(
     replicates: int,
     seed: int,
     bootstrap_samples: int,
-) -> list[StrategyResult]:
-    # errors[(strategy, k)] -> list of (estimate - gold)
-    errors: dict[tuple[str, int], list[float]] = defaultdict(list)
-    # per_variant[(strategy, k, aspect)] -> variant -> [estimates]
-    per_variant: dict[tuple[str, int, str], dict[Any, list[float]]] = defaultdict(
-        lambda: defaultdict(list)
+) -> _Trials:
+    """Sample the corpus and record what each strategy said about each draw.
+
+    Every strategy sees the identical draw, which is the whole point: a
+    difference between two strategies here cannot be an artefact of one having
+    been luckier with its sample.
+    """
+    trials = _Trials(
+        errors=defaultdict(list),
+        per_variant=defaultdict(lambda: defaultdict(list)),
+        hits=defaultdict(list),
     )
-    # hits[(strategy, k, level)] -> [0/1]
-    hits: dict[tuple[str, int, float], list[int]] = defaultdict(list)
 
     for target in targets:
         frames = {
@@ -344,73 +367,115 @@ def _evaluate(
                 continue
             rng = random.Random(f"{seed}|{target.variant_id}|{target.aspect}|{k}")
             for replicate in range(replicates):
-                drawn = rng.sample(frame_ids, k)
-                for name in strategies:
-                    picked = [frames[name][uid] for uid in drawn if uid in frames[name]]
-                    if not picked:
-                        continue
-                    estimate = to_ten(weighted_mean(picked))
-                    errors[(name, k)].append(estimate - target.score)
-                    per_variant[(name, k, target.aspect.value)][target.variant_id].append(estimate)
+                _score_one_draw(
+                    trials,
+                    target=target,
+                    frames=frames,
+                    strategies=strategies,
+                    drawn=rng.sample(frame_ids, k),
+                    k=k,
+                    replicate=replicate,
+                    bootstrap_samples=bootstrap_samples,
+                )
+    return trials
 
-                    # Calibration is expensive, so it runs on a subset of the
-                    # replicates. The coverage question needs hundreds of
-                    # trials, not tens of thousands, and the bootstrap inside
-                    # each one is the dominant cost of the whole experiment.
-                    if replicate % 10 == 0:
-                        means = bootstrap_means(
-                            picked,
-                            samples=bootstrap_samples,
-                            seed=hash((str(target.variant_id), k, replicate)) % 2**31,
-                        )
-                        for level in CALIBRATION_LEVELS:
-                            lo, hi = interval_from_means(means, level)
-                            hits[(name, k, level)].append(int(lo <= target.score <= hi))
 
-    gold_by_variant_aspect = {(t.variant_id, t.aspect.value): t.score for t in targets}
+def _score_one_draw(
+    trials: _Trials,
+    *,
+    target: GoldConsensus,
+    frames: dict[str, dict[Any, Contribution]],
+    strategies: list[str],
+    drawn: list[Any],
+    k: int,
+    replicate: int,
+    bootstrap_samples: int,
+) -> None:
+    """What every strategy makes of one sample, recorded into `trials`."""
+    for name in strategies:
+        picked = [frames[name][uid] for uid in drawn if uid in frames[name]]
+        if not picked:
+            continue
+        estimate = to_ten(weighted_mean(picked))
+        trials.errors[(name, k)].append(estimate - target.score)
+        trials.per_variant[(name, k, target.aspect.value)][target.variant_id].append(estimate)
+
+        # Calibration is expensive, so it runs on a subset of the replicates.
+        # The coverage question needs hundreds of trials, not tens of
+        # thousands, and the bootstrap inside each one is the dominant cost of
+        # the whole experiment.
+        if replicate % 10 == 0:
+            means = bootstrap_means(
+                picked,
+                samples=bootstrap_samples,
+                seed=hash((str(target.variant_id), k, replicate)) % 2**31,
+            )
+            for level in CALIBRATION_LEVELS:
+                lo, hi = interval_from_means(means, level)
+                trials.hits[(name, k, level)].append(int(lo <= target.score <= hi))
+
+
+def _rank_correlation(
+    trials: _Trials, targets: list[GoldConsensus], name: str, k: int
+) -> tuple[dict[str, float], int]:
+    """Spearman per aspect, and how many variants the widest one rested on.
+
+    Per aspect rather than pooled, because pooling ranks across aspects would
+    measure whether brakes outscore mileage, which is not a question anybody
+    asked.
+    """
+    gold = {(t.variant_id, t.aspect.value): t.score for t in targets}
+    by_aspect: dict[str, float] = {}
+    n_variants = 0
+
+    for (strategy, kk, aspect), by_variant in trials.per_variant.items():
+        if strategy != name or kk != k or len(by_variant) < 3:
+            continue
+        n_variants = max(n_variants, len(by_variant))
+        estimates = [sum(v) / len(v) for v in by_variant.values()]
+        golds = [gold[(variant_id, aspect)] for variant_id in by_variant]
+        rho = spearman(estimates, golds)
+        if not math.isnan(rho):
+            by_aspect[aspect] = rho
+
+    return by_aspect, n_variants
+
+
+def _calibration(trials: _Trials, name: str, k: int) -> tuple[dict[str, float], float]:
+    """Observed coverage per level, and how far it strays from nominal."""
+    coverage = {
+        f"{level:.2f}": sum(trials.hits[(name, k, level)]) / len(trials.hits[(name, k, level)])
+        for level in CALIBRATION_LEVELS
+        if trials.hits[(name, k, level)]
+    }
+    if not coverage:
+        return {}, 0.0
+    ece = sum(abs(float(level) - empirical) for level, empirical in coverage.items()) / len(
+        coverage
+    )
+    return coverage, ece
+
+
+def _summarise(
+    trials: _Trials, targets: list[GoldConsensus], strategies: list[str], ks: tuple[int, ...]
+) -> list[StrategyResult]:
+    """Turn the recorded draws into one row per strategy and sample size."""
     results: list[StrategyResult] = []
     for name in strategies:
         for k in ks:
-            deltas = errors[(name, k)]
+            deltas = trials.errors[(name, k)]
             if not deltas:
                 continue
-            rmse = math.sqrt(sum(d * d for d in deltas) / len(deltas))
-            mae = sum(abs(d) for d in deltas) / len(deltas)
-            bias = sum(deltas) / len(deltas)
-
-            spearman_by_aspect: dict[str, float] = {}
-            n_variants = 0
-            for (strategy, kk, aspect), by_variant in per_variant.items():
-                if strategy != name or kk != k or len(by_variant) < 3:
-                    continue
-                n_variants = max(n_variants, len(by_variant))
-                estimates, golds = [], []
-                for variant_id, values in by_variant.items():
-                    estimates.append(sum(values) / len(values))
-                    golds.append(gold_by_variant_aspect[(variant_id, aspect)])
-                rho = spearman(estimates, golds)
-                if not math.isnan(rho):
-                    spearman_by_aspect[aspect] = rho
-
-            coverage = {
-                f"{level:.2f}": sum(hits[(name, k, level)]) / len(hits[(name, k, level)])
-                for level in CALIBRATION_LEVELS
-                if hits[(name, k, level)]
-            }
-            ece = (
-                sum(abs(float(level) - empirical) for level, empirical in coverage.items())
-                / len(coverage)
-                if coverage
-                else 0.0
-            )
+            spearman_by_aspect, n_variants = _rank_correlation(trials, targets, name, k)
+            coverage, ece = _calibration(trials, name, k)
             results.append(
                 StrategyResult(
                     strategy=name,
                     k=k,
                     n_estimates=len(deltas),
-                    rmse=rmse,
-                    mean_absolute_error=mae,
-                    bias=bias,
+                    rmse=math.sqrt(sum(d * d for d in deltas) / len(deltas)),
+                    mean_absolute_error=sum(abs(d) for d in deltas) / len(deltas),
+                    bias=sum(deltas) / len(deltas),
                     spearman_by_aspect=spearman_by_aspect,
                     spearman_mean=(
                         sum(spearman_by_aspect.values()) / len(spearman_by_aspect)
@@ -423,6 +488,29 @@ def _evaluate(
                 )
             )
     return results
+
+
+def _evaluate(
+    targets: list[GoldConsensus],
+    pools: dict[tuple[Any, AspectKey, str], dict[Any, Contribution]],
+    strategies: list[str],
+    *,
+    ks: tuple[int, ...],
+    replicates: int,
+    seed: int,
+    bootstrap_samples: int,
+) -> list[StrategyResult]:
+    """Draw, then summarise. The two halves are deliberately separable."""
+    trials = _draw(
+        targets,
+        pools,
+        strategies,
+        ks=ks,
+        replicates=replicates,
+        seed=seed,
+        bootstrap_samples=bootstrap_samples,
+    )
+    return _summarise(trials, targets, strategies, ks)
 
 
 def run_fusion_experiment(

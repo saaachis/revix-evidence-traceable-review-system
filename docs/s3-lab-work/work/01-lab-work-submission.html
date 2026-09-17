@@ -282,7 +282,7 @@ where each mark lives, and how to walk through it.</p>
 </tr>
 <tr>
 <td><strong>Comes after</strong></td>
-<td><a href="../review-1/01-concept-market-gap-and-literature-review.md">Review
+<td><a href="../../review-1/01-concept-market-gap-and-literature-review.md">Review
 1: concept, market gap and literature review</a></td>
 </tr>
 </tbody>
@@ -331,8 +331,8 @@ rejected</td>
 <td>Code quality</td>
 <td>10</td>
 <td><a href="#5-code-quality-10-marks">§5</a></td>
-<td>Strict types, 246 tests, six CI jobs, and defects our own tests
-caught</td>
+<td>Measured: grade A maintainability on every file, average complexity
+A, enforced in CI</td>
 </tr>
 <tr>
 <td>4</td>
@@ -499,7 +499,7 @@ decision about which vehicle a listing refers to, recorded as
 <code>human</code> so it can never be confused with something the
 resolver inferred. The public API is still read-only.</li>
 </ul>
-<p>See <a href="../adr/0010-basic-auth-for-the-operations-surface.md">ADR
+<p>See <a href="../../adr/0010-basic-auth-for-the-operations-surface.md">ADR
 0010</a>.</p>
 <h3 id="36-what-to-open-in-order">3.6 What to open, in order</h3>
 <ol type="1">
@@ -521,7 +521,7 @@ writes</li>
 <h2 id="4-frameworks-with-justification-10-marks">4. Frameworks with
 justification (10 marks)</h2>
 <p><strong>The artefact for this mark is the ADR folder.</strong> Nine
-architecture decision records in <a href="../adr/"><code>docs/adr/</code></a>, each stating the decision,
+architecture decision records in <a href="../../adr/"><code>docs/adr/</code></a>, each stating the decision,
 the alternatives, and the consequence we accepted. This section
 summarises them; open the ADR itself for any the examiner pushes on.</p>
 <h3 id="41-backend">4.1 Backend</h3>
@@ -602,21 +602,21 @@ cheap</td>
 </tr>
 <tr>
 <td><strong>openapi-typescript</strong></td>
-<td>Generates the client from the live schema. See §5.2</td>
+<td>Generates the client from the live schema. See §5.3</td>
 </tr>
 </tbody>
 </table>
 <h3 id="43-the-two-choices-worth-defending-out-loud">4.3 The two choices
 worth defending out loud</h3>
-<p><strong>GitHub Actions instead of Airflow or Prefect</strong> (<a href="../adr/0002-scheduled-ci-instead-of-prefect.md">ADR 0002</a>). An
-orchestrator is a server to run, secure and pay for. Our pipeline is one
-nightly batch with no fan-out and no backfill. Actions already holds our
-secrets, already runs on a schedule, and already gives logs and
+<p><strong>GitHub Actions instead of Airflow or Prefect</strong> (<a href="../../adr/0002-scheduled-ci-instead-of-prefect.md">ADR 0002</a>).
+An orchestrator is a server to run, secure and pay for. Our pipeline is
+one nightly batch with no fan-out and no backfill. Actions already holds
+our secrets, already runs on a schedule, and already gives logs and
 alerting. Choosing the heavier tool would have been choosing a tool
 because it looks professional rather than because the problem needs
 it.</p>
 <p><strong>A uv workspace with three packages instead of one flat
-project</strong> (<a href="../adr/0003-uv-workspace-with-three-packages.md">ADR 0003</a>).
+project</strong> (<a href="../../adr/0003-uv-workspace-with-three-packages.md">ADR 0003</a>).
 Three packages make the dependency rule in §3.2 real: the API physically
 cannot import the pipeline. One package would have made that a naming
 convention, and naming conventions lose.</p>
@@ -627,11 +627,69 @@ train a TF-IDF into a one-vs-rest logistic regression. Held against the
 lexicon it learned from, <strong>it lost by 0.29 macro F1, so it ships
 disabled</strong>.</p>
 <p>That is the measurement working, not the project failing. The
-alternative was shipping a model because we had built one. <a href="../adr/0004-lexicon-baseline-before-a-classifier.md">ADR 0004</a>
-records why the baseline came first and why it stayed.</p>
+alternative was shipping a model because we had built one. <a href="../../adr/0004-lexicon-baseline-before-a-classifier.md">ADR
+0004</a> records why the baseline came first and why it stayed.</p>
 <hr />
 <h2 id="5-code-quality-10-marks">5. Code quality (10 marks)</h2>
-<h3 id="51-enforced-not-encouraged">5.1 Enforced, not encouraged</h3>
+<h3 id="51-the-measured-score">5.1 The measured score</h3>
+<p>The code was put through a review toolkit rather than described in
+prose. Full working in the <a href="03-code-review-report.md">code
+review report</a>; the headline:</p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Tool</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Maintainability index</strong></td>
+<td>Radon</td>
+<td><strong>Grade A on all 43 files</strong>, no exceptions</td>
+</tr>
+<tr>
+<td><strong>Cyclomatic complexity</strong></td>
+<td>Radon</td>
+<td><strong>Average A (3.90)</strong> over 344 blocks; 92% grade A or
+B</td>
+</tr>
+<tr>
+<td>Worst single block</td>
+<td>Radon</td>
+<td>D (24); nothing grades E or F</td>
+</tr>
+<tr>
+<td>Complexity ceiling</td>
+<td>Xenon</td>
+<td><strong>Fails the build</strong> on any regression</td>
+</tr>
+<tr>
+<td>Lint, format, types</td>
+<td>Ruff, mypy strict</td>
+<td>Clean</td>
+</tr>
+<tr>
+<td>Tests and coverage</td>
+<td>pytest</td>
+<td>308 tests, 64%</td>
+</tr>
+</tbody>
+</table>
+<p>Two things about that are worth saying out loud in the review.</p>
+<p><strong>The review changed the code.</strong> One function graded E
+(33), the only one in the codebase and 40% worse than the next. It was
+doing two unrelated jobs at once: drawing samples, and summarising them.
+Split into five functions along that seam, the codebase now has
+<strong>no E-grade block at all</strong> and the average improved from
+3.944 to 3.895, with the thirteen tests covering it passing unchanged
+throughout.</p>
+<p><strong>The score is a property, not a snapshot.</strong> Radon
+reports; Xenon is the same measurement wired to an exit code, and it
+runs on every pull request. A change that makes any of these grades
+worse does not merge.</p>
+<h3 id="52-enforced-not-encouraged">5.2 Enforced, not encouraged</h3>
 <table>
 <thead>
 <tr>
@@ -670,14 +728,14 @@ that <strong>migrations reverse cleanly</strong>, that the
 <strong>pipeline runs end to end</strong>, that <strong>no secret and no
 raw scraped payload is ever committed</strong>, and that <strong>every
 internal documentation link resolves</strong>.</p>
-<h3 id="52-the-contract-cannot-drift">5.2 The contract cannot drift</h3>
+<h3 id="53-the-contract-cannot-drift">5.3 The contract cannot drift</h3>
 <p>CI regenerates the TypeScript client from the live OpenAPI schema and
 <strong>fails if the committed types differ</strong>. A response shape
 that changes without the frontend changing is a red build, not a runtime
 surprise a user finds. This is the single strongest quality guarantee in
 the project because it is structural: it does not depend on anybody
 remembering.</p>
-<h3 id="53-defects-our-own-tests-caught">5.3 Defects our own tests
+<h3 id="54-defects-our-own-tests-caught">5.4 Defects our own tests
 caught</h3>
 <p>The most useful evidence that the tests are real is what they found.
 Offer these if asked how we know the suite is worth anything:</p>
@@ -715,7 +773,7 @@ production</td>
 </tr>
 </tbody>
 </table>
-<h3 id="54-comments-explain-the-why">5.4 Comments explain the why</h3>
+<h3 id="55-comments-explain-the-why">5.5 Comments explain the why</h3>
 <p>House style is that a comment explains a decision, never restates the
 code. A representative example, on why <code>/health</code> opens its
 own session:</p>
@@ -730,7 +788,7 @@ everyone else.</em></p>
 carries information the code cannot.</p>
 <hr />
 <h2 id="6-nfrs-achieved-10-marks">6. NFRs achieved (10 marks)</h2>
-<p><strong>The artefact for this mark is <a href="../non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a>.</strong>
+<p><strong>The artefact for this mark is <a href="non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a>.</strong>
 It works through all nine standard categories against the actual code
 rather than against what our proposal claimed. Open it directly; this is
 a summary.</p>
@@ -966,12 +1024,17 @@ number in this document</h2>
 <tr>
 <td>3</td>
 <td>The NFR audit</td>
-<td><a href="../non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a></td>
+<td><a href="non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a></td>
+</tr>
+<tr>
+<td>3b</td>
+<td>The code review report</td>
+<td><a href="03-code-review-report.md"><code>03-code-review-report.md</code></a></td>
 </tr>
 <tr>
 <td>4</td>
 <td>Nine architecture decision records</td>
-<td><a href="../adr/"><code>docs/adr/</code></a></td>
+<td><a href="../../adr/"><code>docs/adr/</code></a></td>
 </tr>
 <tr>
 <td>5</td>

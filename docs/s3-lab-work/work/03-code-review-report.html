@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>03-code-review-report</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+:root {
+--ink: #16181d;
+--muted: #5b6270;
+--rule: #d8dce4;
+--brand: #1f5fbf;
+--wash: #f5f7fa;
+--accent-bg: #eef3fb;
+}
+html {
+font-size: 15px;
+}
+body {
+font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+color: var(--ink);
+line-height: 1.62;
+max-width: 46rem;
+margin: 0 auto;
+padding: 2.5rem 1.6rem 4rem;
+background: #fff;
+-webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3,
+h4 {
+line-height: 1.22;
+font-weight: 650;
+letter-spacing: -0.012em;
+margin: 2.2em 0 0.6em;
+page-break-after: avoid;
+}
+h1 {
+font-size: 2.05rem;
+margin-top: 0;
+letter-spacing: -0.028em;
+}
+h2 {
+font-size: 1.42rem;
+padding-bottom: 0.32em;
+border-bottom: 2px solid var(--rule);
+margin-top: 2.6em;
+}
+h3 {
+font-size: 1.12rem;
+color: #23262d;
+}
+h4 {
+font-size: 1rem;
+color: var(--muted);
+}
+p,
+li {
+margin: 0.62em 0;
+}
+a {
+color: var(--brand);
+text-decoration: none;
+border-bottom: 1px solid rgba(31, 95, 191, 0.3);
+}
+strong {
+font-weight: 650;
+color: #0d0f13;
+}
+
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1.3em 0;
+font-size: 0.9rem;
+page-break-inside: avoid;
+}
+th,
+td {
+border: 1px solid var(--rule);
+padding: 0.5em 0.68em;
+text-align: left;
+vertical-align: top;
+}
+th {
+background: var(--wash);
+font-weight: 650;
+}
+tbody tr:nth-child(even) {
+background: #fbfcfd;
+}
+
+thead tr:empty,
+thead th:empty {
+display: none;
+}
+blockquote {
+margin: 1.2em 0;
+padding: 0.7em 1.1em;
+background: var(--accent-bg);
+border-left: 3px solid var(--brand);
+page-break-inside: avoid;
+}
+blockquote p {
+margin: 0.35em 0;
+}
+code {
+font-family: "Cascadia Mono", Consolas, "SF Mono", monospace;
+font-size: 0.855em;
+background: var(--wash);
+padding: 0.12em 0.36em;
+border-radius: 3px;
+border: 1px solid #e7eaf0;
+}
+pre {
+background: var(--wash);
+border: 1px solid var(--rule);
+border-radius: 5px;
+padding: 0.9em 1.05em;
+overflow-x: auto;
+font-size: 0.85rem;
+line-height: 1.5;
+page-break-inside: avoid;
+}
+pre code {
+background: none;
+border: none;
+padding: 0;
+font-size: 1em;
+}
+hr {
+border: none;
+border-top: 1px solid var(--rule);
+margin: 2.4em 0;
+}
+
+ul {
+padding-left: 1.35em;
+}
+@media print {
+body {
+max-width: none;
+padding: 0;
+font-size: 10.5pt;
+}
+h1 {
+font-size: 19pt;
+}
+h2 {
+font-size: 14pt;
+margin-top: 1.8em;
+}
+a {
+border-bottom: none;
+}
+
+h2 {
+page-break-before: auto;
+}
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">03-code-review-report</h1>
+</header>
+<h1 id="s3-code-review-report">S3: Code Review Report</h1>
+<p><strong>Revix</strong> · <em>driven by reviews.</em> What the
+measuring tools say about this codebase, what we did about it, and what
+we chose not to do.</p>
+<table>
+<tbody>
+<tr>
+<td><strong>Submission</strong></td>
+<td>S3 Lab work, the code quality mark</td>
+</tr>
+<tr>
+<td><strong>Toolkit</strong></td>
+<td>Radon, Xenon, Ruff, mypy, pytest with coverage</td>
+</tr>
+<tr>
+<td><strong>Measured on</strong></td>
+<td>18 September 2026, commit on <code>main</code></td>
+</tr>
+<tr>
+<td><strong>Scope</strong></td>
+<td>43 Python source files across three packages, tests excluded</td>
+</tr>
+<tr>
+<td><strong>Team</strong></td>
+<td>Aditya Nariyapara, Devika Jonjale, Saachi Shinde</td>
+</tr>
+<tr>
+<td><strong>Companion</strong></td>
+<td><a href="01-lab-work-submission.md">Lab work submission</a> · <a href="02-lab-work-speaking-script.md">Speaking script</a></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Every figure here was produced by running the tool named beside it.
+Section 8 gives the exact commands, so any number in this document can
+be checked in under a minute rather than taken on trust.</p>
+</blockquote>
+<hr />
+<h2 id="1-the-headline">1. The headline</h2>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Tool</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Maintainability index</strong></td>
+<td>Radon</td>
+<td><strong>Grade A on all 43 files</strong>, no exceptions</td>
+</tr>
+<tr>
+<td><strong>Cyclomatic complexity</strong></td>
+<td>Radon</td>
+<td><strong>Average A (3.90)</strong> across 344 blocks</td>
+</tr>
+<tr>
+<td>Worst single block</td>
+<td>Radon</td>
+<td>D (24), and only two blocks are worse than C</td>
+</tr>
+<tr>
+<td>Complexity ceiling</td>
+<td>Xenon</td>
+<td><strong>Enforced in CI</strong>, build fails on regression</td>
+</tr>
+<tr>
+<td>Lint and format</td>
+<td>Ruff</td>
+<td><strong>Clean</strong>, enforced in CI</td>
+</tr>
+<tr>
+<td>Static types</td>
+<td>mypy strict</td>
+<td><strong>Clean</strong>, all three packages</td>
+</tr>
+<tr>
+<td>Test coverage</td>
+<td>pytest-cov</td>
+<td><strong>64%</strong> over 308 tests</td>
+</tr>
+</tbody>
+</table>
+<p>The short version: nothing in this codebase grades worse than A for
+maintainability, 92% of all code blocks are A or B for complexity, and
+the two that sit at D are there for reasons we can defend rather than
+reasons we have not got round to.</p>
+<hr />
+<h2 id="2-choosing-the-toolkit">2. Choosing the toolkit</h2>
+<p>Four tools were recommended. We used three of them, added a fourth,
+and left one out on purpose. A tool chosen without a reason is not a
+code review, it is a screenshot.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Used</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Radon</strong></td>
+<td>Yes</td>
+<td>The only one that produces a <em>score</em> rather than a pass or
+fail. Cyclomatic complexity, maintainability index, raw counts and
+Halstead metrics, cross platform, no configuration</td>
+</tr>
+<tr>
+<td><strong>Ruff</strong></td>
+<td>Yes</td>
+<td>Already enforced in CI before this exercise. Lint and format in one
+tool instead of black, isort and flake8</td>
+</tr>
+<tr>
+<td><strong>PyTest</strong></td>
+<td>Yes</td>
+<td>308 tests, already the backbone of the project, with coverage
+measured in CI</td>
+</tr>
+<tr>
+<td><strong>Xenon</strong></td>
+<td>Added</td>
+<td>Radon reports; Xenon <em>enforces</em>. See section 5, because this
+is the difference between knowing a number and keeping it</td>
+</tr>
+<tr>
+<td><strong>Mutmut</strong></td>
+<td><strong>No</strong></td>
+<td>See below</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-we-left-mutation-testing-out">Why we left mutation testing
+out</h3>
+<p>Mutmut is the most interesting tool on the list. It changes your code
+on purpose and asks whether any test notices, which measures something
+no other tool here does: not whether tests exist, but whether they would
+catch a bug.</p>
+<p>We did not use it, for a reason worth stating plainly rather than
+hiding:</p>
+<blockquote>
+<p><strong>Mutmut has no native Windows support.</strong> Running it
+prints <em>&quot;To run mutmut on Windows, please use the WSL&quot;</em>. All
+three of us develop on Windows.</p>
+</blockquote>
+<p>A quality tool that only one environment can run is a quality tool
+that stops being run. We would rather report a toolkit the whole team
+can execute on any machine, in under a minute, than a better number that
+only appears when one person remembers to produce it.</p>
+<p><strong>What we did instead.</strong> The question mutation testing
+answers, &quot;would these tests actually catch a bug&quot;, we answer with
+evidence rather than a score: see section 7, which lists five real
+defects our own tests caught before they reached anybody.</p>
+<hr />
+<h2 id="3-maintainability-index">3. Maintainability index</h2>
+<p><strong>What it measures.</strong> A single 0 to 100 score per file,
+derived from Halstead volume, cyclomatic complexity and lines of code.
+It is the closest thing the Python ecosystem has to &quot;how hard will this
+file be to change in six months&quot;.</p>
+<table>
+<thead>
+<tr>
+<th>Grade</th>
+<th>Range</th>
+<th>Meaning</th>
+<th>Our files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>20 to 100</td>
+<td>Maintainable</td>
+<td><strong>43</strong></td>
+</tr>
+<tr>
+<td>B</td>
+<td>10 to 19</td>
+<td>Moderate</td>
+<td>0</td>
+</tr>
+<tr>
+<td>C</td>
+<td>0 to 9</td>
+<td>Difficult</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every file grades A.</strong> The six lowest are worth
+naming, because a low A is still the place a reviewer should look
+first:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Score</th>
+<th>Why it sits where it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pipeline/.../cli.py</code></td>
+<td>A (24.64)</td>
+<td>The command line surface. Thirty-odd commands in one module, each
+small; the file is long rather than complicated</td>
+</tr>
+<tr>
+<td><code>pipeline/.../enrichment/fuse.py</code></td>
+<td>A (34.77)</td>
+<td>The scoring engine. The densest logic in the project and the most
+heavily tested</td>
+</tr>
+<tr>
+<td><code>pipeline/.../evaluation/fusion_experiment.py</code></td>
+<td>A (39.95)</td>
+<td>The evaluation harness, refactored during this review; see section
+6</td>
+</tr>
+<tr>
+<td><code>pipeline/.../catalogue_discovery.py</code></td>
+<td>A (43.89)</td>
+<td>Reads two sites&#39; markup, so it carries the shape of somebody else&#39;s
+HTML</td>
+</tr>
+<tr>
+<td><code>apps/api/.../schemas.py</code></td>
+<td>A (45.83)</td>
+<td>Declarative response models. Long by nature, trivial by content</td>
+</tr>
+<tr>
+<td><code>apps/api/.../main.py</code></td>
+<td>A (48.66)</td>
+<td>Every endpoint in one module, each one an indexed read</td>
+</tr>
+</tbody>
+</table>
+<p>A useful thing to notice: the three lowest scores are the three files
+that do the most genuine work. That is what the metric is supposed to
+do, and it is a reason to trust it here rather than to be alarmed by
+it.</p>
+<hr />
+<h2 id="4-cyclomatic-complexity">4. Cyclomatic complexity</h2>
+<p><strong>What it measures.</strong> The number of independent paths
+through a block of code, which is also the minimum number of test cases
+needed to cover it. A function scoring 24 has twenty-four ways
+through.</p>
+<h3 id="distribution-across-344-blocks">Distribution across 344
+blocks</h3>
+<table>
+<thead>
+<tr>
+<th>Grade</th>
+<th>Complexity</th>
+<th>Blocks</th>
+<th>Share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>1 to 5</td>
+<td><strong>272</strong></td>
+<td>79.1%</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>6 to 10</td>
+<td>44</td>
+<td>12.8%</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>11 to 20</td>
+<td>26</td>
+<td>7.6%</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>21 to 30</td>
+<td>2</td>
+<td>0.6%</td>
+</tr>
+<tr>
+<td>E, F</td>
+<td>31+</td>
+<td><strong>0</strong></td>
+<td>0%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Average: A (3.90).</strong> Nearly four fifths of the
+codebase is in the simplest band, and there is nothing in the two worst
+bands at all.</p>
+<h3 id="the-two-blocks-at-d">The two blocks at D</h3>
+<p>Both were examined during this review and both were deliberately left
+alone.</p>
+<p><strong><code>fuse_variant</code>, D (24)</strong> in
+<code>enrichment/fuse.py</code>. The scoring engine: it weights every
+piece of evidence, computes the bootstrap confidence interval, applies
+the evidence floor, decides suppression, and writes the claims with
+their citations. Its complexity is the domain&#39;s, not an accident of
+style, and splitting it into five functions that are only ever called in
+sequence would move the complexity into the call graph rather than
+remove it. It is the most heavily tested function in the project.</p>
+<p><strong><code>run_connector</code>, D (21)</strong> in
+<code>connectors/runner.py</code>. The ingest loop, which has to hold
+three failure modes open at once: a missing credential, an open circuit
+breaker, and an unexpected exception, each recorded differently so that
+one source failing never stops the others. That branching <em>is</em>
+the resilience requirement.</p>
+<p><strong>Why not refactor them anyway.</strong> Both are on the
+critical write path, days before a submission, and a refactor that
+changes a verdict is worse than a D grade. The honest engineering
+position is that a threshold should be set where the code is and then
+defended, not chased with changes that trade a number for risk.</p>
+<hr />
+<h2 id="5-turning-the-score-into-a-gate">5. Turning the score into a
+gate</h2>
+<p>Radon will tell you a function scores E and then happily let you
+merge it. That is a report, not a control.</p>
+<p>So <strong>Xenon runs in CI and fails the build</strong> on any
+regression:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">xenon</span> <span class="at">--max-absolute</span> D <span class="at">--max-modules</span> B <span class="at">--max-average</span> A</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Threshold</th>
+<th>Set to</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any single block</td>
+<td>D</td>
+<td>Where the code actually is. Nothing may get worse than the two
+functions above</td>
+</tr>
+<tr>
+<td>Any single module</td>
+<td>B</td>
+<td>A module may contain a hard function; it may not become a hard
+module</td>
+</tr>
+<tr>
+<td>The whole codebase</td>
+<td>A</td>
+<td>The average must stay in the simplest band</td>
+</tr>
+</tbody>
+</table>
+<p>This is the part of the exercise we would defend hardest. <strong>A
+measurement taken once is a snapshot; a measurement wired to an exit
+code is a property.</strong> The grades in this document cannot silently
+decay, because the next pull request that makes them worse does not
+merge.</p>
+<hr />
+<h2 id="6-what-the-review-changed">6. What the review changed</h2>
+<p>The measurement found one block materially worse than everything
+else:</p>
+<pre><code>_evaluate  E (33)   pipeline/src/revix_pipeline/evaluation/fusion_experiment.py</code></pre>
+<p>The only E in the codebase, and 40% worse than the next worst block.
+Reading it, the cause was obvious: it did two unrelated jobs in one
+function. It drew samples from the corpus and recorded what each
+weighting strategy made of each draw, and then it turned all of those
+observations into summary statistics. Neither half is complicated. Doing
+both in one place was.</p>
+<p><strong>Split into five functions</strong> along that seam:
+<code>_draw</code>, <code>_score_one_draw</code>,
+<code>_rank_correlation</code>, <code>_calibration</code> and
+<code>_summarise</code>, with a small <code>_Trials</code> value
+carrying the observations between the two halves.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Worst block in the codebase</td>
+<td><strong>E (33)</strong></td>
+<td><strong>D (24)</strong></td>
+</tr>
+<tr>
+<td>Blocks graded E or worse</td>
+<td>1</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>Average complexity</td>
+<td>A (3.944)</td>
+<td><strong>A (3.895)</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The thirteen tests covering the fusion experiment passed unchanged
+throughout, which is the only reason a refactor of this kind is safe to
+make at all.</p>
+<p>This is the part of the report worth reading as method rather than
+result: <strong>measure, find the worst thing, understand why it is the
+worst thing, fix the one that is safe to fix, and document the ones that
+are not.</strong></p>
+<hr />
+<h2 id="7-what-the-tests-are-actually-worth">7. What the tests are
+actually worth</h2>
+<p>Coverage is <strong>64% over 308 tests</strong>, which is a number
+that flatters or deceives depending on what the tests do. The honest
+measure of a suite is what it has caught, so here is the list:</p>
+<table>
+<thead>
+<tr>
+<th>Defect caught</th>
+<th>Why it mattered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Macro-F1 averaged over zero-support aspects</td>
+<td>A perfect system scored 0.22 on a two-topic set. <strong>Our
+evaluation was lying to us in our own favour</strong></td>
+</tr>
+<tr>
+<td>A connector recorded our own search term as the source&#39;s answer</td>
+<td>We would have been <strong>citing ourselves as
+evidence</strong></td>
+</tr>
+<tr>
+<td>An unordered <code>LIMIT</code> in fusion</td>
+<td>Ingest and fusion silently disagreed about which variant they
+meant</td>
+</tr>
+<tr>
+<td>Security headers added inside the rate limiter</td>
+<td>A 429, the response most likely to reach a hostile client, was the
+one going out bare</td>
+</tr>
+<tr>
+<td>A migration emitting <code>NOT NULL</code> with no default</td>
+<td>Would have failed against the 129 verdict rows already in
+production</td>
+</tr>
+</tbody>
+</table>
+<p>Coverage is deliberately not gated in CI. A coverage threshold is
+trivially satisfied by tests that execute code without asserting
+anything about it, and we would rather the number stayed honest than
+stayed high.</p>
+<hr />
+<h2 id="8-raw-metrics-and-reproducing-all-of-this">8. Raw metrics, and
+reproducing all of this</h2>
+<h3 id="raw-counts-radon">Raw counts (Radon)</h3>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lines of code</td>
+<td>9,991</td>
+</tr>
+<tr>
+<td>Logical lines</td>
+<td>4,795</td>
+</tr>
+<tr>
+<td>Source lines</td>
+<td>6,646</td>
+</tr>
+<tr>
+<td>Comment lines</td>
+<td>845</td>
+</tr>
+<tr>
+<td>Docstring and block comment lines</td>
+<td>1,073</td>
+</tr>
+<tr>
+<td>Blank lines</td>
+<td>1,435</td>
+</tr>
+<tr>
+<td><strong>Comment and docstring density</strong></td>
+<td><strong>19% of all lines</strong></td>
+</tr>
+</tbody>
+</table>
+<p>That last figure is the one we would point at. Roughly one line in
+five explains something, and house style is that a comment states a
+decision rather than restating the code.</p>
+<h3 id="commands">Commands</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The score: maintainability index, per file</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon mi packages/revix_core/src pipeline/src apps/api/src <span class="at">-s</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Cyclomatic complexity, average plus anything above B</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon cc packages/revix_core/src pipeline/src apps/api/src <span class="at">-a</span> <span class="at">-s</span> <span class="at">-nC</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw counts</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon raw packages/revix_core/src pipeline/src apps/api/src <span class="at">-s</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The gate, which is what CI runs</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run xenon <span class="at">--max-absolute</span> D <span class="at">--max-modules</span> B <span class="at">--max-average</span> A <span class="dt">\</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  packages/revix_core/src pipeline/src apps/api/src</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># The rest of the quality gate</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run ruff check . <span class="kw">&amp;&amp;</span> <span class="ex">uv</span> run ruff format <span class="at">--check</span> .</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run mypy packages/revix_core/src pipeline/src apps/api/src</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest <span class="at">--cov</span> <span class="at">--cov-report</span><span class="op">=</span>term</span></code></pre></div>
+<p>Every one of these also runs on every pull request. The metrics are
+printed in the CI log under <strong>Code metrics</strong>, and the gate
+is the step named <strong>Complexity gate</strong>.</p>
+<hr />
+<h2 id="9-summary-for-the-one-to-one">9. Summary for the one-to-one</h2>
+<p>If there is time for only four sentences:</p>
+<ol type="1">
+<li><strong>Every file grades A for maintainability, and the average
+cyclomatic complexity is A at 3.90 across 344 blocks</strong>, with
+nothing above D.</li>
+<li><strong>The review changed the code</strong>: the single E-grade
+function was found, understood, split into five, and the codebase now
+has no E at all.</li>
+<li><strong>The score is enforced, not just reported.</strong> Xenon
+fails the build if any of it regresses, which is the difference between
+a measurement and a property.</li>
+<li><strong>We left mutation testing out and said why</strong>: mutmut
+cannot run natively on Windows, all three of us are on Windows, and a
+tool nobody can run is not a control.</li>
+</ol>
+</body>
+</html>

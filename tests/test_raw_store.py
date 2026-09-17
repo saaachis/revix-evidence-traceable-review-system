@@ -126,3 +126,51 @@ def test_the_cutoff_is_timezone_aware() -> None:
     """A naive datetime compared against a timezone-aware column raises."""
     cutoff = datetime.now(UTC) - timedelta(days=Settings().raw_retention_days)
     assert cutoff.tzinfo is not None
+
+
+# ---------- reclaiming under pressure ----------
+
+
+def test_the_sweep_batches_rather_than_deleting_in_one_statement() -> None:
+    """The regression: the sweep failed with the error it existed to fix.
+
+    A full database has no room to record a large deletion. Dead rows are
+    written rather than merely marked absent, and evidence_unit.raw_payload_id
+    is ON DELETE SET NULL, so removing a payload also rewrites the evidence
+    rows pointing at it. Deleting 2,173 payloads in one statement asked for
+    more room than the 31 MB that was left.
+
+    Asserted on the signature, because the alternative is a database fixture
+    that has to actually be full, and the thing worth protecting is that the
+    option exists at all with a default small enough to fit.
+    """
+    import inspect
+
+    from revix_pipeline.cli import db_prune_raw
+
+    params = inspect.signature(db_prune_raw).parameters
+    assert "batch_size" in params, "a sweep that cannot batch cannot run when it is needed"
+
+    default = params["batch_size"].default
+    size = getattr(default, "default", default)
+    assert 1 <= size <= 100, "batches must be small enough to fit in what headroom remains"
+
+
+def test_a_batch_fits_inside_plausible_headroom() -> None:
+    """Sizing check on the number that was actually chosen.
+
+    The store held 1.1 GB logical across 2,943 payloads, so roughly 380 kB
+    each. Postgres keeps these compressed out of line at about 2.7 to 1, so a
+    batch costs materially less on disk than the logical figure suggests, and
+    the batch has to fit in the tens of megabytes left over.
+    """
+    import inspect
+
+    from revix_pipeline.cli import db_prune_raw
+
+    default = inspect.signature(db_prune_raw).parameters["batch_size"].default
+    size = getattr(default, "default", default)
+
+    logical_kb_each = 1.1 * 1024 * 1024 / 2_943
+    on_disk_mb = size * logical_kb_each / 1024 / 2.7
+    assert on_disk_mb < 31, "a batch has to fit in the headroom a full database leaves"

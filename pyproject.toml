@@ -39,6 +39,21 @@ dev = [
     "httpx>=0.28",
     "alembic>=1.14",
     "psycopg[binary]>=3.2",
+    # The code-review toolkit. Radon scores the code itself: cyclomatic
+    # complexity, a maintainability index, raw line counts and Halstead
+    # volume. Xenon turns those scores into a build gate, so the grade cannot
+    # quietly slide between one review and the next.
+    #
+    # Mutation testing was the other candidate and was deliberately left out:
+    # mutmut has no native Windows support and tells you to use WSL, and all
+    # three of us develop on Windows. A quality tool nobody on the team can
+    # run is not a quality tool. The reasoning is written up in the code
+    # review report rather than left as a silent omission.
+    #
+    # Both are read-only measurements that no other stage depends on, which is
+    # why they live in dev rather than in the packages themselves.
+    "radon>=6.0",
+    "xenon>=0.9",
 ]
 
 # ----------------------------------------------------------------------------

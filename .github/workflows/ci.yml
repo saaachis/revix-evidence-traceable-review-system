@@ -100,6 +100,33 @@ jobs:
       - name: Types
         run: uv run mypy packages/revix_core/src pipeline/src apps/api/src
 
+      # A ceiling on complexity, not a report about it. Radon will happily
+      # tell you a function scores E and then let you merge it; xenon is the
+      # same measurement wired to an exit code, which is the difference
+      # between knowing and enforcing.
+      #
+      # D absolute rather than C, because two functions legitimately sit at D:
+      # fuse_variant, which is the scoring engine, and run_connector, which is
+      # the ingest loop. Both are heavily tested and splitting them to satisfy
+      # a threshold would move complexity rather than remove it. The gate is
+      # set where the code actually is, so that a regression trips it.
+      - name: Complexity gate
+        run: >
+          uv run xenon --max-absolute D --max-modules B --max-average A
+          packages/revix_core/src pipeline/src apps/api/src
+
+      # Printed rather than gated: the maintainability index and the raw
+      # counts are for reading in a review, and the build already fails on the
+      # things that should fail a build.
+      - name: Code metrics
+        run: |
+          echo "## Maintainability index"
+          uv run radon mi packages/revix_core/src pipeline/src apps/api/src -s
+          echo "## Cyclomatic complexity, anything above B"
+          uv run radon cc packages/revix_core/src pipeline/src apps/api/src -s -nC -a
+          echo "## Raw counts"
+          uv run radon raw packages/revix_core/src pipeline/src apps/api/src -s | tail -16
+
       - name: Migrations apply
         run: uv run alembic upgrade head
 
@@ -156,9 +183,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Cache deliberately off in this job, unlike the Python one. The action
+      # prunes its cache in a post-job step, and here that step has twice hung
+      # for its full five-minute timeout and then failed the build with exit 2,
+      # after every real check had already passed. This job only needs uv to
+      # print the OpenAPI schema, which is seconds of work, so the cache was
+      # never buying enough to be worth a flaky red build.
       - uses: astral-sh/setup-uv@v5
         with:
-          enable-cache: true
+          enable-cache: false
 
       - uses: actions/setup-node@v4
         with:
