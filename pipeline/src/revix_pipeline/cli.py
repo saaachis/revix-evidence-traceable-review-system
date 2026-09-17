@@ -656,52 +656,76 @@ def db_prune_raw(
     keep_days: int = typer.Option(
         None, "--keep-days", help="Override settings.raw_retention_days."
     ),
+    max_mb: int = typer.Option(None, "--max-mb", help="Override settings.raw_max_megabytes."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Say what would go, delete nothing."),
 ) -> None:
-    """Drop raw payloads past the retention window, then reclaim the space.
+    """Hold the raw store inside a byte budget, then reclaim the space.
 
-    Safe to run whenever, and run by the nightly before it ingests anything so
-    that a retention policy nobody remembers is not a retention policy. Only
-    raw.raw_payload is touched. Every evidence unit derived from those
-    payloads stays exactly where it is, because the derived rows are the
-    product and the payloads are only the receipt.
+    Two rules, and the second one is the one that matters. A payload goes if
+    it is older than the retention window, OR if keeping it would push the
+    store past its size budget, oldest first.
 
-    The VACUUM at the end is the part that matters and the part it is easy to
-    leave out. Deleting rows marks them dead; it does not hand the pages back,
+    The age rule alone was the first attempt and it did nothing at all. Every
+    payload was inside the window, so the sweep reported "nothing past the
+    window" and the migration behind it died on a full disk exactly as before.
+    An age window bounds how old the store gets; it does not bound how big it
+    gets, and size was what broke. The limit is denominated in megabytes, so
+    the policy is too.
+
+    Only raw.raw_payload is touched. Every evidence unit derived from these
+    payloads stays exactly where it is: the derived rows are the product, the
+    payloads are the receipt.
+
+    The VACUUM at the end is easy to leave out and would make the whole thing
+    pointless. Deleting rows marks them dead; it does not hand the pages back,
     and a database that is full stays full until something does.
     """
     settings = get_settings()
     days = keep_days if keep_days is not None else settings.raw_retention_days
+    budget_mb = max_mb if max_mb is not None else settings.raw_max_megabytes
     cutoff = datetime.now(UTC) - timedelta(days=days)
+    budget = budget_mb * 1024 * 1024
+
+    # A running total over the rows newest-first: everything past the budget is
+    # surplus. Done in one pass in the database rather than by reading sizes
+    # back and deciding here, because the whole point is not to move these
+    # bytes over the network.
+    doomed_sql = """
+        select id from (
+          select id, fetched_at,
+                 sum(length(body)) over (order by fetched_at desc, id) as running
+          from raw.raw_payload
+        ) ranked
+        where ranked.fetched_at < :cutoff or ranked.running > :budget
+    """
+    params = {"cutoff": cutoff, "budget": budget}
 
     with session_scope() as session:
+        total, total_bytes = session.execute(
+            text("select count(*), coalesce(sum(length(body)), 0) from raw.raw_payload")
+        ).one()
         doomed, freeing = session.execute(
             text(
-                "select count(*), coalesce(sum(length(body)), 0) "
-                "from raw.raw_payload where fetched_at < :cutoff"
+                f"select count(*), coalesce(sum(length(body)), 0) "
+                f"from raw.raw_payload where id in ({doomed_sql})"
             ),
-            {"cutoff": cutoff},
+            params,
         ).one()
-        kept = session.scalar(
-            text("select count(*) from raw.raw_payload where fetched_at >= :cutoff"),
-            {"cutoff": cutoff},
-        )
 
-    typer.echo(f"  cutoff        {cutoff:%Y-%m-%d %H:%M} UTC  (keeping {days} days)")
-    typer.echo(f"  to delete     {doomed:>8,}  ({_human(int(freeing))} of payload body)")
-    typer.echo(f"  to keep       {kept or 0:>8,}")
+    typer.echo(f"  held now      {total:>8,}  ({_human(int(total_bytes))})")
+    typer.echo(f"  budget        {budget_mb:>8,} MB, keeping {days} days")
+    typer.echo(f"  to delete     {doomed:>8,}  ({_human(int(freeing))})")
+    typer.echo(f"  to keep       {total - doomed:>8,}  ({_human(int(total_bytes - freeing))})")
 
     if dry_run:
         typer.secho("dry run, nothing deleted", fg="yellow")
         return
     if not doomed:
-        typer.secho("nothing past the window", fg="green")
+        typer.secho("already inside the budget", fg="green")
         return
 
     with session_scope() as session:
-        session.execute(
-            text("delete from raw.raw_payload where fetched_at < :cutoff"), {"cutoff": cutoff}
-        )
+        session.execute(text(f"delete from raw.raw_payload where id in ({doomed_sql})"), params)
 
     # VACUUM cannot run inside a transaction, so it needs its own connection
     # with autocommit. Without this the delete succeeds and the disk stays
@@ -710,7 +734,9 @@ def db_prune_raw(
     with get_engine().connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
         conn.execute(text("vacuum (analyze) raw.raw_payload"))
 
-    typer.secho(f"{doomed:,} payloads pruned and the space returned", fg="green", bold=True)
+    typer.secho(
+        f"{doomed:,} payloads pruned, {_human(int(freeing))} returned", fg="green", bold=True
+    )
 
 
 # ---------------------------------------------------------------- catalogue
