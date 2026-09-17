@@ -20,6 +20,71 @@ margin: 0 0.8em 0.2em -1.6em;
 vertical-align: middle;
 }
 .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
   <style type="text/css">
 :root {
@@ -326,8 +391,97 @@ consistent for a workload this size. Next.js App Router because a
 verdict should be a real shareable URL.</p>
 </blockquote>
 <hr />
-<h2 id="3-code-quality-target-25-minutes">3. Code quality (target 2.5
-minutes)</h2>
+<h2 id="3-code-quality-target-4-minutes-and-lead-with-the-tools">3. Code
+quality (target 4 minutes, and lead with the tools)</h2>
+<p>The session is a code review, and he has said we do not need to walk
+the whole codebase. So run the toolkit live rather than describing it.
+Have a terminal open at the repository root and the <a href="03-code-review-report.md">code review report</a> in the next
+tab.</p>
+<h3 id="31-run-the-score-in-front-of-him">3.1 Run the score in front of
+him</h3>
+<p><strong>Type it, do not paste a screenshot.</strong> It takes about
+ten seconds and a number produced live is worth more than a number in a
+document.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon mi packages/revix_core/src pipeline/src apps/api/src <span class="at">-s</span></span></code></pre></div>
+<blockquote>
+<p>This is the maintainability index, which is the closest thing Python
+has to a single score for how hard a file will be to change in six
+months. It runs from zero to a hundred and anything above twenty is
+grade A.</p>
+<p><strong>Every one of our forty-three files is an A.</strong></p>
+</blockquote>
+<p><strong>Then complexity.</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon cc packages/revix_core/src pipeline/src apps/api/src <span class="at">-a</span> <span class="at">-s</span> <span class="at">-nC</span></span></code></pre></div>
+<blockquote>
+<p>Cyclomatic complexity counts the independent paths through a block,
+which is also the minimum number of tests needed to cover it.
+<strong>The average across 344 blocks is A, at 3.9</strong>, and about
+four fifths of the codebase is in the simplest band. What you are seeing
+listed here is only the tail, anything above B.</p>
+</blockquote>
+<h3 id="32-the-two-at-d-before-he-asks">3.2 The two at D, before he
+asks</h3>
+<p><em>Volunteer these. Being the one to point at your own worst numbers
+reads completely differently from being caught at them.</em></p>
+<blockquote>
+<p>Two blocks grade D and I would rather show you them than have you
+find them.</p>
+<p><code>fuse_variant</code> is the scoring engine: it weights the
+evidence, computes the confidence interval, applies the evidence floor,
+decides suppression and writes the citations. <strong>That complexity is
+the domain&#39;s, not a style accident.</strong> Splitting it into five
+functions that only ever run in sequence would move the complexity into
+the call graph rather than remove it.</p>
+<p><code>run_connector</code> is the ingest loop, and it holds three
+failure modes open at once so that one source failing never stops the
+others. <strong>That branching is the resilience
+requirement.</strong></p>
+<p>Both are on the write path, days before a submission, and <strong>a
+refactor that changes a verdict is worse than a D grade.</strong></p>
+</blockquote>
+<h3 id="33-the-one-we-did-fix">3.3 The one we did fix</h3>
+<p><em>This is the strongest thing in the section. Do not rush
+it.</em></p>
+<blockquote>
+<p>The measurement did change the code. One function graded <strong>E at
+33</strong>, the only E in the codebase and forty percent worse than the
+next worst.</p>
+<p>When I read it, it was doing two unrelated jobs: drawing samples from
+the corpus, and turning those observations into summary statistics.
+Neither half is complicated. Doing both in one place was.</p>
+<p>Split into five functions along that seam, and <strong>the codebase
+now has no E-grade block at all.</strong> The thirteen tests covering it
+passed unchanged the whole way through, which is the only reason that
+refactor was safe to make.</p>
+</blockquote>
+<h3 id="34-reporting-is-not-enforcing">3.4 Reporting is not
+enforcing</h3>
+<p><strong>Show the Complexity gate step in CI.</strong></p>
+<blockquote>
+<p>Radon will tell you a function scores E and then let you merge it.
+That is a report, not a control. So we added <strong>Xenon, which is the
+same measurement wired to an exit code</strong>, and it runs on every
+pull request:</p>
+<p><code>xenon --max-absolute D --max-modules B --max-average A</code></p>
+<p>The thresholds are set where the code actually is, so <strong>a
+change that makes any of these grades worse does not merge.</strong>
+That is the difference between a measurement and a property, and it is
+the part of this I would defend hardest.</p>
+</blockquote>
+<h3 id="35-the-tool-we-did-not-use">3.5 The tool we did not use</h3>
+<p><em>Say this before he notices mutmut is missing from the list he
+gave.</em></p>
+<blockquote>
+<p>Mutation testing was the most interesting tool on your list and we
+left it out deliberately. <strong>Mutmut has no native Windows support;
+it tells you to use WSL, and all three of us develop on
+Windows.</strong> A quality tool that only one machine can run is a tool
+that stops being run.</p>
+<p>The question it answers, whether the tests would actually catch a
+bug, we answer with evidence instead: I can give you five real defects
+our own tests caught before they reached anybody.</p>
+</blockquote>
+<h3 id="36-the-rest-of-the-gate">3.6 The rest of the gate</h3>
 <p><strong>Show:</strong> the green CI checks on a pull request.</p>
 <blockquote>
 <p>Six jobs on every pull request. <strong>mypy strict</strong> across

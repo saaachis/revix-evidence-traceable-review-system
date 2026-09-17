@@ -29,7 +29,7 @@ that order, so each section can be opened against the mark it answers.
 |---|---|---|---|---|
 | 1 | Codebase | 10 | [§3](#3-codebase-10-marks) | Three Python packages and a Next.js app, ~17,600 lines, running on real data |
 | 2 | Frameworks with justification | 10 | [§4](#4-frameworks-with-justification-10-marks) | Every choice is written down as a decision record, including what we rejected |
-| 3 | Code quality | 10 | [§5](#5-code-quality-10-marks) | Strict types, 246 tests, six CI jobs, and defects our own tests caught |
+| 3 | Code quality | 10 | [§5](#5-code-quality-10-marks) | Measured: grade A maintainability on every file, average complexity A, enforced in CI |
 | 4 | NFRs achieved | 10 | [§6](#6-nfrs-achieved-10-marks) | All nine categories audited; six met by design, five gaps found and closed |
 
 ---
@@ -181,7 +181,7 @@ itself for any the examiner pushes on.
 | **Next.js 16, App Router** | Server rendering, so a verdict page is a real URL that can be shared and indexed. Structured data matters for a review product |
 | **React 19** | Component model, and what Next targets |
 | **Tailwind v4** | CSS-first `@theme`, so the palette is one place. It had to be reworked once for contrast, and one place is why that was cheap |
-| **openapi-typescript** | Generates the client from the live schema. See §5.2 |
+| **openapi-typescript** | Generates the client from the live schema. See §5.3 |
 
 ### 4.3 The two choices worth defending out loud
 
@@ -212,7 +212,34 @@ records why the baseline came first and why it stayed.
 
 ## 5. Code quality (10 marks)
 
-### 5.1 Enforced, not encouraged
+### 5.1 The measured score
+
+The code was put through a review toolkit rather than described in prose. Full
+working in the [code review report](03-code-review-report.md); the headline:
+
+| Measure | Tool | Result |
+|---|---|---|
+| **Maintainability index** | Radon | **Grade A on all 43 files**, no exceptions |
+| **Cyclomatic complexity** | Radon | **Average A (3.90)** over 344 blocks; 92% grade A or B |
+| Worst single block | Radon | D (24); nothing grades E or F |
+| Complexity ceiling | Xenon | **Fails the build** on any regression |
+| Lint, format, types | Ruff, mypy strict | Clean |
+| Tests and coverage | pytest | 308 tests, 64% |
+
+Two things about that are worth saying out loud in the review.
+
+**The review changed the code.** One function graded E (33), the only one in
+the codebase and 40% worse than the next. It was doing two unrelated jobs at
+once: drawing samples, and summarising them. Split into five functions along
+that seam, the codebase now has **no E-grade block at all** and the average
+improved from 3.944 to 3.895, with the thirteen tests covering it passing
+unchanged throughout.
+
+**The score is a property, not a snapshot.** Radon reports; Xenon is the same
+measurement wired to an exit code, and it runs on every pull request. A change
+that makes any of these grades worse does not merge.
+
+### 5.2 Enforced, not encouraged
 
 | Control | Setting |
 |---|---|
@@ -227,7 +254,7 @@ Six CI jobs run on every pull request. Beyond the usual, they check that
 **no secret and no raw scraped payload is ever committed**, and that **every
 internal documentation link resolves**.
 
-### 5.2 The contract cannot drift
+### 5.3 The contract cannot drift
 
 CI regenerates the TypeScript client from the live OpenAPI schema and **fails
 if the committed types differ**. A response shape that changes without the
@@ -235,7 +262,7 @@ frontend changing is a red build, not a runtime surprise a user finds. This is
 the single strongest quality guarantee in the project because it is
 structural: it does not depend on anybody remembering.
 
-### 5.3 Defects our own tests caught
+### 5.4 Defects our own tests caught
 
 The most useful evidence that the tests are real is what they found. Offer
 these if asked how we know the suite is worth anything:
@@ -248,7 +275,7 @@ these if asked how we know the suite is worth anything:
 | Security headers added inside the rate limiter | A 429, the response most likely to reach a hostile client, was the one response going out bare |
 | A migration emitting `NOT NULL` with no default | Would have failed against the 129 verdict rows already in production |
 
-### 5.4 Comments explain the why
+### 5.5 Comments explain the why
 
 House style is that a comment explains a decision, never restates the code. A
 representative example, on why `/health` opens its own session:
@@ -405,6 +432,7 @@ cd apps/web && npm run a11y
 | 1 | The repository, `main` branch, green CI | GitHub |
 | 2 | This document | `docs/s3-lab-work/` |
 | 3 | The NFR audit | [`docs/non-functional-requirements.md`](../non-functional-requirements.md) |
+| 3b | The code review report | [`03-code-review-report.md`](03-code-review-report.md) |
 | 4 | Nine architecture decision records | [`docs/adr/`](../adr/) |
 | 5 | Live API and live site | Links in the header |
 

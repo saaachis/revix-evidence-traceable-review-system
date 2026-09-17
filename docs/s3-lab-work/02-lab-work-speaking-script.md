@@ -136,7 +136,104 @@ in the demo session; today I would rather show you what is underneath it."
 
 ---
 
-## 3. Code quality (target 2.5 minutes)
+## 3. Code quality (target 4 minutes, and lead with the tools)
+
+The session is a code review, and he has said we do not need to walk the whole
+codebase. So run the toolkit live rather than describing it. Have a terminal
+open at the repository root and the [code review report](03-code-review-report.md)
+in the next tab.
+
+### 3.1 Run the score in front of him
+
+**Type it, do not paste a screenshot.** It takes about ten seconds and a
+number produced live is worth more than a number in a document.
+
+```bash
+uv run radon mi packages/revix_core/src pipeline/src apps/api/src -s
+```
+
+> This is the maintainability index, which is the closest thing Python has to
+> a single score for how hard a file will be to change in six months. It runs
+> from zero to a hundred and anything above twenty is grade A.
+>
+> **Every one of our forty-three files is an A.**
+
+**Then complexity.**
+
+```bash
+uv run radon cc packages/revix_core/src pipeline/src apps/api/src -a -s -nC
+```
+
+> Cyclomatic complexity counts the independent paths through a block, which is
+> also the minimum number of tests needed to cover it. **The average across
+> 344 blocks is A, at 3.9**, and about four fifths of the codebase is in the
+> simplest band. What you are seeing listed here is only the tail, anything
+> above B.
+
+### 3.2 The two at D, before he asks
+
+*Volunteer these. Being the one to point at your own worst numbers reads
+completely differently from being caught at them.*
+
+> Two blocks grade D and I would rather show you them than have you find them.
+>
+> `fuse_variant` is the scoring engine: it weights the evidence, computes the
+> confidence interval, applies the evidence floor, decides suppression and
+> writes the citations. **That complexity is the domain's, not a style
+> accident.** Splitting it into five functions that only ever run in sequence
+> would move the complexity into the call graph rather than remove it.
+>
+> `run_connector` is the ingest loop, and it holds three failure modes open at
+> once so that one source failing never stops the others. **That branching is
+> the resilience requirement.**
+>
+> Both are on the write path, days before a submission, and **a refactor that
+> changes a verdict is worse than a D grade.**
+
+### 3.3 The one we did fix
+
+*This is the strongest thing in the section. Do not rush it.*
+
+> The measurement did change the code. One function graded **E at 33**, the
+> only E in the codebase and forty percent worse than the next worst.
+>
+> When I read it, it was doing two unrelated jobs: drawing samples from the
+> corpus, and turning those observations into summary statistics. Neither half
+> is complicated. Doing both in one place was.
+>
+> Split into five functions along that seam, and **the codebase now has no
+> E-grade block at all.** The thirteen tests covering it passed unchanged the
+> whole way through, which is the only reason that refactor was safe to make.
+
+### 3.4 Reporting is not enforcing
+
+**Show the Complexity gate step in CI.**
+
+> Radon will tell you a function scores E and then let you merge it. That is a
+> report, not a control. So we added **Xenon, which is the same measurement
+> wired to an exit code**, and it runs on every pull request:
+>
+> `xenon --max-absolute D --max-modules B --max-average A`
+>
+> The thresholds are set where the code actually is, so **a change that makes
+> any of these grades worse does not merge.** That is the difference between a
+> measurement and a property, and it is the part of this I would defend
+> hardest.
+
+### 3.5 The tool we did not use
+
+*Say this before he notices mutmut is missing from the list he gave.*
+
+> Mutation testing was the most interesting tool on your list and we left it
+> out deliberately. **Mutmut has no native Windows support; it tells you to
+> use WSL, and all three of us develop on Windows.** A quality tool that only
+> one machine can run is a tool that stops being run.
+>
+> The question it answers, whether the tests would actually catch a bug, we
+> answer with evidence instead: I can give you five real defects our own tests
+> caught before they reached anybody.
+
+### 3.6 The rest of the gate
 
 **Show:** the green CI checks on a pull request.
 
