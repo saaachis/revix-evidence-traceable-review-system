@@ -657,28 +657,39 @@ def db_prune_raw(
         None, "--keep-days", help="Override settings.raw_retention_days."
     ),
     max_mb: int = typer.Option(None, "--max-mb", help="Override settings.raw_max_megabytes."),
+    batch_size: int = typer.Option(
+        50,
+        "--batch-size",
+        help="Payloads per transaction. Smaller survives a tighter squeeze.",
+    ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Say what would go, delete nothing."),
 ) -> None:
-    """Hold the raw store inside a byte budget, then reclaim the space.
+    """Hold the raw store inside a byte budget, reclaiming space as it goes.
 
-    Two rules, and the second one is the one that matters. A payload goes if
-    it is older than the retention window, OR if keeping it would push the
-    store past its size budget, oldest first.
+    Two rules decide what goes: a payload is surplus if it is older than the
+    retention window, or if keeping it would push the store past its size
+    budget, oldest first. The age rule alone was the first attempt and it
+    freed nothing, because every payload was inside the window. An age window
+    bounds how old a store gets; it does not bound how big it gets, and size
+    was what broke.
 
-    The age rule alone was the first attempt and it did nothing at all. Every
-    payload was inside the window, so the sweep reported "nothing past the
-    window" and the migration behind it died on a full disk exactly as before.
-    An age window bounds how old the store gets; it does not bound how big it
-    gets, and size was what broke. The limit is denominated in megabytes, so
-    the policy is too.
+    It deletes in batches, and that is not a tuning knob, it is the only way
+    this works at all. Deleting the surplus in one statement failed with the
+    very error it was meant to fix: a full database has no room to record a
+    large deletion. Two things make it expensive. Dead rows are written, not
+    just marked absent, and evidence_unit.raw_payload_id is ON DELETE SET
+    NULL, so every payload removed also rewrites the evidence rows pointing at
+    it. Fifty at a time, vacuuming after each, spends the small amount of
+    headroom that exists to create more.
 
-    Only raw.raw_payload is touched. Every evidence unit derived from these
-    payloads stays exactly where it is: the derived rows are the product, the
-    payloads are the receipt.
+    Only raw.raw_payload is touched. Every evidence unit stays exactly where
+    it is and keeps its text: it loses a pointer to a receipt, nothing else.
 
-    The VACUUM at the end is easy to leave out and would make the whole thing
-    pointless. Deleting rows marks them dead; it does not hand the pages back,
-    and a database that is full stays full until something does.
+    One subtlety worth knowing when reading the numbers. The budget is
+    measured with length(body), which is the logical size, while Postgres
+    stores these compressed out of line, so the figures here run larger than
+    the disk they occupy. Sizing against the logical number is the safe
+    direction to be wrong in.
     """
     settings = get_settings()
     days = keep_days if keep_days is not None else settings.raw_retention_days
@@ -687,35 +698,31 @@ def db_prune_raw(
     budget = budget_mb * 1024 * 1024
 
     # A running total over the rows newest-first: everything past the budget is
-    # surplus. Done in one pass in the database rather than by reading sizes
-    # back and deciding here, because the whole point is not to move these
-    # bytes over the network.
-    doomed_sql = """
-        select id from (
-          select id, fetched_at,
+    # surplus. Resolved once, into a list, because deleting changes the running
+    # totals and re-running this between batches would keep moving the target.
+    doomed_sql = text(
+        """
+        select id, length(body) as bytes from (
+          select id, body, fetched_at,
                  sum(length(body)) over (order by fetched_at desc, id) as running
           from raw.raw_payload
         ) ranked
         where ranked.fetched_at < :cutoff or ranked.running > :budget
-    """
-    params = {"cutoff": cutoff, "budget": budget}
+        order by ranked.fetched_at
+        """
+    )
 
     with session_scope() as session:
         total, total_bytes = session.execute(
             text("select count(*), coalesce(sum(length(body)), 0) from raw.raw_payload")
         ).one()
-        doomed, freeing = session.execute(
-            text(
-                f"select count(*), coalesce(sum(length(body)), 0) "
-                f"from raw.raw_payload where id in ({doomed_sql})"
-            ),
-            params,
-        ).one()
+        doomed = session.execute(doomed_sql, {"cutoff": cutoff, "budget": budget}).all()
 
-    typer.echo(f"  held now      {total:>8,}  ({_human(int(total_bytes))})")
+    freeing = sum(int(row[1]) for row in doomed)
+    typer.echo(f"  held now      {total:>8,}  ({_human(int(total_bytes))} logical)")
     typer.echo(f"  budget        {budget_mb:>8,} MB, keeping {days} days")
-    typer.echo(f"  to delete     {doomed:>8,}  ({_human(int(freeing))})")
-    typer.echo(f"  to keep       {total - doomed:>8,}  ({_human(int(total_bytes - freeing))})")
+    typer.echo(f"  to delete     {len(doomed):>8,}  ({_human(freeing)})")
+    typer.echo(f"  to keep       {total - len(doomed):>8,}  ({_human(int(total_bytes) - freeing)})")
 
     if dry_run:
         typer.secho("dry run, nothing deleted", fg="yellow")
@@ -724,18 +731,33 @@ def db_prune_raw(
         typer.secho("already inside the budget", fg="green")
         return
 
+    ids = [row[0] for row in doomed]
+    engine = get_engine()
+    done = 0
+    for start in range(0, len(ids), batch_size):
+        chunk = ids[start : start + batch_size]
+        with session_scope() as session:
+            session.execute(
+                text("delete from raw.raw_payload where id = any(:ids)"), {"ids": chunk}
+            )
+        # After each batch, not at the end. Deleting marks rows dead; it does
+        # not hand the pages back, and the next batch needs the room this one
+        # released. VACUUM cannot run inside a transaction, hence autocommit.
+        # evidence_unit is vacuumed too because the SET NULL rewrote rows there.
+        with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.execute(text("vacuum raw.raw_payload"))
+            conn.execute(text("vacuum core.evidence_unit"))
+        done += len(chunk)
+        typer.echo(f"    {done:>6,} / {len(ids):,}")
+
     with session_scope() as session:
-        session.execute(text(f"delete from raw.raw_payload where id in ({doomed_sql})"), params)
-
-    # VACUUM cannot run inside a transaction, so it needs its own connection
-    # with autocommit. Without this the delete succeeds and the disk stays
-    # exactly as full as it was, which is the failure this command exists to
-    # prevent.
-    with get_engine().connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-        conn.execute(text("vacuum (analyze) raw.raw_payload"))
-
+        left, left_bytes = session.execute(
+            text("select count(*), coalesce(sum(length(body)), 0) from raw.raw_payload")
+        ).one()
     typer.secho(
-        f"{doomed:,} payloads pruned, {_human(int(freeing))} returned", fg="green", bold=True
+        f"{done:,} payloads pruned, {left:,} left ({_human(int(left_bytes))} logical)",
+        fg="green",
+        bold=True,
     )
 
 
