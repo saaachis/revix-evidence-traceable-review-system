@@ -21,12 +21,13 @@ import json
 import logging
 import pathlib
 import time
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import typer
 from sqlalchemy import delete, func, select, text
 
-from revix_core.db import session_scope
+from revix_core.db import get_engine, session_scope
 from revix_core.models import (
     Aspect,
     AspectOpinion,
@@ -596,6 +597,120 @@ def db_status() -> None:
         }
     for key, value in counts.items():
         typer.echo(f"  {key:22} {value:>8,}")
+
+
+@db_app.command("sizes")
+def db_sizes(top: int = typer.Option(15, "--top", help="How many tables to list.")) -> None:
+    """What is actually using the disk.
+
+    Written the morning the pipeline had been dead for three nights with
+    "could not extend file because project size limit (512 MB) has been
+    exceeded". Counting rows tells you nothing about that; one table of stored
+    HTTP responses outweighed every other table put together. A row count and
+    a byte count are different questions and we only had the first.
+    """
+    with session_scope() as session:
+        rows = session.execute(
+            text(
+                """
+                select
+                  n.nspname as schema,
+                  c.relname as table,
+                  pg_total_relation_size(c.oid) as bytes
+                from pg_class c
+                join pg_namespace n on n.oid = c.relnamespace
+                where c.relkind = 'r'
+                  and n.nspname in ('raw','core','analysis','serving')
+                order by bytes desc
+                limit :top
+                """
+            ),
+            {"top": top},
+        ).all()
+        total = session.execute(
+            text(
+                "select sum(pg_total_relation_size(c.oid)) from pg_class c "
+                "join pg_namespace n on n.oid = c.relnamespace "
+                "where c.relkind = 'r' and n.nspname in ('raw','core','analysis','serving')"
+            )
+        ).scalar_one()
+
+    typer.echo(f"  {'table':34} {'size':>10}   share")
+    for schema, table, size in rows:
+        share = (size / total * 100) if total else 0
+        typer.echo(f"  {schema + '.' + table:34} {_human(size):>10}   {share:5.1f}%")
+    typer.echo(f"  {'TOTAL':34} {_human(int(total or 0)):>10}")
+
+
+def _human(n: int) -> str:
+    size = float(n)
+    for unit in ("B", "kB", "MB", "GB"):
+        if size < 1024 or unit == "GB":
+            return f"{size:.0f} {unit}" if unit == "B" else f"{size:.1f} {unit}"
+        size /= 1024.0
+    return f"{size:.1f} GB"
+
+
+@db_app.command("prune-raw")
+def db_prune_raw(
+    keep_days: int = typer.Option(
+        None, "--keep-days", help="Override settings.raw_retention_days."
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Say what would go, delete nothing."),
+) -> None:
+    """Drop raw payloads past the retention window, then reclaim the space.
+
+    Safe to run whenever, and run by the nightly before it ingests anything so
+    that a retention policy nobody remembers is not a retention policy. Only
+    raw.raw_payload is touched. Every evidence unit derived from those
+    payloads stays exactly where it is, because the derived rows are the
+    product and the payloads are only the receipt.
+
+    The VACUUM at the end is the part that matters and the part it is easy to
+    leave out. Deleting rows marks them dead; it does not hand the pages back,
+    and a database that is full stays full until something does.
+    """
+    settings = get_settings()
+    days = keep_days if keep_days is not None else settings.raw_retention_days
+    cutoff = datetime.now(UTC) - timedelta(days=days)
+
+    with session_scope() as session:
+        doomed, freeing = session.execute(
+            text(
+                "select count(*), coalesce(sum(length(body)), 0) "
+                "from raw.raw_payload where fetched_at < :cutoff"
+            ),
+            {"cutoff": cutoff},
+        ).one()
+        kept = session.scalar(
+            text("select count(*) from raw.raw_payload where fetched_at >= :cutoff"),
+            {"cutoff": cutoff},
+        )
+
+    typer.echo(f"  cutoff        {cutoff:%Y-%m-%d %H:%M} UTC  (keeping {days} days)")
+    typer.echo(f"  to delete     {doomed:>8,}  ({_human(int(freeing))} of payload body)")
+    typer.echo(f"  to keep       {kept or 0:>8,}")
+
+    if dry_run:
+        typer.secho("dry run, nothing deleted", fg="yellow")
+        return
+    if not doomed:
+        typer.secho("nothing past the window", fg="green")
+        return
+
+    with session_scope() as session:
+        session.execute(
+            text("delete from raw.raw_payload where fetched_at < :cutoff"), {"cutoff": cutoff}
+        )
+
+    # VACUUM cannot run inside a transaction, so it needs its own connection
+    # with autocommit. Without this the delete succeeds and the disk stays
+    # exactly as full as it was, which is the failure this command exists to
+    # prevent.
+    with get_engine().connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+        conn.execute(text("vacuum (analyze) raw.raw_payload"))
+
+    typer.secho(f"{doomed:,} payloads pruned and the space returned", fg="green", bold=True)
 
 
 # ---------------------------------------------------------------- catalogue

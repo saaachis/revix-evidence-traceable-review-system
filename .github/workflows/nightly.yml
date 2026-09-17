@@ -35,6 +35,16 @@ jobs:
 
       - run: uv sync --all-packages --frozen
 
+      # Before the migration, not after, and that ordering is the whole point.
+      # The database filled its 512 MB and the pipeline died for three nights
+      # running; the statement that finally reported it was a CREATE TABLE,
+      # because a migration needs room too. A sweep that runs after the thing
+      # it is meant to make room for is a sweep that never runs.
+      - name: Reclaim space
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db prune-raw
+
       - name: Migrate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -59,3 +69,11 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: uv run revix db status
+
+      # Row counts say nothing about the limit we actually hit. This is the
+      # number that would have shown the problem coming.
+      - name: Report what it costs
+        if: always()
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db sizes

@@ -54,6 +54,23 @@ class Settings(BaseSettings):
     # and a limit would only ever fire on ourselves.
     rate_limit_enabled: bool = True
 
+    # How long a raw payload is kept before the retention sweep drops it.
+    #
+    # The raw store exists so a parser can be improved and evidence re-derived
+    # without contacting the source again, which is better engineering and
+    # also the polite thing to do. Keeping it forever is what filled a 512 MB
+    # database and stopped the pipeline for three nights, because every
+    # nightly run stores every page and every comment thread it fetched,
+    # unchanged text deduplicates by hash but a page that gained one comment
+    # does not.
+    #
+    # Two weeks is chosen to cover the loop we actually use it for: notice a
+    # parser is wrong, fix it, replay. Anything older than that has never once
+    # been replayed, and the evidence derived from it is kept regardless. What
+    # we give up is replaying a parser change against payloads from a month
+    # ago, which we would rather lose than lose the pipeline.
+    raw_retention_days: int = 14
+
     # ---------- admin ----------
     # The operator account. Both must be set for the admin surface to answer
     # at all; see admin.py for why it fails closed rather than open when they
