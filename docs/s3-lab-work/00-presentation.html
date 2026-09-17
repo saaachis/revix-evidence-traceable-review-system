@@ -98,8 +98,8 @@
     background: var(--desk);
     color: var(--ink);
     font-family: var(--sans);
-    font-size: 13.5px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.55;
     margin: 0;
     padding: 26px 16px 60px;
     -webkit-font-smoothing: antialiased;
@@ -145,41 +145,43 @@
   }
   h2 {
     font-family: var(--serif); font-weight: 600;
-    font-size: 25px; letter-spacing: -0.015em; line-height: 1.15;
+    font-size: 28px; letter-spacing: -0.015em; line-height: 1.14;
     margin: 0 0 7px; text-wrap: balance;
   }
   h3 {
-    font-size: 12.5px; font-weight: 600; margin: 20px 0 8px;
+    font-size: 13px; font-weight: 600; margin: 22px 0 9px;
     letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted);
   }
   h3:first-of-type { margin-top: 14px; }
   p { margin: 0 0 10px; color: var(--ink-2); }
-  .lede { color: var(--muted); font-size: 13.5px; max-width: 62ch; }
+  .lede { color: var(--muted); font-size: 15px; max-width: 62ch; }
   strong { font-weight: 600; color: var(--ink); }
   em { font-style: italic; }
 
   /* ---------- cover ---------- */
-  .cover { justify-content: space-between; }
+  .cover { justify-content: flex-start; }
+  .cover-top { margin-bottom: 78px; }
+  .cover-mid { margin-bottom: 52px; }
   .cover-top { display: flex; align-items: baseline; gap: 11px; }
   .cover-top b {
-    font-family: var(--serif); font-weight: 600; font-size: 30px;
-    letter-spacing: -0.02em; color: var(--brand);
+    font-family: var(--serif); font-weight: 600; font-size: 44px;
+    letter-spacing: -0.025em; color: var(--brand);
   }
-  .cover-top span { font-size: 12px; color: var(--faint); }
+  .cover-top span { font-size: 14px; color: var(--faint); }
   .cover-mid h1 {
     font-family: var(--serif); font-weight: 600; font-size: 52px;
     line-height: 1.04; letter-spacing: -0.025em; margin: 0 0 14px;
   }
   .cover-mid .rule { width: 62px; height: 3px; background: var(--brand); margin: 0 0 18px; }
-  .cover-mid p { font-size: 15.5px; color: var(--muted); max-width: 46ch; }
+  .cover-mid p { font-size: 17px; color: var(--muted); max-width: 44ch; }
   .cover-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
     background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-  .cover-meta > div { background: var(--paper); padding: 13px 15px; }
+  .cover-meta > div { background: var(--paper); padding: 15px 17px; }
   .cover-meta dt {
     font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--faint); margin-bottom: 4px;
   }
-  .cover-meta dd { margin: 0; font-size: 13px; color: var(--ink); }
+  .cover-meta dd { margin: 0; font-size: 14.5px; color: var(--ink); }
   .cover-meta a { color: var(--brand); text-decoration: none; }
 
   /* ---------- contents ---------- */
@@ -187,7 +189,7 @@
   ol.toc li { counter-increment: t; border-bottom: 1px solid var(--line-soft); }
   ol.toc a {
     display: flex; align-items: baseline; gap: 14px;
-    padding: 11px 4px; text-decoration: none; color: var(--ink);
+    padding: 13px 4px; text-decoration: none; color: var(--ink);
   }
   ol.toc a:hover { color: var(--brand); }
   ol.toc a:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
@@ -195,8 +197,8 @@
     font-family: var(--mono); font-size: 11px; color: var(--faint);
     min-width: 22px; font-variant-numeric: tabular-nums;
   }
-  ol.toc .t { flex: 1; font-size: 14px; font-weight: 500; }
-  ol.toc .d { font-size: 12px; color: var(--muted); flex: 1.2; }
+  ol.toc .t { flex: 1; font-size: 15px; font-weight: 500; }
+  ol.toc .d { font-size: 13px; color: var(--muted); flex: 1.2; }
   ol.toc .pg {
     font-family: var(--mono); font-size: 11px; color: var(--faint);
     font-variant-numeric: tabular-nums;
@@ -212,7 +214,7 @@
     text-transform: uppercase; color: var(--faint); margin-bottom: 6px;
     display: flex; justify-content: space-between;
   }
-  .answers dd { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .answers dd { margin: 0; font-size: 13.5px; color: var(--muted); }
   .answers b { display: block; font-size: 15px; color: var(--ink); margin-bottom: 3px; font-weight: 600; }
 
   /* ---------- score tiles: the one place big numbers are the point ---------- */
@@ -227,7 +229,7 @@
     font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--faint); margin: 9px 0 3px;
   }
-  .score .d { font-size: 12px; color: var(--muted); }
+  .score .d { font-size: 13px; color: var(--muted); }
 
   /* ---------- distribution ---------- */
   .dist-bar { display: flex; height: 32px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
@@ -238,8 +240,8 @@
 
   /* ---------- tables ---------- */
   .tw { border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--paper); }
-  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
-  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
   thead th {
     font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.09em;
     text-transform: uppercase; color: var(--faint); font-weight: 500;
@@ -258,7 +260,7 @@
 
   /* ---------- code ---------- */
   pre {
-    font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.62;
     background: var(--paper-2); border: 1px solid var(--line);
     border-radius: 7px; padding: 14px 16px; overflow-x: auto; margin: 0 0 12px;
     color: var(--ink-2);
@@ -289,9 +291,9 @@
   .nfr { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
     background: var(--line); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
   .nfr > div { background: var(--paper); padding: 12px 14px; }
-  .nfr h4 { margin: 0 0 3px; font-size: 12.5px; font-weight: 600;
+  .nfr h4 { margin: 0 0 4px; font-size: 13.5px; font-weight: 600;
     display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .nfr p { margin: 0; font-size: 11.5px; color: var(--muted); }
+  .nfr p { margin: 0; font-size: 12.5px; color: var(--muted); }
 
   .runbar { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 0; }
   .runbar a {
@@ -321,7 +323,7 @@
     /* Slightly tighter than the screen sheet so each page lands on exactly one
        sheet of A4. Without this the densest pages spill a few lines onto a
        second sheet and a thirteen-page document prints as seventeen. */
-    body { background: #fff; padding: 0; font-size: 11.5px; }
+    body { background: #fff; padding: 0; font-size: 15px; }
     .page {
       margin: 0; border: 0; border-radius: 0;
       /* 295mm rather than 297. A block exactly one page tall rounds over the
@@ -335,19 +337,19 @@
     .page::before, .page::after { bottom: 7mm; left: 15mm; }
     .page::after { left: auto; right: 15mm; }
     .page:last-child { page-break-after: auto; break-after: auto; }
-    h2 { font-size: 22px; }
-    h3 { margin: 15px 0 7px; }
-    p { margin-bottom: 8px; }
-    table { font-size: 11.5px; }
-    th, td { padding: 7px 11px; }
-    pre { font-size: 10.5px; padding: 11px 13px; }
-    .note { padding: 11px 14px; margin: 11px 0; }
+    h2 { font-size: 27px; }
+    h3 { margin: 19px 0 9px; }
+    p { margin-bottom: 11px; }
+    table { font-size: 14px; }
+    th, td { padding: 9px 13px; }
+    pre { font-size: 13px; padding: 13px 15px; }
+    .note { padding: 14px 17px; margin: 14px 0; }
     .scores { gap: 10px; }
-    .score { padding: 12px 13px; }
-    .score .n { font-size: 27px; }
-    .nfr > div { padding: 10px 12px; }
-    .nfr p { font-size: 11px; }
-    .cover-mid h1 { font-size: 46px; }
+    .score { padding: 15px 17px; }
+    .score .n { font-size: 34px; }
+    .nfr > div { padding: 12px 15px; }
+    .nfr p { font-size: 13px; }
+    .cover-mid h1 { font-size: 62px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -367,7 +369,7 @@
   </div>
 
   <dl class="cover-meta">
-    <div><dt>Submission</dt><dd>S3 Lab work &middot; 40 marks</dd></div>
+    <div><dt>Submission</dt><dd>S3 Lab work</dd></div>
     <div><dt>Due</dt><dd>Friday 2 October 2026</dd></div>
     <div><dt>Team</dt><dd>Aditya Nariyapara, Devika Jonjale, Saachi Shinde</dd></div>
     <div><dt>Measured</dt><dd>18 September 2026, on <code>main</code></dd></div>
@@ -379,9 +381,8 @@
 <!-- ============================== 2. CONTENTS ============================== -->
 <article class="page" id="contents" data-run="Contents" data-page="2">
   <div class="eyebrow"><span>Contents</span></div>
-  <h2>What is being marked, and where it is answered</h2>
-  <p class="lede">The document follows the mark scheme in order, so each section can be opened
-    against the mark it answers.</p>
+  <h2>What this report covers</h2>
+  <p class="lede">Five sections, in the order of the assessment breakdown.</p>
 
   <ol class="toc">
     <li><a href="#codebase"><span class="n">1</span><span class="t">Codebase</span><span class="d">Shape, scale, and the one rule</span><span class="pg">3&ndash;4</span></a></li>
@@ -391,7 +392,7 @@
     <li><a href="#live"><span class="n">5</span><span class="t">Run it live</span><span class="d">Reproduce every figure</span><span class="pg">13</span></a></li>
   </ol>
 
-  <h3>The four marks, answered in one line each</h3>
+  <h3>Assessment breakdown</h3>
   <dl class="answers">
     <div>
       <dt><span>Codebase</span><span>10</span></dt>
@@ -420,8 +421,8 @@
 </article>
 
 <!-- ============================== 3. CODEBASE I ============================== -->
-<article class="page" id="codebase" data-run="1 &middot; Codebase" data-page="3">
-  <div class="eyebrow"><span>Mark 1</span><span class="marks">10 marks</span></div>
+<article class="page" id="codebase" data-run="Codebase" data-page="3">
+  <div class="eyebrow"><span>Section 1</span></div>
   <h2>Codebase</h2>
   <p class="lede">A uv workspace: three Python packages and one Next.js application, running
     unattended on reviews collected from three sources.</p>
@@ -452,7 +453,7 @@
       </tbody>
     </table>
   </div>
-  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Owner reviews from CarWale and
+  <p style="margin-top:10px;font-size:13.5px;color:var(--muted)">Owner reviews from CarWale and
     BikeWale, CarDekho and BikeDekho, plus comments on YouTube review videos. Three sources because
     three permit us: Team-BHP returns 403 to our agent and two other sites disallow us outright in
     <code>robots.txt</code>, and we chose to respect that rather than spoof a browser.</p>
@@ -461,8 +462,8 @@
 </article>
 
 <!-- ============================== 4. CODEBASE II ============================== -->
-<article class="page" data-run="1 &middot; Codebase" data-page="4">
-  <div class="eyebrow"><span>Mark 1 continued</span></div>
+<article class="page" data-run="Codebase" data-page="4">
+  <div class="eyebrow"><span>Section 1, continued</span></div>
   <h2>Structure that a build can enforce</h2>
 
   <div class="note">
@@ -505,8 +506,8 @@
 </article>
 
 <!-- ============================== 5. FRAMEWORKS I ============================== -->
-<article class="page" id="frameworks" data-run="2 &middot; Frameworks" data-page="5">
-  <div class="eyebrow"><span>Mark 2</span><span class="marks">10 marks</span></div>
+<article class="page" id="frameworks" data-run="Frameworks" data-page="5">
+  <div class="eyebrow"><span>Section 2</span></div>
   <h2>Frameworks, with justification</h2>
   <p class="lede">The artefact for this mark is the decision-record folder: nine ADRs, each stating
     the decision, the alternatives considered, and the consequence we accepted.</p>
@@ -554,12 +555,20 @@
     </table>
   </div>
 
+  <div class="note">
+    <span class="tag">The thread running through all of them</span>
+    <p>Each of these was chosen so that a mistake becomes a failed build rather than a defect a
+      reader finds. The generated client, the typed ORM, the migration checks and the contract-first
+      schema are all the same move: <strong>make the wrong thing impossible to merge</strong> rather
+      than rely on noticing it.</p>
+  </div>
+
   <div class="spacer"></div>
 </article>
 
 <!-- ============================== 6. FRAMEWORKS II ============================== -->
-<article class="page" data-run="2 &middot; Frameworks" data-page="6">
-  <div class="eyebrow"><span>Mark 2 continued</span></div>
+<article class="page" data-run="Frameworks" data-page="6">
+  <div class="eyebrow"><span>Section 2, continued</span></div>
   <h2>The two choices worth arguing about</h2>
 
   <div class="note">
@@ -604,8 +613,8 @@
 </article>
 
 <!-- ============================== 7. QUALITY I ============================== -->
-<article class="page" id="quality" data-run="3 &middot; Code quality" data-page="7">
-  <div class="eyebrow"><span>Mark 3</span><span class="marks">10 marks</span></div>
+<article class="page" id="quality" data-run="Code quality" data-page="7">
+  <div class="eyebrow"><span>Section 3</span></div>
   <h2>Code quality, measured</h2>
   <p class="lede">Put through a review toolkit rather than described in prose.
     <strong>Radon</strong> produces the score, <strong>Xenon</strong> enforces it,
@@ -668,8 +677,8 @@
 </article>
 
 <!-- ============================== 8. QUALITY II ============================== -->
-<article class="page" data-run="3 &middot; Code quality" data-page="8">
-  <div class="eyebrow"><span>Mark 3 continued</span></div>
+<article class="page" data-run="Code quality" data-page="8">
+  <div class="eyebrow"><span>Section 3, continued</span></div>
   <h2>The measurement changed the code</h2>
 
   <div class="note">
@@ -701,7 +710,7 @@
     </div>
     <div>
       <h3>Method, not luck</h3>
-      <p style="font-size:12.5px">Measure, find the worst thing, understand <em>why</em> it is the
+      <p style="font-size:13.5px">Measure, find the worst thing, understand <em>why</em> it is the
         worst thing, fix the one that is safe to fix, and document the ones that are not.</p>
     </div>
   </div>
@@ -727,7 +736,7 @@
       </tbody>
     </table>
   </div>
-  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Both sit on the critical write
+  <p style="margin-top:10px;font-size:13.5px;color:var(--muted)">Both sit on the critical write
     path, and a refactor that changes a verdict is worse than a D grade. A threshold should be set
     where the code is and then defended, not chased.</p>
 
@@ -735,14 +744,14 @@
 </article>
 
 <!-- ============================== 9. QUALITY III ============================== -->
-<article class="page" data-run="3 &middot; Code quality" data-page="9">
-  <div class="eyebrow"><span>Mark 3 continued</span></div>
+<article class="page" data-run="Code quality" data-page="9">
+  <div class="eyebrow"><span>Section 3, continued</span></div>
   <h2>Enforcing the score, and the tool we left out</h2>
 
   <div class="note">
     <span class="tag">Reporting is not enforcing</span>
-    <p>Radon will happily tell you a function scores E and then let you merge it. That is a report,
-      not a control. So Xenon runs on every pull request and <strong>fails the build</strong> on any
+    <p>Radon will tell you a function scores E and then let you merge it. That is a report, not a
+      control. Xenon runs on every pull request and <strong>fails the build</strong> on any
       regression:</p>
     <pre style="margin:10px 0 0">xenon --max-absolute D --max-modules B --max-average A</pre>
   </div>
@@ -751,45 +760,41 @@
     <table>
       <thead><tr><th>Threshold</th><th>Set to</th><th>Why</th></tr></thead>
       <tbody>
-        <tr><td>Any single block</td><td class="num">D</td><td>Where the code actually is. Nothing may get worse than the two functions on page 8</td></tr>
-        <tr><td>Any single module</td><td class="num">B</td><td>A module may contain a hard function; it may not become a hard module</td></tr>
+        <tr><td>Any single block</td><td class="num">D</td><td>Where the code is; nothing may get worse than the two on page 8</td></tr>
+        <tr><td>Any single module</td><td class="num">B</td><td>A module may contain a hard function, not become a hard module</td></tr>
         <tr><td>The whole codebase</td><td class="num">A</td><td>The average must stay in the simplest band</td></tr>
       </tbody>
     </table>
   </div>
-  <p style="margin-top:10px">The grades in this document <strong>cannot silently decay</strong>,
-    because the next pull request that makes them worse does not merge. That is the difference
-    between a measurement and a property.</p>
+  <p style="margin-top:10px">The grades here <strong>cannot silently decay</strong>: the next
+    pull request that makes them worse does not merge. That is the difference between a measurement
+    and a property.</p>
 
-  <h3>Mutation testing, and why we did not use it</h3>
-  <p>Mutmut changes your code on purpose and asks whether any test notices, which measures
-    something no other tool here does. <strong>It has no native Windows support</strong> &mdash; it
-    prints <em>"To run mutmut on Windows, please use the WSL"</em>, and all three of us develop on
-    Windows. A quality tool only one environment can run is one that stops being run.</p>
+  <h3>Mutation testing, and why not</h3>
+  <p>Mutmut changes your code on purpose and asks whether any test notices.
+    <strong>It has no native Windows support</strong>, and all three of us develop on Windows.
+    A quality tool only one environment can run is one that stops being run.</p>
 
-  <h3>What we answer instead: what the tests actually caught</h3>
+  <h3>What we answer instead</h3>
   <div class="tw">
     <table>
       <thead><tr><th>Defect</th><th>Why it mattered</th></tr></thead>
       <tbody>
-        <tr><td>Macro-F1 averaged over zero-support aspects</td><td>A perfect system scored 0.22. <strong>Our evaluation was flattering us</strong></td></tr>
-        <tr><td>A connector recorded our own search term as the source's answer</td><td>We would have been <strong>citing ourselves as evidence</strong></td></tr>
-        <tr><td>An unordered <code>LIMIT</code> in fusion</td><td>Ingest and fusion silently disagreed about which variant they meant</td></tr>
+        <tr><td>Macro-F1 averaged over zero-support aspects</td><td>A perfect system scored 0.22. <strong>Our evaluation flattered us</strong></td></tr>
+        <tr><td>A connector recorded our own search term as the source's answer</td><td>We would have been <strong>citing ourselves</strong></td></tr>
+        <tr><td>An unordered <code>LIMIT</code> in fusion</td><td>Ingest and fusion disagreed about which variant they meant</td></tr>
         <tr><td>Security headers added inside the rate limiter</td><td>A 429, the response most likely to reach a hostile client, went out bare</td></tr>
-        <tr><td>A migration emitting <code>NOT NULL</code> with no default</td><td>Would have failed against 129 existing production rows</td></tr>
+        <tr><td>A migration emitting <code>NOT NULL</code> with no default</td><td>Would have failed against 129 production rows</td></tr>
       </tbody>
     </table>
   </div>
-  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Coverage is deliberately not
-    gated: a threshold is trivially met by tests that execute code without asserting anything about
-    it, and we would rather the number stayed honest than high.</p>
 
   <div class="spacer"></div>
 </article>
 
 <!-- ============================== 10. NFR I ============================== -->
-<article class="page" id="nfr" data-run="4 &middot; NFRs" data-page="10">
-  <div class="eyebrow"><span>Mark 4</span><span class="marks">10 marks</span></div>
+<article class="page" id="nfr" data-run="Non-functional requirements" data-page="10">
+  <div class="eyebrow"><span>Section 4</span></div>
   <h2>Non-functional requirements</h2>
   <p class="lede">All nine categories audited against the actual code rather than against what the
     proposal claimed. <strong>Six were already satisfied by a single architectural decision</strong>,
@@ -833,6 +838,19 @@
     <text x="22" y="216" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif" font-size="10.5">Every endpoint is a single indexed read of a row the pipeline already computed.</text>
   </svg>
 
+  <div class="scores" style="margin-top:14px">
+    <div class="score">
+      <div class="n">22<small>&ndash;35 ms</small></div>
+      <div class="k">Warm response, local</div>
+      <div class="d">Against a 300 ms p95 target</div>
+    </div>
+    <div class="score">
+      <div class="n">96<small>&ndash;247 ms</small></div>
+      <div class="k">From India, deployed</div>
+      <div class="d">Inside target including the network</div>
+    </div>
+  </div>
+
   <p style="margin-top:12px">That one decision delivers four requirements at once.
     <strong>Performance</strong>, because nothing on the read path grows with the corpus, since the
     corpus is not on the read path. <strong>Scalability</strong>, because going from twenty thousand
@@ -844,8 +862,8 @@
 </article>
 
 <!-- ============================== 11. NFR II ============================== -->
-<article class="page" data-run="4 &middot; NFRs" data-page="11">
-  <div class="eyebrow"><span>Mark 4 continued</span></div>
+<article class="page" data-run="Non-functional requirements" data-page="11">
+  <div class="eyebrow"><span>Section 4, continued</span></div>
   <h2>All nine, and where each is met</h2>
 
   <div class="nfr">
@@ -874,8 +892,8 @@
 </article>
 
 <!-- ============================== 12. NFR III ============================== -->
-<article class="page" data-run="4 &middot; NFRs" data-page="12">
-  <div class="eyebrow"><span>Mark 4 continued</span></div>
+<article class="page" data-run="Non-functional requirements" data-page="12">
+  <div class="eyebrow"><span>Section 4, continued</span></div>
   <h2>The finding worth leading with</h2>
 
   <div class="note">
@@ -914,7 +932,7 @@
       </tbody>
     </table>
   </div>
-  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Both are the first things that
+  <p style="margin-top:10px;font-size:13.5px;color:var(--muted)">Both are the first things that
     would need replacing if Revix grew. Stating a limit before being asked reads as engineering
     judgement; being caught at it does not.</p>
 
@@ -922,7 +940,7 @@
 </article>
 
 <!-- ============================== 13. LIVE ============================== -->
-<article class="page" id="live" data-run="5 &middot; Run it live" data-page="13">
+<article class="page" id="live" data-run="Run it live" data-page="13">
   <div class="eyebrow"><span>In the session</span></div>
   <h2>Run it live</h2>
   <p class="lede">Every figure in this document is reproducible in under a minute. A number produced
@@ -965,7 +983,7 @@ cd apps/web &amp;&amp; npm run a11y</pre>
   </div>
 
   <div class="spacer"></div>
-  <p style="font-size:11.5px;color:var(--faint);margin:0">Revix &middot; S3 Lab Work &middot;
+  <p style="font-size:12.5px;color:var(--faint);margin:0">Revix &middot; S3 Lab Work &middot;
     measured 18 September 2026 on <code>main</code>. Figures grow with every pipeline run; the
     commands above reproduce all of them.</p>
 </article>
