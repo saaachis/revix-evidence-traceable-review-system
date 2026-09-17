@@ -282,7 +282,7 @@ where each mark lives, and how to walk through it.</p>
 </tr>
 <tr>
 <td><strong>Comes after</strong></td>
-<td><a href="../review-1/01-concept-market-gap-and-literature-review.md">Review
+<td><a href="../../review-1/01-concept-market-gap-and-literature-review.md">Review
 1: concept, market gap and literature review</a></td>
 </tr>
 </tbody>
@@ -499,7 +499,7 @@ decision about which vehicle a listing refers to, recorded as
 <code>human</code> so it can never be confused with something the
 resolver inferred. The public API is still read-only.</li>
 </ul>
-<p>See <a href="../adr/0010-basic-auth-for-the-operations-surface.md">ADR
+<p>See <a href="../../adr/0010-basic-auth-for-the-operations-surface.md">ADR
 0010</a>.</p>
 <h3 id="36-what-to-open-in-order">3.6 What to open, in order</h3>
 <ol type="1">
@@ -521,7 +521,7 @@ writes</li>
 <h2 id="4-frameworks-with-justification-10-marks">4. Frameworks with
 justification (10 marks)</h2>
 <p><strong>The artefact for this mark is the ADR folder.</strong> Nine
-architecture decision records in <a href="../adr/"><code>docs/adr/</code></a>, each stating the decision,
+architecture decision records in <a href="../../adr/"><code>docs/adr/</code></a>, each stating the decision,
 the alternatives, and the consequence we accepted. This section
 summarises them; open the ADR itself for any the examiner pushes on.</p>
 <h3 id="41-backend">4.1 Backend</h3>
@@ -608,15 +608,15 @@ cheap</td>
 </table>
 <h3 id="43-the-two-choices-worth-defending-out-loud">4.3 The two choices
 worth defending out loud</h3>
-<p><strong>GitHub Actions instead of Airflow or Prefect</strong> (<a href="../adr/0002-scheduled-ci-instead-of-prefect.md">ADR 0002</a>). An
-orchestrator is a server to run, secure and pay for. Our pipeline is one
-nightly batch with no fan-out and no backfill. Actions already holds our
-secrets, already runs on a schedule, and already gives logs and
+<p><strong>GitHub Actions instead of Airflow or Prefect</strong> (<a href="../../adr/0002-scheduled-ci-instead-of-prefect.md">ADR 0002</a>).
+An orchestrator is a server to run, secure and pay for. Our pipeline is
+one nightly batch with no fan-out and no backfill. Actions already holds
+our secrets, already runs on a schedule, and already gives logs and
 alerting. Choosing the heavier tool would have been choosing a tool
 because it looks professional rather than because the problem needs
 it.</p>
 <p><strong>A uv workspace with three packages instead of one flat
-project</strong> (<a href="../adr/0003-uv-workspace-with-three-packages.md">ADR 0003</a>).
+project</strong> (<a href="../../adr/0003-uv-workspace-with-three-packages.md">ADR 0003</a>).
 Three packages make the dependency rule in §3.2 real: the API physically
 cannot import the pipeline. One package would have made that a naming
 convention, and naming conventions lose.</p>
@@ -627,8 +627,8 @@ train a TF-IDF into a one-vs-rest logistic regression. Held against the
 lexicon it learned from, <strong>it lost by 0.29 macro F1, so it ships
 disabled</strong>.</p>
 <p>That is the measurement working, not the project failing. The
-alternative was shipping a model because we had built one. <a href="../adr/0004-lexicon-baseline-before-a-classifier.md">ADR 0004</a>
-records why the baseline came first and why it stayed.</p>
+alternative was shipping a model because we had built one. <a href="../../adr/0004-lexicon-baseline-before-a-classifier.md">ADR
+0004</a> records why the baseline came first and why it stayed.</p>
 <hr />
 <h2 id="5-code-quality-10-marks">5. Code quality (10 marks)</h2>
 <h3 id="51-the-measured-score">5.1 The measured score</h3>
@@ -788,7 +788,7 @@ everyone else.</em></p>
 carries information the code cannot.</p>
 <hr />
 <h2 id="6-nfrs-achieved-10-marks">6. NFRs achieved (10 marks)</h2>
-<p><strong>The artefact for this mark is <a href="../non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a>.</strong>
+<p><strong>The artefact for this mark is <a href="non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a>.</strong>
 It works through all nine standard categories against the actual code
 rather than against what our proposal claimed. Open it directly; this is
 a summary.</p>
@@ -1024,7 +1024,7 @@ number in this document</h2>
 <tr>
 <td>3</td>
 <td>The NFR audit</td>
-<td><a href="../non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a></td>
+<td><a href="non-functional-requirements.md"><code>docs/non-functional-requirements.md</code></a></td>
 </tr>
 <tr>
 <td>3b</td>
@@ -1034,7 +1034,7 @@ number in this document</h2>
 <tr>
 <td>4</td>
 <td>Nine architecture decision records</td>
-<td><a href="../adr/"><code>docs/adr/</code></a></td>
+<td><a href="../../adr/"><code>docs/adr/</code></a></td>
 </tr>
 <tr>
 <td>5</td>

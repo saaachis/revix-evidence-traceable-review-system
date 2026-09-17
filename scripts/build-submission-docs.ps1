@@ -21,9 +21,9 @@ $targets = @(
     "docs/s3-lab-work/work/01-lab-work-submission.md",
     "docs/s3-lab-work/work/02-lab-work-speaking-script.md",
     "docs/s3-lab-work/work/03-code-review-report.md",
-    "docs/s3-working-demo/01-working-demo-runbook.md",
-    "docs/s3-working-demo/02-working-demo-speaking-script.md",
-    "docs/non-functional-requirements.md"
+    "docs/s4-working-demo/01-working-demo-runbook.md",
+    "docs/s4-working-demo/02-working-demo-speaking-script.md",
+    "docs/s3-lab-work/work/non-functional-requirements.md"
 )
 
 # Edge lives in one of two places depending on how Windows was installed.

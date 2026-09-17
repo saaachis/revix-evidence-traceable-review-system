@@ -30,7 +30,7 @@ for detail on a specific point.
 | Path | Why it matters here |
 |---|---|
 | [`docs/adr/`](../adr/) | The nine architecture decision records. The artefact for the frameworks section |
-| [`docs/non-functional-requirements.md`](../non-functional-requirements.md) | Source of the detailed NFR PDF |
+| [`work/non-functional-requirements.md`](work/non-functional-requirements.md) | Source of the detailed NFR PDF, and the full audit of all nine categories |
 | [`docs/proposal.md`](../proposal.md) | The original specification the work is measured against |
 | `tests/test_nfr.py` | The thirteen tests that assert the non-functional guarantees rather than describing them |
 

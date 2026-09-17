@@ -12,7 +12,7 @@ What we submit, where each mark lives, and how to walk through it.
 | **Repository** | `saaachis/revix-evidence-traceable-review-system` |
 | **Live API** | `https://revix-api-tcyq.onrender.com` |
 | **Live site** | `https://revix-reviews.vercel.app` |
-| **Comes after** | [Review 1: concept, market gap and literature review](../review-1/01-concept-market-gap-and-literature-review.md) |
+| **Comes after** | [Review 1: concept, market gap and literature review](../../review-1/01-concept-market-gap-and-literature-review.md) |
 
 > **Figures in this document were taken on 7 September 2026.** They grow with
 > every nightly run. Refresh them before submitting: section 7 gives the two
@@ -142,7 +142,7 @@ elsewhere in this document:
   vehicle a listing refers to, recorded as `human` so it can never be confused
   with something the resolver inferred. The public API is still read-only.
 
-See [ADR 0010](../adr/0010-basic-auth-for-the-operations-surface.md).
+See [ADR 0010](../../adr/0010-basic-auth-for-the-operations-surface.md).
 
 ### 3.6 What to open, in order
 
@@ -159,7 +159,7 @@ See [ADR 0010](../adr/0010-basic-auth-for-the-operations-surface.md).
 ## 4. Frameworks with justification (10 marks)
 
 **The artefact for this mark is the ADR folder.** Nine architecture decision
-records in [`docs/adr/`](../adr/), each stating the decision, the alternatives,
+records in [`docs/adr/`](../../adr/), each stating the decision, the alternatives,
 and the consequence we accepted. This section summarises them; open the ADR
 itself for any the examiner pushes on.
 
@@ -185,7 +185,7 @@ itself for any the examiner pushes on.
 
 ### 4.3 The two choices worth defending out loud
 
-**GitHub Actions instead of Airflow or Prefect** ([ADR 0002](../adr/0002-scheduled-ci-instead-of-prefect.md)).
+**GitHub Actions instead of Airflow or Prefect** ([ADR 0002](../../adr/0002-scheduled-ci-instead-of-prefect.md)).
 An orchestrator is a server to run, secure and pay for. Our pipeline is one
 nightly batch with no fan-out and no backfill. Actions already holds our
 secrets, already runs on a schedule, and already gives logs and alerting.
@@ -193,7 +193,7 @@ Choosing the heavier tool would have been choosing a tool because it looks
 professional rather than because the problem needs it.
 
 **A uv workspace with three packages instead of one flat project**
-([ADR 0003](../adr/0003-uv-workspace-with-three-packages.md)).
+([ADR 0003](../../adr/0003-uv-workspace-with-three-packages.md)).
 Three packages make the dependency rule in §3.2 real: the API physically
 cannot import the pipeline. One package would have made that a naming
 convention, and naming conventions lose.
@@ -205,7 +205,7 @@ TF-IDF into a one-vs-rest logistic regression. Held against the lexicon it
 learned from, **it lost by 0.29 macro F1, so it ships disabled**.
 
 That is the measurement working, not the project failing. The alternative was
-shipping a model because we had built one. [ADR 0004](../adr/0004-lexicon-baseline-before-a-classifier.md)
+shipping a model because we had built one. [ADR 0004](../../adr/0004-lexicon-baseline-before-a-classifier.md)
 records why the baseline came first and why it stayed.
 
 ---
@@ -292,7 +292,7 @@ information the code cannot.
 
 ## 6. NFRs achieved (10 marks)
 
-**The artefact for this mark is [`docs/non-functional-requirements.md`](../non-functional-requirements.md).**
+**The artefact for this mark is [`docs/non-functional-requirements.md`](non-functional-requirements.md).**
 It works through all nine standard categories against the actual code rather
 than against what our proposal claimed. Open it directly; this is a summary.
 
@@ -431,9 +431,9 @@ cd apps/web && npm run a11y
 |---|---|---|
 | 1 | The repository, `main` branch, green CI | GitHub |
 | 2 | This document | `docs/s3-lab-work/` |
-| 3 | The NFR audit | [`docs/non-functional-requirements.md`](../non-functional-requirements.md) |
+| 3 | The NFR audit | [`docs/non-functional-requirements.md`](non-functional-requirements.md) |
 | 3b | The code review report | [`03-code-review-report.md`](03-code-review-report.md) |
-| 4 | Nine architecture decision records | [`docs/adr/`](../adr/) |
+| 4 | Nine architecture decision records | [`docs/adr/`](../../adr/) |
 | 5 | Live API and live site | Links in the header |
 
 Before submitting: confirm `main` is green, re-run the commands in §7 and

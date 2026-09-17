@@ -246,7 +246,7 @@ whether or not it is protected is one nobody notices is unprotected. The
 browser sends the operator's own credentials rather than our server sending
 credentials on a visitor's behalf, and they travel in a header we set
 explicitly rather than a cookie, so no CSRF surface exists on the write. See
-[ADR 0010](adr/0010-basic-auth-for-the-operations-surface.md).
+[ADR 0010](../../adr/0010-basic-auth-for-the-operations-surface.md).
 
 **Still not implemented, and why.** No password reset, no second account, no
 roles. There is one operator and one authorisation question, and a role system
