@@ -35,6 +35,7 @@ from revix_pipeline.connectors.base import (
     RawPayload as RawPayloadDraft,
 )
 from revix_pipeline.connectors.politeness import CircuitOpenError, RobotsDisallowedError
+from revix_pipeline.connectors.quota import record_spend, spent_today
 
 log = logging.getLogger(__name__)
 
@@ -113,6 +114,23 @@ def run_connector(
     session.flush()
 
     result = RunResult(source_key=connector.source_key, status=RunStatus.RUNNING)
+
+    # Hand a metered connector what the day has already cost. Without this its
+    # budget resets every process, so a second run on one quota day spends the
+    # allowance twice and the provider, who counts properly, starts refusing.
+    # Done here rather than inside the connector so connectors stay free of a
+    # database session and remain testable without one.
+    already_spent = 0
+    if hasattr(connector, "quota_spent") and hasattr(connector, "daily_quota"):
+        already_spent = spent_today(session, connector.source_key)
+        connector.quota_spent = already_spent
+        if already_spent:
+            log.info(
+                "%s starts with %d of %d quota units already spent today",
+                connector.source_key,
+                already_spent,
+                connector.daily_quota,
+            )
 
     # Existing identities, loaded once. Cheaper than a query per draft, and it
     # makes the dedupe decision explicit rather than relying on catching
@@ -212,6 +230,10 @@ def run_connector(
         result.error_count += 1
         result.last_error = f"{type(exc).__name__}: {exc}"
         log.exception("connector %s failed", connector.source_key)
+
+    # Whatever the outcome, the units are gone and the day must remember them.
+    if hasattr(connector, "quota_spent"):
+        record_spend(session, connector.source_key, connector.quota_spent - already_spent)
 
     run.status = result.status
     run.finished_at = utcnow()

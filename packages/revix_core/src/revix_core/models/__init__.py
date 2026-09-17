@@ -16,6 +16,7 @@ from revix_core.models.catalogue import (
     VehicleVariant,
 )
 from revix_core.models.evidence import (
+    ApiQuotaLedger,
     EvidenceSource,
     EvidenceUnit,
     IngestRun,
@@ -32,6 +33,7 @@ from revix_core.models.serving import (
 __all__ = [
     "ALL_SCHEMAS",
     "EMBEDDING_DIM",
+    "ApiQuotaLedger",
     "Aspect",
     "AspectOpinion",
     "Base",

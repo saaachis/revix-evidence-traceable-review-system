@@ -18,6 +18,7 @@ rather than searching repeatedly and reading thinly.
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from typing import Any
@@ -37,6 +38,8 @@ from revix_pipeline.connectors.hints import km_driven, ownership_months
 from revix_pipeline.connectors.politeness import PoliteClient
 from revix_pipeline.connectors.schema_org import variant_tokens
 
+log = logging.getLogger(__name__)
+
 API_BASE = "https://www.googleapis.com/youtube/v3"
 
 # Google's own guidance is that quota, not rate, is the limit. This keeps a
@@ -45,9 +48,20 @@ RATE_LIMIT_RPM = 60
 
 # Sixteen videos per model. The search is the expensive call at 100 quota
 # units and happens once per model either way, while each extra video's
-# comments cost 1. Counted rather than estimated: 24 models is 2,400 for the
-# searches and 384 for the comment pages, so 2,784 of the 10,000 we get a day,
-# which leaves room for three runs. Quota is not what limits this.
+# comments cost 1. Counted rather than estimated: at 42 models that is 4,200
+# for the searches and 672 for the comment pages, so 4,872 of the 10,000 we
+# get a day.
+#
+# That arithmetic used to end "2,784, which leaves room for three runs", and
+# it was true when the catalogue held 24 models. Expanding it to 42 quietly
+# ate the headroom, so two runs now fit in a day and the third does not. Six
+# hand-triggered runs on 6 September spent roughly three times the allowance,
+# YouTube answered 403 for everything after the second, and the source sat at
+# circuit_open until somebody looked. The budget is now carried across runs
+# rather than reset by each one; see connectors/quota.py.
+#
+# The lesson worth keeping: this number is a function of the catalogue, so
+# growing the catalogue spends quota even though nothing here changed.
 #
 # Raised from eight because five two-wheelers sat between 19 and 34 units
 # against a floor of 40, and the alternative was lowering the floor. Adding
@@ -97,6 +111,8 @@ class YouTubeConnector:
         # the same question six times cost 600 quota units for one answer, and
         # a search is a hundred of the ten thousand we get a day.
         self._searched: set[str] = set()
+        #: So the budget warning is logged once a run rather than once a call.
+        self._quota_warned = False
 
     def _authenticated(self) -> PoliteClient:
         settings = get_settings()
@@ -121,8 +137,24 @@ class YouTubeConnector:
         Overrunning the quota does not fail loudly. It returns 403 for the
         rest of the day, which would look like a broken connector tomorrow
         morning rather than a budget that ran out tonight.
+
+        The counter is seeded by the runner from what earlier runs spent on
+        the same quota day, so this is a budget for the day and not for the
+        process. It used to be the latter, and six hand-triggered runs in one
+        day spent roughly three times the allowance before the provider
+        started refusing.
         """
         if self.quota_spent + units > self.daily_quota:
+            # Said once, not per call. Silence here is how a budget running
+            # out gets mistaken for a source that has stopped working.
+            if not self._quota_warned:
+                self._quota_warned = True
+                log.warning(
+                    "youtube quota budget reached: %d of %d units spent today, "
+                    "skipping the rest of this run",
+                    self.quota_spent,
+                    self.daily_quota,
+                )
             return False
         self.quota_spent += units
         return True
