@@ -6,6 +6,387 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/admin/whoami": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Whoami",
+        "description": "Cheapest possible credential check.\n\nThe sign-in form calls this rather than a real page, so a wrong password\ncosts one row-free request instead of the heaviest query on the surface.",
+        "operationId": "whoami_admin_whoami_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhoAmIOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ]
+      }
+    },
+    "/admin/connectors": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Connector Health",
+        "description": "One card per source: is it alive, when did it last work, what broke.\n\nThe public /sources/health answers \"should a reader trust this corpus\".\nThis answers \"what do I have to fix tonight\", so it carries the things a\nreader has no use for: how long the last run took, how many units it\nactually inserted against how many it skipped as duplicates, and the last\nerror in full rather than summarised.",
+        "operationId": "connector_health_admin_connectors_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConnectorHealthOut"
+                  },
+                  "type": "array",
+                  "title": "Response Connector Health Admin Connectors Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ]
+      }
+    },
+    "/admin/runs": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Ingest Runs",
+        "description": "Every run, newest first. The log you read when last night went wrong.",
+        "operationId": "ingest_runs_admin_runs_get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter to one source key.",
+              "title": "Source"
+            },
+            "description": "Filter to one source key."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IngestRunOut"
+                  },
+                  "title": "Response Ingest Runs Admin Runs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/freshness": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Freshness",
+        "description": "Source by model, coloured by age. Coverage holes become visible.\n\nOne grouped aggregate rather than a query per cell. A model with no cell\nfor a source has never had anything collected from it, and that absence is\nthe whole point of the grid: it is the shape of what we are missing, which\na list of what we have cannot show.",
+        "operationId": "freshness_admin_freshness_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreshnessOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ]
+      }
+    },
+    "/admin/coverage": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Coverage",
+        "description": "Where seeding effort should go next, rather than where it feels needed.\n\nA suppressed variant is not a bug, it is the evidence floor doing its job.\nWhat an operator needs is which ones are close to clearing it and which\nare nowhere near, because those are different problems: the first wants\none more source, the second wants a decision about whether the vehicle\nbelongs in the catalogue at all.",
+        "operationId": "coverage_admin_coverage_get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "only_suppressed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only variants below the evidence floor.",
+              "default": true,
+              "title": "Only Suppressed"
+            },
+            "description": "Only variants below the evidence floor."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoverageRowOut"
+                  },
+                  "title": "Response Coverage Admin Coverage Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/adjudication": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Adjudication Queue",
+        "description": "Listings the resolver would not place, for a person to decide.\n\nHuman-in-the-loop by design rather than as an admission of failure. The\nresolver is deliberately unwilling to guess below its confidence floor,\nand something has to happen to what it refuses, otherwise the floor just\nsilently loses evidence.\n\nOrdered by how much evidence is waiting behind each decision, so an hour\nspent here buys the most it can.",
+        "operationId": "adjudication_queue_admin_adjudication_get",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdjudicationItemOut"
+                  },
+                  "title": "Response Adjudication Queue Admin Adjudication Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/adjudication/{listing_id}": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Adjudicate",
+        "description": "A person's decision about one listing. The only write on this surface.\n\nRecorded as match_method='human' so it is never mistaken for something the\nresolver worked out, and so a later evaluation can separate what we were\ntold from what we inferred. That distinction is the entire value of this\nqueue: a human decision mixed indistinguishably into automated ones is a\ngold set contaminated by its own answers.\n\nThe verdict does not move until the pipeline runs again. Fusion is a batch\nstage and this endpoint deliberately does not reach into it, because a\nrequest that triggers a recomputation is a request that can time out\nhalfway through one.",
+        "operationId": "adjudicate_admin_adjudication__listing_id__post",
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "listing_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Listing Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdjudicationDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjudicationItemOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/fusion-configs": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Fusion Configs",
+        "description": "Every weighting, its parameters, and how many verdicts it actually has.\n\nRead-only, and that is a decision rather than an unfinished feature.\nCreating a configuration here would put it on the public switch\nimmediately, because /fusion-configs lists whatever exists, while its\nverdicts would not exist until the pipeline next ran. Every variant would\nanswer \"no verdict\" under the new weighting and the flagship control would\nbe visibly broken until morning.\n\nA weighting is only real once its verdicts are computed, so creating one\nbelongs where the computation happens: `revix fuse` in the pipeline. What\nan operator needs here is to see what exists and whether it is fully\npopulated, and that is what this returns.",
+        "operationId": "fusion_configs_admin_fusion_configs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FusionConfigAdminOut"
+                  },
+                  "type": "array",
+                  "title": "Response Fusion Configs Admin Fusion Configs Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBasic": []
+          }
+        ]
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -372,6 +753,120 @@
   },
   "components": {
     "schemas": {
+      "AdjudicationDecision": {
+        "properties": {
+          "variant_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Id"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Id"
+          },
+          "is_rejection": {
+            "type": "boolean",
+            "title": "Is Rejection",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "AdjudicationDecision",
+        "description": "A person's answer. All three fields absent means \"not one of ours\"."
+      },
+      "AdjudicationItemOut": {
+        "properties": {
+          "listing_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Listing Id"
+          },
+          "source_key": {
+            "type": "string",
+            "title": "Source Key"
+          },
+          "raw_title": {
+            "type": "string",
+            "title": "Raw Title"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "match_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Method"
+          },
+          "match_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Confidence"
+          },
+          "resolved_model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved Model Id"
+          },
+          "evidence_waiting": {
+            "type": "integer",
+            "title": "Evidence Waiting"
+          }
+        },
+        "type": "object",
+        "required": [
+          "listing_id",
+          "source_key",
+          "raw_title",
+          "url",
+          "match_method",
+          "match_confidence",
+          "resolved_model_id",
+          "evidence_waiting"
+        ],
+        "title": "AdjudicationItemOut"
+      },
       "AspectOut": {
         "properties": {
           "aspect_key": {
@@ -518,6 +1013,133 @@
         ],
         "title": "ClaimEvidenceOut"
       },
+      "ConnectorHealthOut": {
+        "properties": {
+          "source_key": {
+            "type": "string",
+            "title": "Source Key"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "last_success_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Success At"
+          },
+          "hours_since_success": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours Since Success"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "title": "Is Stale"
+          },
+          "last_run_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run Seconds"
+          },
+          "units_total": {
+            "type": "integer",
+            "title": "Units Total"
+          },
+          "units_inserted": {
+            "type": "integer",
+            "title": "Units Inserted"
+          },
+          "units_skipped": {
+            "type": "integer",
+            "title": "Units Skipped"
+          },
+          "error_count": {
+            "type": "integer",
+            "title": "Error Count"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_key",
+          "display_name",
+          "kind",
+          "is_enabled",
+          "status",
+          "last_run_at",
+          "last_success_at",
+          "hours_since_success",
+          "is_stale",
+          "last_run_seconds",
+          "units_total",
+          "units_inserted",
+          "units_skipped",
+          "error_count",
+          "last_error"
+        ],
+        "title": "ConnectorHealthOut"
+      },
       "CovariateExplanation": {
         "properties": {
           "covariate": {
@@ -571,6 +1193,82 @@
           "count"
         ],
         "title": "CovariateGroup"
+      },
+      "CoverageRowOut": {
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Variant Id"
+          },
+          "manufacturer": {
+            "type": "string",
+            "title": "Manufacturer"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "variant_name": {
+            "type": "string",
+            "title": "Variant Name"
+          },
+          "vehicle_class": {
+            "type": "string",
+            "title": "Vehicle Class"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "title": "Evidence Count"
+          },
+          "model_evidence_count": {
+            "type": "integer",
+            "title": "Model Evidence Count"
+          },
+          "distinct_sources": {
+            "type": "integer",
+            "title": "Distinct Sources"
+          },
+          "is_suppressed": {
+            "type": "boolean",
+            "title": "Is Suppressed"
+          },
+          "suppression_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suppression Reason"
+          },
+          "units_short_of_floor": {
+            "type": "integer",
+            "title": "Units Short Of Floor"
+          },
+          "sources_short_of_floor": {
+            "type": "integer",
+            "title": "Sources Short Of Floor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "variant_id",
+          "manufacturer",
+          "model",
+          "variant_name",
+          "vehicle_class",
+          "evidence_count",
+          "model_evidence_count",
+          "distinct_sources",
+          "is_suppressed",
+          "suppression_reason",
+          "units_short_of_floor",
+          "sources_short_of_floor"
+        ],
+        "title": "CoverageRowOut"
       },
       "EvalRunOut": {
         "properties": {
@@ -749,6 +1447,153 @@
         ],
         "title": "EvidenceOut"
       },
+      "FreshnessCellOut": {
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Model Id"
+          },
+          "source_key": {
+            "type": "string",
+            "title": "Source Key"
+          },
+          "last_collected_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Collected At"
+          },
+          "hours_since": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours Since"
+          },
+          "units": {
+            "type": "integer",
+            "title": "Units"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_id",
+          "source_key",
+          "last_collected_at",
+          "hours_since",
+          "units"
+        ],
+        "title": "FreshnessCellOut"
+      },
+      "FreshnessOut": {
+        "properties": {
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "models": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/FreshnessCellOut"
+            },
+            "type": "array",
+            "title": "Cells"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sources",
+          "models",
+          "cells"
+        ],
+        "title": "FreshnessOut",
+        "description": "A grid rather than a list, because the absences are the information."
+      },
+      "FusionConfigAdminOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default"
+          },
+          "params": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Params"
+          },
+          "verdict_count": {
+            "type": "integer",
+            "title": "Verdict Count"
+          },
+          "variant_count": {
+            "type": "integer",
+            "title": "Variant Count"
+          },
+          "is_complete": {
+            "type": "boolean",
+            "title": "Is Complete"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "label",
+          "description",
+          "is_default",
+          "params",
+          "verdict_count",
+          "variant_count",
+          "is_complete"
+        ],
+        "title": "FusionConfigAdminOut"
+      },
       "FusionConfigOut": {
         "properties": {
           "name": {
@@ -829,6 +1674,98 @@
           "verdicts"
         ],
         "title": "Health"
+      },
+      "IngestRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_key": {
+            "type": "string",
+            "title": "Source Key"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "refs_discovered": {
+            "type": "integer",
+            "title": "Refs Discovered"
+          },
+          "payloads_fetched": {
+            "type": "integer",
+            "title": "Payloads Fetched"
+          },
+          "units_inserted": {
+            "type": "integer",
+            "title": "Units Inserted"
+          },
+          "units_skipped": {
+            "type": "integer",
+            "title": "Units Skipped"
+          },
+          "error_count": {
+            "type": "integer",
+            "title": "Error Count"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_key",
+          "status",
+          "started_at",
+          "finished_at",
+          "duration_seconds",
+          "refs_discovered",
+          "payloads_fetched",
+          "units_inserted",
+          "units_skipped",
+          "error_count",
+          "last_error"
+        ],
+        "title": "IngestRunOut"
       },
       "SourceHealthOut": {
         "properties": {
@@ -1287,6 +2224,31 @@
           "aspects"
         ],
         "title": "VerdictOut"
+      },
+      "WhoAmIOut": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "authenticated": {
+            "type": "boolean",
+            "title": "Authenticated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "authenticated"
+        ],
+        "title": "WhoAmIOut",
+        "description": "What the sign-in form checks against."
+      }
+    },
+    "securitySchemes": {
+      "HTTPBasic": {
+        "type": "http",
+        "scheme": "basic"
       }
     }
   }

@@ -35,6 +35,14 @@ services:
       # production domain both need naming if you want previews to work.
       - key: CORS_ALLOWED_ORIGINS
         sync: false
+      # The operator account for /admin. Left empty here on purpose: these are
+      # live credentials and this repository is public. Leaving them unset is
+      # a safe state rather than an open one, because the admin surface
+      # refuses to answer at all until both are present.
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: API_ENV
         value: production
       - key: PYTHONUNBUFFERED

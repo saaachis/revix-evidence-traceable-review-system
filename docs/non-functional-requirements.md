@@ -22,9 +22,9 @@ is given so it can be taken again.
 | 1 | Performance | Met, measured | Write/read split, gzip, cache headers, `X-Response-Time-ms` |
 | 2 | Scalability | Met for the stated load | Pagination caps, bounded pool, nightly batch |
 | 3 | Portability | Met | Docker, uv lockfile, env-only config, no host assumptions |
-| 4 | Usability | Met, audited | WCAG 2.1 AA clean on all nine pages, enforced in CI |
+| 4 | Usability | Met, audited | WCAG 2.1 AA clean on all ten pages, enforced in CI |
 | 5 | Compatibility | Met | Generated API client, responsive layout, standard browsers |
-| 6 | Security | Met at this threat model | Headers, CORS allow-list, rate limit, read-only API, no secrets in repo |
+| 6 | Security | Met at this threat model | Headers, CORS allow-list, rate limit, read-only public API, authenticated admin, no secrets in repo |
 | 7 | Reliability | Met | Degrades per source, bounded timeouts, no traceback ever leaves |
 | 8 | Maintainability | Met | Strict types, 14 test modules, ADRs, generated client |
 | 9 | Availability | Partly met, honestly | 503 health contract, keep-warm; single instance is the known limit |
@@ -135,8 +135,9 @@ it rests on, including a person using a screen reader or a keyboard.
 
 **How it is met.**
 
-- **Accessibility is audited, not assumed.** axe-core runs against all nine
-  pages under WCAG 2.1 AA and CI fails on a violation. `npm run a11y`. The
+- **Accessibility is audited, not assumed.** axe-core runs against all ten
+  pages under WCAG 2.1 AA and CI fails on a violation, the operations console
+  included: a page only we use is still a page somebody has to use. `npm run a11y`. The
   colour palette was reworked once specifically because contrast failed, and
   the audit is what caught it.
 - **Semantic HTML and real routes.** Every page is server-rendered with a URL
@@ -185,9 +186,14 @@ and do not let one caller degrade the service for everybody.
 
 **How it is met.**
 
-- **The API is read-only.** Every endpoint is a GET, CORS permits only GET,
-  and there is no write path exposed to the internet at all. The entire class
-  of injection-through-mutation vulnerabilities has no surface here.
+- **The public API is read-only.** Every endpoint outside `/admin` is a GET
+  and CORS permits only GET, so for every reader of the site the entire class
+  of injection-through-mutation vulnerabilities has no surface.
+- **There is exactly one write, and it is authenticated.** The operations
+  console records a person's decision about which vehicle a listing refers to.
+  It is one nullable foreign key on one row, behind the gate described below.
+  This qualifies the sentence above rather than contradicting it, and it is
+  written here rather than left as a stale claim that used to be true.
 - **No raw SQL.** Everything goes through SQLAlchemy's typed ORM with bound
   parameters, including the free-text search, which is the one place user
   input reaches a query.
@@ -231,10 +237,22 @@ and the only user text that reaches a page is the search box, which React
 escapes. It is written down in `next.config.ts` so it stays a decision rather
 than becoming an oversight.
 
-**Not implemented, and why.** There is no authentication, because there are no
-accounts and nothing to authorise. If the admin dashboard is built it will
-need one, and that is noted as its first requirement rather than an
-afterthought.
+**Authentication, on the one surface that needs it.** The operations console
+is gated by HTTP Basic over HTTPS, both halves compared in constant time and
+both always compared, so the response does not leak whether a username exists.
+It **fails closed**: with the credentials unset every admin route answers 503
+and none of them touch the database, because a console that behaves identically
+whether or not it is protected is one nobody notices is unprotected. The
+browser sends the operator's own credentials rather than our server sending
+credentials on a visitor's behalf, and they travel in a header we set
+explicitly rather than a cookie, so no CSRF surface exists on the write. See
+[ADR 0010](adr/0010-basic-auth-for-the-operations-surface.md).
+
+**Still not implemented, and why.** No password reset, no second account, no
+roles. There is one operator and one authorisation question, and a role system
+guarding a single boolean is machinery pretending to be security. A second
+principal of any kind is the trigger to revisit, and the first thing it would
+need is an audit trail rather than roles.
 
 ## 7. Reliability
 
@@ -354,7 +372,7 @@ reliability and availability at once. The audit found and fixed:
 
 ```bash
 uv run pytest tests/test_nfr.py -q      # the guarantees, asserted
-cd apps/web && npm run a11y             # WCAG 2.1 AA, all nine pages
+cd apps/web && npm run a11y             # WCAG 2.1 AA, all ten pages
 curl -sI $API/variants | grep -Ei 'cache-control|x-response-time|x-ratelimit'
 curl -s -H 'Accept-Encoding: gzip'  -o /dev/null -w '%{size_download}\n' $API/variants?limit=200
 curl -s -H 'Accept-Encoding: identity' -o /dev/null -w '%{size_download}\n' $API/variants?limit=200

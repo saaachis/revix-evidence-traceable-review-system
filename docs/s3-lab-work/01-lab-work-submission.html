@@ -315,7 +315,7 @@ answers.</p>
 <td>Codebase</td>
 <td>10</td>
 <td><a href="#3-codebase-10-marks">§3</a></td>
-<td>Three Python packages and a Next.js app, ~15,200 lines, running on
+<td>Three Python packages and a Next.js app, ~17,600 lines, running on
 real data</td>
 </tr>
 <tr>
@@ -331,7 +331,7 @@ rejected</td>
 <td>Code quality</td>
 <td>10</td>
 <td><a href="#5-code-quality-10-marks">§5</a></td>
-<td>Strict types, 233 tests, six CI jobs, and defects our own tests
+<td>Strict types, 246 tests, six CI jobs, and defects our own tests
 caught</td>
 </tr>
 <tr>
@@ -414,14 +414,14 @@ own rules.</p>
 <p>A uv workspace holding three Python packages and one Next.js
 application.</p>
 <pre><code>revix/
-├── packages/revix_core/   models, settings, session          1,294 lines
+├── packages/revix_core/   models, settings, session          1,312 lines
 ├── pipeline/              ingest, extract, resolve, fuse      6,716 lines
-├── apps/api/              the read-only serving layer           857 lines
-├── apps/web/              Next.js 16 frontend                 3,529 lines
-├── tests/                 15 modules, 233 tests               2,808 lines
+├── apps/api/              serving layer and operations        1,516 lines
+├── apps/web/              Next.js 16 frontend                 5,069 lines
+├── tests/                 16 modules, 246 tests               2,990 lines
 └── docs/                  ADRs, proposal, this document</code></pre>
-<p>Roughly <strong>15,200 lines</strong> across <strong>56 Python
-files</strong> and <strong>21 TypeScript files</strong>, not counting
+<p>Roughly <strong>17,600 lines</strong> across <strong>58 Python
+files</strong> and <strong>24 TypeScript files</strong>, not counting
 generated code or lockfiles.</p>
 <h3 id="32-the-one-rule-that-holds-it-together">3.2 The one rule that
 holds it together</h3>
@@ -479,7 +479,29 @@ unattended</h3>
 fetch, extract, resolve, fuse, publish. The most recent full run took
 <strong>53m 28s</strong> inside a 120-minute timeout. Nobody starts it
 and nobody watches it.</p>
-<h3 id="35-what-to-open-in-order">3.5 What to open, in order</h3>
+<h3 id="35-the-operations-surface">3.5 The operations surface</h3>
+<p>Proposal section 19, and the one part of the codebase whose audience
+is us rather than a reader: connector health, the ingestion run log, a
+freshness grid of model against source, catalogue coverage showing which
+vehicles sit below the evidence floor and by how much, an adjudication
+queue for listings the resolver would not place, and the weighting
+configurations with their verdict coverage.</p>
+<p>Two things about it are worth saying out loud, because both change
+claims made elsewhere in this document:</p>
+<ul>
+<li><strong>It is the only authenticated code in the project</strong>,
+and it <strong>fails closed</strong>: with the operator credentials
+unset, every route answers 503 and none of them touch the database. A
+console that behaves identically whether or not it is protected is a
+console nobody notices is unprotected.</li>
+<li><strong>It holds the only request that writes.</strong> One person&#39;s
+decision about which vehicle a listing refers to, recorded as
+<code>human</code> so it can never be confused with something the
+resolver inferred. The public API is still read-only.</li>
+</ul>
+<p>See <a href="../adr/0010-basic-auth-for-the-operations-surface.md">ADR
+0010</a>.</p>
+<h3 id="36-what-to-open-in-order">3.6 What to open, in order</h3>
 <ol type="1">
 <li><code>pyproject.toml</code>, the workspace and the dependency rule,
 with the diagram in a comment</li>
@@ -489,12 +511,16 @@ ORM, four schemas</li>
 fusion</li>
 <li><code>apps/api/src/revix_api/main.py</code>, every endpoint, each
 one an indexed read</li>
-<li><code>apps/web/src/app/</code>, ten routes, all server-rendered</li>
+<li><code>apps/web/src/app/</code>, eleven routes, ten public and one
+gated</li>
+<li><code>apps/api/src/revix_api/admin.py</code>, the operations
+surface: the only authenticated code and the only request that
+writes</li>
 </ol>
 <hr />
 <h2 id="4-frameworks-with-justification-10-marks">4. Frameworks with
 justification (10 marks)</h2>
-<p><strong>The artefact for this mark is the ADR folder.</strong> Eight
+<p><strong>The artefact for this mark is the ADR folder.</strong> Nine
 architecture decision records in <a href="../adr/"><code>docs/adr/</code></a>, each stating the decision,
 the alternatives, and the consequence we accepted. This section
 summarises them; open the ADR itself for any the examiner pushes on.</p>
@@ -625,7 +651,7 @@ TypeScript strict</td>
 </tr>
 <tr>
 <td>Tests</td>
-<td><strong>233 tests</strong> in 15 modules; 215 run without a
+<td><strong>246 tests</strong> in 16 modules; 240 run without a
 database, the rest are database-marked and run in CI</td>
 </tr>
 <tr>
@@ -634,7 +660,7 @@ database, the rest are database-marked and run in CI</td>
 </tr>
 <tr>
 <td>Accessibility</td>
-<td><strong>axe-core against all nine pages</strong>, WCAG 2.1 AA,
+<td><strong>axe-core against all ten pages</strong>, WCAG 2.1 AA,
 failing the build on a violation</td>
 </tr>
 </tbody>
@@ -745,7 +771,7 @@ variables</td>
 <td>4</td>
 <td><strong>Usability</strong></td>
 <td>Met, audited</td>
-<td>WCAG 2.1 AA clean on all nine pages, enforced in CI</td>
+<td>WCAG 2.1 AA clean on all ten pages, enforced in CI</td>
 </tr>
 <tr>
 <td>5</td>
@@ -771,7 +797,7 @@ leaves</td>
 <td>8</td>
 <td><strong>Maintainability</strong></td>
 <td>Met</td>
-<td>Strict types, 233 tests, ADRs, generated client</td>
+<td>Strict types, 246 tests, ADRs, generated client</td>
 </tr>
 <tr>
 <td>9</td>
@@ -871,7 +897,7 @@ the requirement still was not met.</p>
 </tr>
 <tr>
 <td>Accessibility</td>
-<td>0 violations, WCAG 2.1 AA, nine pages</td>
+<td>0 violations, WCAG 2.1 AA, ten pages</td>
 </tr>
 <tr>
 <td>API container image</td>
@@ -944,7 +970,7 @@ number in this document</h2>
 </tr>
 <tr>
 <td>4</td>
-<td>Eight architecture decision records</td>
+<td>Nine architecture decision records</td>
 <td><a href="../adr/"><code>docs/adr/</code></a></td>
 </tr>
 <tr>

@@ -27,9 +27,9 @@ that order, so each section can be opened against the mark it answers.
 
 | # | Marked on | Marks | Section | The one-line answer |
 |---|---|---|---|---|
-| 1 | Codebase | 10 | [§3](#3-codebase-10-marks) | Three Python packages and a Next.js app, ~15,200 lines, running on real data |
+| 1 | Codebase | 10 | [§3](#3-codebase-10-marks) | Three Python packages and a Next.js app, ~17,600 lines, running on real data |
 | 2 | Frameworks with justification | 10 | [§4](#4-frameworks-with-justification-10-marks) | Every choice is written down as a decision record, including what we rejected |
-| 3 | Code quality | 10 | [§5](#5-code-quality-10-marks) | Strict types, 233 tests, six CI jobs, and defects our own tests caught |
+| 3 | Code quality | 10 | [§5](#5-code-quality-10-marks) | Strict types, 246 tests, six CI jobs, and defects our own tests caught |
 | 4 | NFRs achieved | 10 | [§6](#6-nfrs-achieved-10-marks) | All nine categories audited; six met by design, five gaps found and closed |
 
 ---
@@ -74,15 +74,15 @@ A uv workspace holding three Python packages and one Next.js application.
 
 ```
 revix/
-├── packages/revix_core/   models, settings, session          1,294 lines
+├── packages/revix_core/   models, settings, session          1,312 lines
 ├── pipeline/              ingest, extract, resolve, fuse      6,716 lines
-├── apps/api/              the read-only serving layer           857 lines
-├── apps/web/              Next.js 16 frontend                 3,529 lines
-├── tests/                 15 modules, 233 tests               2,808 lines
+├── apps/api/              serving layer and operations        1,516 lines
+├── apps/web/              Next.js 16 frontend                 5,069 lines
+├── tests/                 16 modules, 246 tests               2,990 lines
 └── docs/                  ADRs, proposal, this document
 ```
 
-Roughly **15,200 lines** across **56 Python files** and **21 TypeScript
+Roughly **17,600 lines** across **58 Python files** and **24 TypeScript
 files**, not counting generated code or lockfiles.
 
 ### 3.2 The one rule that holds it together
@@ -122,19 +122,43 @@ A scheduled GitHub Actions workflow runs the whole pipeline nightly: fetch,
 extract, resolve, fuse, publish. The most recent full run took **53m 28s**
 inside a 120-minute timeout. Nobody starts it and nobody watches it.
 
-### 3.5 What to open, in order
+### 3.5 The operations surface
+
+Proposal section 19, and the one part of the codebase whose audience is us
+rather than a reader: connector health, the ingestion run log, a freshness
+grid of model against source, catalogue coverage showing which vehicles sit
+below the evidence floor and by how much, an adjudication queue for listings
+the resolver would not place, and the weighting configurations with their
+verdict coverage.
+
+Two things about it are worth saying out loud, because both change claims made
+elsewhere in this document:
+
+- **It is the only authenticated code in the project**, and it **fails
+  closed**: with the operator credentials unset, every route answers 503 and
+  none of them touch the database. A console that behaves identically whether
+  or not it is protected is a console nobody notices is unprotected.
+- **It holds the only request that writes.** One person's decision about which
+  vehicle a listing refers to, recorded as `human` so it can never be confused
+  with something the resolver inferred. The public API is still read-only.
+
+See [ADR 0010](../adr/0010-basic-auth-for-the-operations-surface.md).
+
+### 3.6 What to open, in order
 
 1. `pyproject.toml`, the workspace and the dependency rule, with the diagram in a comment
 2. `packages/revix_core/src/revix_core/models/`, the typed ORM, four schemas
 3. `pipeline/src/revix_pipeline/`, connectors, enrichment, fusion
 4. `apps/api/src/revix_api/main.py`, every endpoint, each one an indexed read
-5. `apps/web/src/app/`, ten routes, all server-rendered
+5. `apps/web/src/app/`, eleven routes, ten public and one gated
+6. `apps/api/src/revix_api/admin.py`, the operations surface: the only
+   authenticated code and the only request that writes
 
 ---
 
 ## 4. Frameworks with justification (10 marks)
 
-**The artefact for this mark is the ADR folder.** Eight architecture decision
+**The artefact for this mark is the ADR folder.** Nine architecture decision
 records in [`docs/adr/`](../adr/), each stating the decision, the alternatives,
 and the consequence we accepted. This section summarises them; open the ADR
 itself for any the examiner pushes on.
@@ -194,9 +218,9 @@ records why the baseline came first and why it stayed.
 |---|---|
 | Type checking | **mypy strict** across all three Python packages; TypeScript strict |
 | Linting | **ruff** check and format, both failing the build |
-| Tests | **233 tests** in 15 modules; 215 run without a database, the rest are database-marked and run in CI |
+| Tests | **246 tests** in 16 modules; 240 run without a database, the rest are database-marked and run in CI |
 | Browser | Playwright end-to-end smoke test |
-| Accessibility | **axe-core against all nine pages**, WCAG 2.1 AA, failing the build on a violation |
+| Accessibility | **axe-core against all ten pages**, WCAG 2.1 AA, failing the build on a violation |
 
 Six CI jobs run on every pull request. Beyond the usual, they check that
 **migrations reverse cleanly**, that the **pipeline runs end to end**, that
@@ -252,11 +276,11 @@ than against what our proposal claimed. Open it directly; this is a summary.
 | 1 | **Performance** | Met, measured | No model runs on the read path; every endpoint is one indexed read of a precomputed row |
 | 2 | **Scalability** | Met for the stated load | Pagination capped at 200, bounded pool, expensive work batched overnight |
 | 3 | **Portability** | Met | Docker, uv lockfile, configuration only through environment variables |
-| 4 | **Usability** | Met, audited | WCAG 2.1 AA clean on all nine pages, enforced in CI |
+| 4 | **Usability** | Met, audited | WCAG 2.1 AA clean on all ten pages, enforced in CI |
 | 5 | **Compatibility** | Met | Generated API client, responsive layout, standards only |
 | 6 | **Security** | Met at this threat model | Headers, CORS allow-list, rate limiting, read-only API, no secrets in the repo |
 | 7 | **Reliability** | Met | Sources degrade independently, every wait bounded, no traceback ever leaves |
-| 8 | **Maintainability** | Met | Strict types, 233 tests, ADRs, generated client |
+| 8 | **Maintainability** | Met | Strict types, 246 tests, ADRs, generated client |
 | 9 | **Availability** | Partly met, stated honestly | 503 health contract and keep-warm; a single free-tier instance is the known limit |
 
 ### 6.2 The point worth making first
@@ -331,7 +355,7 @@ the intent and the test, and the requirement still was not met.
 | API response from India, deployed | 96–247 ms (target: p95 under 300 ms) |
 | Compare page render, warm | 0.35 s |
 | Catalogue payload | 55.3 kB → 5.9 kB gzipped |
-| Accessibility | 0 violations, WCAG 2.1 AA, nine pages |
+| Accessibility | 0 violations, WCAG 2.1 AA, ten pages |
 | API container image | 364 MB, non-root uid 10001 |
 | Nightly pipeline | 53m 28s inside a 120-minute timeout |
 
@@ -381,7 +405,7 @@ cd apps/web && npm run a11y
 | 1 | The repository, `main` branch, green CI | GitHub |
 | 2 | This document | `docs/s3-lab-work/` |
 | 3 | The NFR audit | [`docs/non-functional-requirements.md`](../non-functional-requirements.md) |
-| 4 | Eight architecture decision records | [`docs/adr/`](../adr/) |
+| 4 | Nine architecture decision records | [`docs/adr/`](../adr/) |
 | 5 | Live API and live site | Links in the header |
 
 Before submitting: confirm `main` is green, re-run the commands in §7 and
