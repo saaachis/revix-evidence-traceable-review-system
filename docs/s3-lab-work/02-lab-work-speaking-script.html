@@ -244,7 +244,7 @@ minutes)</h2>
 tree.</p>
 <blockquote>
 <p>It is a uv workspace: three Python packages and a Next.js app, about
-<strong>fifteen thousand lines</strong>. Core holds the models and
+<strong>seventeen thousand lines</strong>. Core holds the models and
 settings. The pipeline does ingest, extraction, resolution and fusion.
 The API is the serving layer, and it is deliberately the smallest thing
 here, under nine hundred lines.</p>
@@ -283,7 +283,7 @@ with justification (target 3 minutes)</h2>
 <p><strong>Show:</strong> the <code>docs/adr/</code> folder.</p>
 <blockquote>
 <p>Rather than justify these in a slide, we wrote them down as
-decisions. <strong>Eight architecture decision records</strong>, each
+decisions. <strong>Nine architecture decision records</strong>, each
 with the decision, the alternatives, and the consequence we accepted. I
 will give you the two worth arguing about.</p>
 </blockquote>
@@ -332,9 +332,9 @@ minutes)</h2>
 <blockquote>
 <p>Six jobs on every pull request. <strong>mypy strict</strong> across
 all three Python packages, TypeScript strict, ruff for lint and
-formatting, <strong>233 tests</strong>, a Playwright browser test, and
-<strong>axe-core against all nine pages</strong> for accessibility,
-which fails the build on a violation.</p>
+formatting, <strong>246 tests</strong>, a Playwright browser test, and
+<strong>axe-core against all ten pages</strong> for accessibility, which
+fails the build on a violation.</p>
 <p>Three of these are less usual and worth naming: CI checks that
 <strong>migrations reverse cleanly</strong>, that the <strong>pipeline
 runs end to end</strong>, and that <strong>no secret and no raw scraped
@@ -485,7 +485,7 @@ it anyway would contradict the whole argument of the project. The code,
 the result and the reason are all kept, and it is published on our
 metrics endpoint rather than quietly dropped.</p>
 </blockquote>
-<p><strong>&quot;Is 233 tests not a lot for a student project? Are they
+<p><strong>&quot;Is 246 tests not a lot for a student project? Are they
 real?&quot;</strong></p>
 <blockquote>
 <p>Judge them by what they caught rather than the count. An evaluation

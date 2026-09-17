@@ -4,6 +4,217 @@
  */
 
 export interface paths {
+    "/admin/whoami": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Whoami
+         * @description Cheapest possible credential check.
+         *
+         *     The sign-in form calls this rather than a real page, so a wrong password
+         *     costs one row-free request instead of the heaviest query on the surface.
+         */
+        get: operations["whoami_admin_whoami_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/connectors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Connector Health
+         * @description One card per source: is it alive, when did it last work, what broke.
+         *
+         *     The public /sources/health answers "should a reader trust this corpus".
+         *     This answers "what do I have to fix tonight", so it carries the things a
+         *     reader has no use for: how long the last run took, how many units it
+         *     actually inserted against how many it skipped as duplicates, and the last
+         *     error in full rather than summarised.
+         */
+        get: operations["connector_health_admin_connectors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ingest Runs
+         * @description Every run, newest first. The log you read when last night went wrong.
+         */
+        get: operations["ingest_runs_admin_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/freshness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Freshness
+         * @description Source by model, coloured by age. Coverage holes become visible.
+         *
+         *     One grouped aggregate rather than a query per cell. A model with no cell
+         *     for a source has never had anything collected from it, and that absence is
+         *     the whole point of the grid: it is the shape of what we are missing, which
+         *     a list of what we have cannot show.
+         */
+        get: operations["freshness_admin_freshness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/coverage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Coverage
+         * @description Where seeding effort should go next, rather than where it feels needed.
+         *
+         *     A suppressed variant is not a bug, it is the evidence floor doing its job.
+         *     What an operator needs is which ones are close to clearing it and which
+         *     are nowhere near, because those are different problems: the first wants
+         *     one more source, the second wants a decision about whether the vehicle
+         *     belongs in the catalogue at all.
+         */
+        get: operations["coverage_admin_coverage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/adjudication": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Adjudication Queue
+         * @description Listings the resolver would not place, for a person to decide.
+         *
+         *     Human-in-the-loop by design rather than as an admission of failure. The
+         *     resolver is deliberately unwilling to guess below its confidence floor,
+         *     and something has to happen to what it refuses, otherwise the floor just
+         *     silently loses evidence.
+         *
+         *     Ordered by how much evidence is waiting behind each decision, so an hour
+         *     spent here buys the most it can.
+         */
+        get: operations["adjudication_queue_admin_adjudication_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/adjudication/{listing_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adjudicate
+         * @description A person's decision about one listing. The only write on this surface.
+         *
+         *     Recorded as match_method='human' so it is never mistaken for something the
+         *     resolver worked out, and so a later evaluation can separate what we were
+         *     told from what we inferred. That distinction is the entire value of this
+         *     queue: a human decision mixed indistinguishably into automated ones is a
+         *     gold set contaminated by its own answers.
+         *
+         *     The verdict does not move until the pipeline runs again. Fusion is a batch
+         *     stage and this endpoint deliberately does not reach into it, because a
+         *     request that triggers a recomputation is a request that can time out
+         *     halfway through one.
+         */
+        post: operations["adjudicate_admin_adjudication__listing_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/fusion-configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fusion Configs
+         * @description Every weighting, its parameters, and how many verdicts it actually has.
+         *
+         *     Read-only, and that is a decision rather than an unfinished feature.
+         *     Creating a configuration here would put it on the public switch
+         *     immediately, because /fusion-configs lists whatever exists, while its
+         *     verdicts would not exist until the pipeline next ran. Every variant would
+         *     answer "no verdict" under the new weighting and the flagship control would
+         *     be visibly broken until morning.
+         *
+         *     A weighting is only real once its verdicts are computed, so creating one
+         *     belongs where the computation happens: `revix fuse` in the pipeline. What
+         *     an operator needs here is to see what exists and whether it is fully
+         *     populated, and that is what this returns.
+         */
+        get: operations["fusion_configs_admin_fusion_configs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -171,6 +382,43 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdjudicationDecision
+         * @description A person's answer. All three fields absent means "not one of ours".
+         */
+        AdjudicationDecision: {
+            /** Variant Id */
+            variant_id?: string | null;
+            /** Model Id */
+            model_id?: string | null;
+            /**
+             * Is Rejection
+             * @default false
+             */
+            is_rejection: boolean;
+        };
+        /** AdjudicationItemOut */
+        AdjudicationItemOut: {
+            /**
+             * Listing Id
+             * Format: uuid
+             */
+            listing_id: string;
+            /** Source Key */
+            source_key: string;
+            /** Raw Title */
+            raw_title: string;
+            /** Url */
+            url: string | null;
+            /** Match Method */
+            match_method: string | null;
+            /** Match Confidence */
+            match_confidence: number | null;
+            /** Resolved Model Id */
+            resolved_model_id: string | null;
+            /** Evidence Waiting */
+            evidence_waiting: number;
+        };
         /** AspectOut */
         AspectOut: {
             /** Aspect Key */
@@ -211,6 +459,39 @@ export interface components {
             /** Evidence */
             evidence: components["schemas"]["EvidenceOut"][];
         };
+        /** ConnectorHealthOut */
+        ConnectorHealthOut: {
+            /** Source Key */
+            source_key: string;
+            /** Display Name */
+            display_name: string;
+            /** Kind */
+            kind: string;
+            /** Is Enabled */
+            is_enabled: boolean;
+            /** Status */
+            status: string | null;
+            /** Last Run At */
+            last_run_at: string | null;
+            /** Last Success At */
+            last_success_at: string | null;
+            /** Hours Since Success */
+            hours_since_success: number | null;
+            /** Is Stale */
+            is_stale: boolean;
+            /** Last Run Seconds */
+            last_run_seconds: number | null;
+            /** Units Total */
+            units_total: number;
+            /** Units Inserted */
+            units_inserted: number;
+            /** Units Skipped */
+            units_skipped: number;
+            /** Error Count */
+            error_count: number;
+            /** Last Error */
+            last_error: string | null;
+        };
         /** CovariateExplanation */
         CovariateExplanation: {
             /** Covariate */
@@ -230,6 +511,36 @@ export interface components {
             weight_share: number;
             /** Count */
             count: number;
+        };
+        /** CoverageRowOut */
+        CoverageRowOut: {
+            /**
+             * Variant Id
+             * Format: uuid
+             */
+            variant_id: string;
+            /** Manufacturer */
+            manufacturer: string;
+            /** Model */
+            model: string;
+            /** Variant Name */
+            variant_name: string;
+            /** Vehicle Class */
+            vehicle_class: string;
+            /** Evidence Count */
+            evidence_count: number;
+            /** Model Evidence Count */
+            model_evidence_count: number;
+            /** Distinct Sources */
+            distinct_sources: number;
+            /** Is Suppressed */
+            is_suppressed: boolean;
+            /** Suppression Reason */
+            suppression_reason: string | null;
+            /** Units Short Of Floor */
+            units_short_of_floor: number;
+            /** Sources Short Of Floor */
+            sources_short_of_floor: number;
         };
         /**
          * EvalRunOut
@@ -288,6 +599,62 @@ export interface components {
             /** Rank */
             rank: number;
         };
+        /** FreshnessCellOut */
+        FreshnessCellOut: {
+            /**
+             * Model Id
+             * Format: uuid
+             */
+            model_id: string;
+            /** Source Key */
+            source_key: string;
+            /** Last Collected At */
+            last_collected_at: string | null;
+            /** Hours Since */
+            hours_since: number | null;
+            /** Units */
+            units: number;
+        };
+        /**
+         * FreshnessOut
+         * @description A grid rather than a list, because the absences are the information.
+         */
+        FreshnessOut: {
+            /** Sources */
+            sources: string[];
+            /** Models */
+            models: {
+                [key: string]: string;
+            }[];
+            /** Cells */
+            cells: components["schemas"]["FreshnessCellOut"][];
+        };
+        /** FusionConfigAdminOut */
+        FusionConfigAdminOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string | null;
+            /** Is Default */
+            is_default: boolean;
+            /** Params */
+            params: {
+                [key: string]: unknown;
+            };
+            /** Verdict Count */
+            verdict_count: number;
+            /** Variant Count */
+            variant_count: number;
+            /** Is Complete */
+            is_complete: boolean;
+        };
         /** FusionConfigOut */
         FusionConfigOut: {
             /** Name */
@@ -316,6 +683,39 @@ export interface components {
             variants: number;
             /** Verdicts */
             verdicts: number;
+        };
+        /** IngestRunOut */
+        IngestRunOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Source Key */
+            source_key: string;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Duration Seconds */
+            duration_seconds: number | null;
+            /** Refs Discovered */
+            refs_discovered: number;
+            /** Payloads Fetched */
+            payloads_fetched: number;
+            /** Units Inserted */
+            units_inserted: number;
+            /** Units Skipped */
+            units_skipped: number;
+            /** Error Count */
+            error_count: number;
+            /** Last Error */
+            last_error: string | null;
         };
         /** SourceHealthOut */
         SourceHealthOut: {
@@ -454,6 +854,16 @@ export interface components {
             /** Aspects */
             aspects: components["schemas"]["AspectOut"][];
         };
+        /**
+         * WhoAmIOut
+         * @description What the sign-in form checks against.
+         */
+        WhoAmIOut: {
+            /** Username */
+            username: string;
+            /** Authenticated */
+            authenticated: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -463,6 +873,219 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    whoami_admin_whoami_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WhoAmIOut"];
+                };
+            };
+        };
+    };
+    connector_health_admin_connectors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectorHealthOut"][];
+                };
+            };
+        };
+    };
+    ingest_runs_admin_runs_get: {
+        parameters: {
+            query?: {
+                /** @description Filter to one source key. */
+                source?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestRunOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    freshness_admin_freshness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FreshnessOut"];
+                };
+            };
+        };
+    };
+    coverage_admin_coverage_get: {
+        parameters: {
+            query?: {
+                /** @description Only variants below the evidence floor. */
+                only_suppressed?: boolean;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoverageRowOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adjudication_queue_admin_adjudication_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdjudicationItemOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    adjudicate_admin_adjudication__listing_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                listing_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdjudicationDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdjudicationItemOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fusion_configs_admin_fusion_configs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FusionConfigAdminOut"][];
+                };
+            };
+        };
+    };
     health_health_get: {
         parameters: {
             query?: never;

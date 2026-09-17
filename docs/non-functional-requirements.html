@@ -294,7 +294,7 @@ produces it is given so it can be taken again.</p>
 <td>4</td>
 <td>Usability</td>
 <td>Met, audited</td>
-<td>WCAG 2.1 AA clean on all nine pages, enforced in CI</td>
+<td>WCAG 2.1 AA clean on all ten pages, enforced in CI</td>
 </tr>
 <tr>
 <td>5</td>
@@ -306,8 +306,8 @@ produces it is given so it can be taken again.</p>
 <td>6</td>
 <td>Security</td>
 <td>Met at this threat model</td>
-<td>Headers, CORS allow-list, rate limit, read-only API, no secrets in
-repo</td>
+<td>Headers, CORS allow-list, rate limit, read-only public API,
+authenticated admin, no secrets in repo</td>
 </tr>
 <tr>
 <td>7</td>
@@ -442,10 +442,11 @@ reader or a keyboard.</p>
 <p><strong>How it is met.</strong></p>
 <ul>
 <li><strong>Accessibility is audited, not assumed.</strong> axe-core
-runs against all nine pages under WCAG 2.1 AA and CI fails on a
-violation. <code>npm run a11y</code>. The colour palette was reworked
-once specifically because contrast failed, and the audit is what caught
-it.</li>
+runs against all ten pages under WCAG 2.1 AA and CI fails on a
+violation, the operations console included: a page only we use is still
+a page somebody has to use. <code>npm run a11y</code>. The colour
+palette was reworked once specifically because contrast failed, and the
+audit is what caught it.</li>
 <li><strong>Semantic HTML and real routes.</strong> Every page is
 server-rendered with a URL worth sharing; the evidence drawer is its own
 page rather than a modal, so a citation can be linked to.</li>
@@ -497,10 +498,16 @@ a vector against the reader&#39;s browser, and do not let one caller degrade
 the service for everybody.</p>
 <p><strong>How it is met.</strong></p>
 <ul>
-<li><strong>The API is read-only.</strong> Every endpoint is a GET, CORS
-permits only GET, and there is no write path exposed to the internet at
-all. The entire class of injection-through-mutation vulnerabilities has
-no surface here.</li>
+<li><strong>The public API is read-only.</strong> Every endpoint outside
+<code>/admin</code> is a GET and CORS permits only GET, so for every
+reader of the site the entire class of injection-through-mutation
+vulnerabilities has no surface.</li>
+<li><strong>There is exactly one write, and it is
+authenticated.</strong> The operations console records a person&#39;s
+decision about which vehicle a listing refers to. It is one nullable
+foreign key on one row, behind the gate described below. This qualifies
+the sentence above rather than contradicting it, and it is written here
+rather than left as a stale claim that used to be true.</li>
 <li><strong>No raw SQL.</strong> Everything goes through SQLAlchemy&#39;s
 typed ORM with bound parameters, including the free-text search, which
 is the one place user input reaches a query.</li>
@@ -550,10 +557,24 @@ no cookie or token worth stealing, no user-generated content, and the
 only user text that reaches a page is the search box, which React
 escapes. It is written down in <code>next.config.ts</code> so it stays a
 decision rather than becoming an oversight.</p>
-<p><strong>Not implemented, and why.</strong> There is no
-authentication, because there are no accounts and nothing to authorise.
-If the admin dashboard is built it will need one, and that is noted as
-its first requirement rather than an afterthought.</p>
+<p><strong>Authentication, on the one surface that needs it.</strong>
+The operations console is gated by HTTP Basic over HTTPS, both halves
+compared in constant time and both always compared, so the response does
+not leak whether a username exists. It <strong>fails closed</strong>:
+with the credentials unset every admin route answers 503 and none of
+them touch the database, because a console that behaves identically
+whether or not it is protected is one nobody notices is unprotected. The
+browser sends the operator&#39;s own credentials rather than our server
+sending credentials on a visitor&#39;s behalf, and they travel in a header
+we set explicitly rather than a cookie, so no CSRF surface exists on the
+write. See <a href="adr/0010-basic-auth-for-the-operations-surface.md">ADR
+0010</a>.</p>
+<p><strong>Still not implemented, and why.</strong> No password reset,
+no second account, no roles. There is one operator and one authorisation
+question, and a role system guarding a single boolean is machinery
+pretending to be security. A second principal of any kind is the trigger
+to revisit, and the first thing it would need is an audit trail rather
+than roles.</p>
 <h2 id="7-reliability">7. Reliability</h2>
 <p><strong>Requirement.</strong> A failure in one part must not become a
 failure of the whole, and the system must tell the truth about what
@@ -678,7 +699,7 @@ failure report could not be tied to a request.</li>
 </ol>
 <h2 id="reproducing-the-measurements">Reproducing the measurements</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run pytest tests/test_nfr.py <span class="at">-q</span>      <span class="co"># the guarantees, asserted</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> apps/web <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> run a11y             <span class="co"># WCAG 2.1 AA, all nine pages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> apps/web <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> run a11y             <span class="co"># WCAG 2.1 AA, all ten pages</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sI</span> <span class="va">$API</span>/variants <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-Ei</span> <span class="st">&#39;cache-control|x-response-time|x-ratelimit&#39;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-H</span> <span class="st">&#39;Accept-Encoding: gzip&#39;</span>  <span class="at">-o</span> /dev/null <span class="at">-w</span> <span class="st">&#39;%{size_download}\n&#39;</span> <span class="va">$API</span>/variants<span class="pp">?</span>limit=200</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-H</span> <span class="st">&#39;Accept-Encoding: identity&#39;</span> <span class="at">-o</span> /dev/null <span class="at">-w</span> <span class="st">&#39;%{size_download}\n&#39;</span> <span class="va">$API</span>/variants<span class="pp">?</span>limit=200</span></code></pre></div>

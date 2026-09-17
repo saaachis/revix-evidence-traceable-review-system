@@ -34,6 +34,10 @@ const routes = [
   ["sources", "/sources"],
   ["status", "/status"],
   ["verdict", `/v/${scored.id}`],
+  // Signed out, which is the state anybody can reach and the one with a form
+  // on it. The panels behind the gate are ordinary tables built from the same
+  // components as the public pages.
+  ["admin", "/admin"],
 ];
 
 let total = 0;

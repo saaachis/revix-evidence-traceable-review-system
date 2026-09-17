@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     # and a limit would only ever fire on ourselves.
     rate_limit_enabled: bool = True
 
+    # ---------- admin ----------
+    # The operator account. Both must be set for the admin surface to answer
+    # at all; see admin.py for why it fails closed rather than open when they
+    # are not, which is the single most important line in that file.
+    admin_username: str = ""
+    admin_password: str = ""
+
     # How long a browser or CDN may reuse a response. The pipeline writes once
     # a night, so anything shorter is asking clients to re-fetch rows that
     # cannot have changed. Five minutes rather than hours because the demo
@@ -143,6 +150,17 @@ class Settings(BaseSettings):
             else self.reddit_subreddits_car
         )
         return [s.strip().removeprefix("r/") for s in raw.split(",") if s.strip()]
+
+    @property
+    def admin_configured(self) -> bool:
+        """Both halves, or the surface does not open.
+
+        Deliberately not "username or password". A deployment that sets one
+        and forgets the other is a deployment where somebody meant to protect
+        this and did not finish, and guessing which half they meant is worse
+        than refusing.
+        """
+        return bool(self.admin_username and self.admin_password)
 
     @property
     def cors_origins(self) -> list[str]:

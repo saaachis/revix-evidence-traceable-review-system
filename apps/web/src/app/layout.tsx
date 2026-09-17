@@ -70,6 +70,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/accuracy" className="font-medium text-(--color-ink-2) hover:text-(--color-brand)">Accuracy</Link>
               <span aria-hidden>·</span>
               <Link href="/status" className="font-medium text-(--color-ink-2) hover:text-(--color-brand)">Status</Link>
+              <span aria-hidden>·</span>
+              {/* In the footer rather than the header. Operators know it is
+                  here; readers have no use for it and it is gated anyway. */}
+              <Link href="/admin" className="font-medium text-(--color-muted) hover:text-(--color-brand)">Operations</Link>
             </span>
           </div>
         </footer>

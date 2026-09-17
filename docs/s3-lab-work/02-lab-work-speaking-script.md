@@ -56,7 +56,7 @@ in the demo session; today I would rather show you what is underneath it."
 **Show:** `pyproject.toml`, then the folder tree.
 
 > It is a uv workspace: three Python packages and a Next.js app, about
-> **fifteen thousand lines**. Core holds the models and settings. The pipeline
+> **seventeen thousand lines**. Core holds the models and settings. The pipeline
 > does ingest, extraction, resolution and fusion. The API is the serving
 > layer, and it is deliberately the smallest thing here, under nine hundred
 > lines.
@@ -93,7 +93,7 @@ in the demo session; today I would rather show you what is underneath it."
 **Show:** the `docs/adr/` folder.
 
 > Rather than justify these in a slide, we wrote them down as decisions.
-> **Eight architecture decision records**, each with the decision, the
+> **Nine architecture decision records**, each with the decision, the
 > alternatives, and the consequence we accepted. I will give you the two worth
 > arguing about.
 
@@ -141,8 +141,8 @@ in the demo session; today I would rather show you what is underneath it."
 **Show:** the green CI checks on a pull request.
 
 > Six jobs on every pull request. **mypy strict** across all three Python
-> packages, TypeScript strict, ruff for lint and formatting, **233 tests**,
-> a Playwright browser test, and **axe-core against all nine pages** for
+> packages, TypeScript strict, ruff for lint and formatting, **246 tests**,
+> a Playwright browser test, and **axe-core against all ten pages** for
 > accessibility, which fails the build on a violation.
 >
 > Three of these are less usual and worth naming: CI checks that **migrations
@@ -301,7 +301,7 @@ question you can get, have the answer ready:
 > the reason are all kept, and it is published on our metrics endpoint rather
 > than quietly dropped.
 
-**"Is 233 tests not a lot for a student project? Are they real?"**
+**"Is 246 tests not a lot for a student project? Are they real?"**
 
 > Judge them by what they caught rather than the count. An evaluation bug that
 > was flattering us, a connector citing our own search term as evidence, an

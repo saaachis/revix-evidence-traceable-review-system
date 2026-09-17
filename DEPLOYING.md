@@ -60,12 +60,20 @@ workflow with `reddit,youtube` in the sources box. See DEVELOPING.md.
 
 1. <https://render.com>, **New, Blueprint**, connect this repository. It reads
    [render.yaml](render.yaml) and creates the service.
-2. Set the two environment variables the blueprint deliberately leaves empty:
+2. Set the environment variables the blueprint deliberately leaves empty:
 
    | Variable | Value |
    |---|---|
    | `DATABASE_URL` | the same string as step 1 |
    | `CORS_ALLOWED_ORIGINS` | your Vercel URL, e.g. `https://revix.vercel.app` |
+   | `ADMIN_USERNAME` | a name you choose, for the operations console |
+   | `ADMIN_PASSWORD` | a long random string, generated not invented |
+
+   The two admin variables are optional in the sense that everything a reader
+   sees works without them. Leave them unset and `/admin` answers 503 on every
+   route and touches nothing; set **both** or it stays closed, because half a
+   credential is treated as none. Generate the password rather than choosing
+   one: `python -c "import secrets; print(secrets.token_urlsafe(24))"`.
 
    You will not know the Vercel URL yet. Put a placeholder, finish step 4, then
    come back. **This is the single most common way to end up with a site whose

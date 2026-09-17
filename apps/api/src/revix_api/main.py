@@ -23,6 +23,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from revix_api.admin import router as admin_router
 from revix_api.middleware import (
     RateLimitMiddleware,
     RequestContextMiddleware,
@@ -95,6 +96,13 @@ if _settings.rate_limit_enabled:
     app.add_middleware(RateLimitMiddleware, limit=_settings.rate_limit_per_minute)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestContextMiddleware)
+
+
+# The operations surface. Authenticated, uncached, and the only place in the
+# API that writes. Mounted last so the middleware above applies to it too: an
+# admin 401 gets the same security headers and the same request id as anything
+# else, which is what you want on the one surface people try passwords against.
+app.include_router(admin_router)
 
 
 def _cacheable(response: Response) -> None:
