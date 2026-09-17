@@ -71,6 +71,21 @@ class Settings(BaseSettings):
     # ago, which we would rather lose than lose the pipeline.
     raw_retention_days: int = 14
 
+    # A ceiling in megabytes, because megabytes are what the limit is actually
+    # denominated in and days are only a proxy for them.
+    #
+    # The first version of this policy had the age window alone, and it freed
+    # nothing: every payload was inside the window, so the sweep ran, reported
+    # "nothing past the window", and the migration behind it died on a full
+    # disk exactly as before. An age window bounds how old the store gets. It
+    # does not bound how big it gets, and size was the thing that broke.
+    #
+    # 120 MB of a 512 MB tier leaves the evidence, the verdicts and their
+    # citations the room they need; those come to about 70 MB today. Oldest
+    # payloads go first once the budget is passed, so the policy holds whatever
+    # the run rate turns out to be.
+    raw_max_megabytes: int = 120
+
     # ---------- admin ----------
     # The operator account. Both must be set for the admin surface to answer
     # at all; see admin.py for why it fails closed rather than open when they

@@ -123,6 +123,15 @@ class RawPayload(Base):
     http_status: Mapped[int | None] = mapped_column(SmallInteger)
     content_type: Mapped[str | None] = mapped_column(String(120))
     body: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    #: How `body` is stored: "gzip", or null for the rows written before
+    #: compression existed. Explicit rather than sniffed from the first two
+    #: bytes, because a reader guessing at an encoding is a reader that will
+    #: eventually guess wrong on a payload that happens to start like one.
+    content_encoding: Mapped[str | None] = mapped_column(String(20))
+    #: Always the digest of the ORIGINAL bytes, never the compressed ones.
+    #: Deduplication is about what the source said, and gzip output is not
+    #: guaranteed byte-identical across versions of the compressor, so hashing
+    #: the compressed form would silently stop recognising unchanged pages.
     sha256: Mapped[str] = mapped_column(String(64), nullable=False)
 
 

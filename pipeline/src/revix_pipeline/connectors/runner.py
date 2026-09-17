@@ -36,6 +36,7 @@ from revix_pipeline.connectors.base import (
 )
 from revix_pipeline.connectors.politeness import CircuitOpenError, RobotsDisallowedError
 from revix_pipeline.connectors.quota import record_spend, spent_today
+from revix_pipeline.connectors.raw_store import compress
 
 log = logging.getLogger(__name__)
 
@@ -256,12 +257,20 @@ def _store_raw(
     """Persist the payload before anything tries to interpret it.
 
     Deduplicated by sha256, so re-fetching an unchanged page costs one row
-    lookup rather than another copy of the bytes.
+    lookup rather than another copy of the bytes, and compressed on the way in
+    because these are HTML and JSON and they were filling the database at
+    roughly nine times the size they need to be.
     """
+    # The digest is of the original bytes, deliberately, and is taken before
+    # anything is compressed. Deduplication asks whether the source said the
+    # same thing, and gzip output is not guaranteed identical across versions
+    # of the compressor, so hashing the stored form would slowly stop
+    # recognising pages that had not changed.
     digest = payload.sha256
     existing = session.scalar(select(RawPayload).where(RawPayload.sha256 == digest))
     if existing is not None:
         return existing.id
+    stored, encoding = compress(payload.body)
     row = RawPayload(
         source_id=source_id,
         ingest_run_id=run_id,
@@ -269,7 +278,8 @@ def _store_raw(
         fetched_at=payload.fetched_at,
         http_status=payload.http_status,
         content_type=payload.content_type,
-        body=payload.body,
+        body=stored,
+        content_encoding=encoding,
         sha256=digest,
     )
     session.add(row)
