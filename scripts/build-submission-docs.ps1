@@ -98,5 +98,25 @@ foreach ($rel in $targets) {
     }
 }
 
+# The presentation document is hand-authored HTML rather than generated from
+# markdown, because it is laid out as discrete A4 sheets and markdown has no
+# way to say where a page ends. It renders through Playwright rather than Edge:
+# Edge's --print-to-pdf quietly disagrees with the stylesheet's @page rule,
+# and preferCSSPageSize makes the stylesheet authoritative.
+$presentation = Join-Path $repo "docs/s3-lab-work/00-presentation.html"
+if (Test-Path $presentation) {
+    Push-Location (Join-Path $repo "apps/web")
+    try {
+        node e2e/render-doc.mjs `
+            "../../docs/s3-lab-work/00-presentation.html" `
+            "../../docs/s3-lab-work/00-presentation.pdf"
+        Write-Output "pdf   docs/s3-lab-work/00-presentation.html"
+    }
+    catch {
+        Write-Warning "presentation PDF failed: $($_.Exception.Message)"
+    }
+    finally { Pop-Location }
+}
+
 Write-Output ""
 Write-Output "Done. The markdown is the source; regenerate rather than editing the HTML or PDF."

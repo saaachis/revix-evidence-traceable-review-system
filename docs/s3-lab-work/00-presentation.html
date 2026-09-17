@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html { color-scheme: light dark; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Revix S3 Lab Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+
+<style>
+  /* Palette lifted from the product's own design system (apps/web/globals.css):
+     deep cardinal on warm neutrals, and colour encodes state, never quality. */
+  :root {
+    --brand: #c41e3a;
+    --brand-deep: #9e1730;
+    --brand-soft: #fde8ec;
+    --brand-line: #f5c9d2;
+
+    --ink: #1a1614;
+    --ink-2: #453d3a;
+    --muted: #615651;
+    --faint: #736863;
+
+    --line: #e7e1de;
+    --line-soft: #f0ecea;
+    --paper: #ffffff;
+    --paper-2: #f4f0ee;
+    --desk: #e6e0dc;
+
+    --ok: #4a6b4f;
+    --ok-bg: #eaf1ea;
+    --warn: #b45309;
+    --warn-bg: #fdf1e3;
+    --stop: #c41e3a;
+    --stop-bg: #fde8ec;
+
+    --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --brand: #f07189;
+      --brand-deep: #f7a3b3;
+      --brand-soft: #3a1620;
+      --brand-line: #5c2231;
+      --ink: #f5efec;
+      --ink-2: #d5cac5;
+      --muted: #ab9e98;
+      --faint: #9b8e88;
+      --line: #372f2c;
+      --line-soft: #2a2320;
+      --paper: #1c1816;
+      --paper-2: #241f1c;
+      --desk: #100d0c;
+      --ok: #8fbf97;
+      --ok-bg: #1d2a1f;
+      --warn: #e0a15c;
+      --warn-bg: #2e2117;
+      --stop: #f07189;
+      --stop-bg: #3a1620;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --brand: #f07189;
+    --brand-deep: #f7a3b3;
+    --brand-soft: #3a1620;
+    --brand-line: #5c2231;
+    --ink: #f5efec;
+    --ink-2: #d5cac5;
+    --muted: #ab9e98;
+    --faint: #9b8e88;
+    --line: #372f2c;
+    --line-soft: #2a2320;
+    --paper: #1c1816;
+    --paper-2: #241f1c;
+    --desk: #100d0c;
+    --ok: #8fbf97;
+    --ok-bg: #1d2a1f;
+    --warn: #e0a15c;
+    --warn-bg: #2e2117;
+    --stop: #f07189;
+    --stop-bg: #3a1620;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--desk);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 26px 16px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- the sheet ---------- */
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    margin: 0 auto 26px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 52px 62px 64px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .page::after {
+    content: attr(data-page);
+    position: absolute; bottom: 26px; right: 62px;
+    font-family: var(--mono); font-size: 10.5px; color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .page::before {
+    content: attr(data-run);
+    position: absolute; bottom: 26px; left: 62px;
+    font-family: var(--mono); font-size: 10.5px; color: var(--faint);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ---------- headings ---------- */
+  .eyebrow {
+    display: flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--faint); margin: 0 0 9px;
+  }
+  .eyebrow .marks {
+    color: var(--brand); border: 1px solid var(--brand-line);
+    background: var(--brand-soft); border-radius: 999px; padding: 2px 8px;
+    letter-spacing: 0.06em;
+  }
+  h2 {
+    font-family: var(--serif); font-weight: 600;
+    font-size: 25px; letter-spacing: -0.015em; line-height: 1.15;
+    margin: 0 0 7px; text-wrap: balance;
+  }
+  h3 {
+    font-size: 12.5px; font-weight: 600; margin: 20px 0 8px;
+    letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted);
+  }
+  h3:first-of-type { margin-top: 14px; }
+  p { margin: 0 0 10px; color: var(--ink-2); }
+  .lede { color: var(--muted); font-size: 13.5px; max-width: 62ch; }
+  strong { font-weight: 600; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ---------- cover ---------- */
+  .cover { justify-content: space-between; }
+  .cover-top { display: flex; align-items: baseline; gap: 11px; }
+  .cover-top b {
+    font-family: var(--serif); font-weight: 600; font-size: 30px;
+    letter-spacing: -0.02em; color: var(--brand);
+  }
+  .cover-top span { font-size: 12px; color: var(--faint); }
+  .cover-mid h1 {
+    font-family: var(--serif); font-weight: 600; font-size: 52px;
+    line-height: 1.04; letter-spacing: -0.025em; margin: 0 0 14px;
+  }
+  .cover-mid .rule { width: 62px; height: 3px; background: var(--brand); margin: 0 0 18px; }
+  .cover-mid p { font-size: 15.5px; color: var(--muted); max-width: 46ch; }
+  .cover-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .cover-meta > div { background: var(--paper); padding: 13px 15px; }
+  .cover-meta dt {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 4px;
+  }
+  .cover-meta dd { margin: 0; font-size: 13px; color: var(--ink); }
+  .cover-meta a { color: var(--brand); text-decoration: none; }
+
+  /* ---------- contents ---------- */
+  ol.toc { list-style: none; margin: 0; padding: 0; counter-reset: t; }
+  ol.toc li { counter-increment: t; border-bottom: 1px solid var(--line-soft); }
+  ol.toc a {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 11px 4px; text-decoration: none; color: var(--ink);
+  }
+  ol.toc a:hover { color: var(--brand); }
+  ol.toc a:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+  ol.toc .n {
+    font-family: var(--mono); font-size: 11px; color: var(--faint);
+    min-width: 22px; font-variant-numeric: tabular-nums;
+  }
+  ol.toc .t { flex: 1; font-size: 14px; font-weight: 500; }
+  ol.toc .d { font-size: 12px; color: var(--muted); flex: 1.2; }
+  ol.toc .pg {
+    font-family: var(--mono); font-size: 11px; color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- answer strip ---------- */
+  .answers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 7px;
+    overflow: hidden; margin: 0 0 4px; }
+  .answers > div { background: var(--paper); padding: 14px 16px; }
+  .answers dt {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 6px;
+    display: flex; justify-content: space-between;
+  }
+  .answers dd { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .answers b { display: block; font-size: 15px; color: var(--ink); margin-bottom: 3px; font-weight: 600; }
+
+  /* ---------- score tiles: the one place big numbers are the point ---------- */
+  .scores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 4px 0 6px; }
+  .score { border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); padding: 15px 16px; }
+  .score .n {
+    font-family: var(--mono); font-weight: 600; font-size: 31px; line-height: 1;
+    letter-spacing: -0.02em; color: var(--brand); font-variant-numeric: tabular-nums;
+  }
+  .score .n small { font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .score .k {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--faint); margin: 9px 0 3px;
+  }
+  .score .d { font-size: 12px; color: var(--muted); }
+
+  /* ---------- distribution ---------- */
+  .dist-bar { display: flex; height: 32px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+  .dist-bar span { display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 11px; font-weight: 600; color: #fff; }
+  .dist-key { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+  .dist-key i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
+
+  /* ---------- tables ---------- */
+  .tw { border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--paper); }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  thead th {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--faint); font-weight: 500;
+    background: var(--paper-2); border-bottom: 1px solid var(--line);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+    padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+  }
+  .chip.ok { background: var(--ok-bg); color: var(--ok); }
+  .chip.warn { background: var(--warn-bg); color: var(--warn); }
+  .chip.stop { background: var(--stop-bg); color: var(--stop); }
+
+  /* ---------- code ---------- */
+  pre {
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 7px; padding: 14px 16px; overflow-x: auto; margin: 0 0 12px;
+    color: var(--ink-2);
+  }
+  pre b { color: var(--ink); font-weight: 600; }
+  pre i { color: var(--faint); font-style: normal; }
+  code {
+    font-family: var(--mono); font-size: 0.9em; background: var(--paper-2);
+    border: 1px solid var(--line); border-radius: 3px; padding: 1px 4px; color: var(--ink-2);
+  }
+
+  /* ---------- callout ---------- */
+  .note {
+    border-left: 3px solid var(--brand); background: var(--paper-2);
+    border-radius: 0 7px 7px 0; padding: 13px 16px; margin: 14px 0;
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--brand); display: block; margin-bottom: 6px;
+  }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  ul.tight { margin: 0 0 10px; padding-left: 17px; color: var(--ink-2); }
+  ul.tight li { margin-bottom: 5px; }
+
+  /* ---------- nfr grid ---------- */
+  .nfr { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .nfr > div { background: var(--paper); padding: 12px 14px; }
+  .nfr h4 { margin: 0 0 3px; font-size: 12.5px; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .nfr p { margin: 0; font-size: 11.5px; color: var(--muted); }
+
+  .runbar { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 0; }
+  .runbar a {
+    font-family: var(--mono); font-size: 11.5px; padding: 7px 11px;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--paper-2);
+    color: var(--ink-2); text-decoration: none;
+  }
+  .runbar a:hover { border-color: var(--brand); color: var(--brand); }
+  .runbar a:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  .spacer { flex: 1; }
+
+  /* ---------- screens narrower than a sheet ---------- */
+  @media (max-width: 860px) {
+    body { padding: 14px 10px 40px; }
+    .page {
+      width: 100%; min-height: 0; padding: 30px 24px 52px;
+    }
+    .page::before, .page::after { bottom: 18px; left: 24px; right: 24px; }
+    .page::after { left: auto; }
+    .two, .scores, .nfr, .answers, .cover-meta { grid-template-columns: 1fr; }
+    .cover-mid h1 { font-size: 38px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    /* Slightly tighter than the screen sheet so each page lands on exactly one
+       sheet of A4. Without this the densest pages spill a few lines onto a
+       second sheet and a thirteen-page document prints as seventeen. */
+    body { background: #fff; padding: 0; font-size: 11.5px; }
+    .page {
+      margin: 0; border: 0; border-radius: 0;
+      /* 295mm rather than 297. A block exactly one page tall rounds over the
+         boundary and Edge emits a blank sheet after it; two millimetres of
+         slack absorbs that without being visible. */
+      width: 210mm; height: 295mm; min-height: 0;
+      padding: 11mm 14mm 13mm;
+      page-break-after: always; break-after: page;
+      overflow: hidden;
+    }
+    .page::before, .page::after { bottom: 7mm; left: 15mm; }
+    .page::after { left: auto; right: 15mm; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    h2 { font-size: 22px; }
+    h3 { margin: 15px 0 7px; }
+    p { margin-bottom: 8px; }
+    table { font-size: 11.5px; }
+    th, td { padding: 7px 11px; }
+    pre { font-size: 10.5px; padding: 11px 13px; }
+    .note { padding: 11px 14px; margin: 11px 0; }
+    .scores { gap: 10px; }
+    .score { padding: 12px 13px; }
+    .score .n { font-size: 27px; }
+    .nfr > div { padding: 10px 12px; }
+    .nfr p { font-size: 11px; }
+    .cover-mid h1 { font-size: 46px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<!-- ============================== 1. COVER ============================== -->
+<article class="page cover" data-run="Revix" data-page="1">
+  <div class="cover-top"><b>revix</b><span>driven by reviews</span></div>
+
+  <div class="cover-mid">
+    <h1>S3<br>Lab Work</h1>
+    <div class="rule"></div>
+    <p>An evidence-traceable review system for Indian cars and two-wheelers.
+      Every number on the site opens the sentences it was computed from.</p>
+  </div>
+
+  <dl class="cover-meta">
+    <div><dt>Submission</dt><dd>S3 Lab work &middot; 40 marks</dd></div>
+    <div><dt>Due</dt><dd>Friday 2 October 2026</dd></div>
+    <div><dt>Team</dt><dd>Aditya Nariyapara, Devika Jonjale, Saachi Shinde</dd></div>
+    <div><dt>Measured</dt><dd>18 September 2026, on <code>main</code></dd></div>
+    <div><dt>Live application</dt><dd><a href="https://revix-reviews.vercel.app">revix-reviews.vercel.app</a></dd></div>
+    <div><dt>Repository</dt><dd><a href="https://github.com/saaachis/revix-evidence-traceable-review-system">github.com/saaachis/revix</a></dd></div>
+  </dl>
+</article>
+
+<!-- ============================== 2. CONTENTS ============================== -->
+<article class="page" id="contents" data-run="Contents" data-page="2">
+  <div class="eyebrow"><span>Contents</span></div>
+  <h2>What is being marked, and where it is answered</h2>
+  <p class="lede">The document follows the mark scheme in order, so each section can be opened
+    against the mark it answers.</p>
+
+  <ol class="toc">
+    <li><a href="#codebase"><span class="n">1</span><span class="t">Codebase</span><span class="d">Shape, scale, and the one rule</span><span class="pg">3&ndash;4</span></a></li>
+    <li><a href="#frameworks"><span class="n">2</span><span class="t">Frameworks, with justification</span><span class="d">Choices and what we rejected</span><span class="pg">5&ndash;6</span></a></li>
+    <li><a href="#quality"><span class="n">3</span><span class="t">Code quality, measured</span><span class="d">Radon scores, and what changed</span><span class="pg">7&ndash;9</span></a></li>
+    <li><a href="#nfr"><span class="n">4</span><span class="t">Non-functional requirements</span><span class="d">All nine, audited</span><span class="pg">10&ndash;12</span></a></li>
+    <li><a href="#live"><span class="n">5</span><span class="t">Run it live</span><span class="d">Reproduce every figure</span><span class="pg">13</span></a></li>
+  </ol>
+
+  <h3>The four marks, answered in one line each</h3>
+  <dl class="answers">
+    <div>
+      <dt><span>Codebase</span><span>10</span></dt>
+      <dd><b>17,600 lines</b>Three Python packages and a Next.js app, on real data</dd>
+    </div>
+    <div>
+      <dt><span>Frameworks</span><span>10</span></dt>
+      <dd><b>9 decision records</b>Every choice written down, including what we rejected</dd>
+    </div>
+    <div>
+      <dt><span>Code quality</span><span>10</span></dt>
+      <dd><b>Grade A, all 43 files</b>Measured with Radon, enforced by Xenon in CI</dd>
+    </div>
+    <div>
+      <dt><span>NFRs achieved</span><span>10</span></dt>
+      <dd><b>9 of 9 audited</b>Six met by one decision, five gaps found and closed</dd>
+    </div>
+  </dl>
+
+  <div class="note">
+    <span class="tag">How to read the numbers</span>
+    <p>Every figure in this document was produced by running the tool named beside it. Page 13
+      gives the commands, so any number here can be checked in under a minute rather than taken
+      on trust.</p>
+  </div>
+</article>
+
+<!-- ============================== 3. CODEBASE I ============================== -->
+<article class="page" id="codebase" data-run="1 &middot; Codebase" data-page="3">
+  <div class="eyebrow"><span>Mark 1</span><span class="marks">10 marks</span></div>
+  <h2>Codebase</h2>
+  <p class="lede">A uv workspace: three Python packages and one Next.js application, running
+    unattended on reviews collected from three sources.</p>
+
+  <h3>Shape</h3>
+<pre><b>revix/</b>
+├── <b>packages/revix_core/</b>    models, settings, session      <i>1,312</i>
+├── <b>pipeline/</b>               ingest → fuse → publish        <i>6,716</i>
+├── <b>apps/api/</b>               serving layer + operations     <i>1,516</i>
+├── <b>apps/web/</b>               Next.js 16 frontend            <i>5,069</i>
+├── <b>tests/</b>                  16 modules, 308 tests          <i>2,990</i>
+├── <b>db/migrations/</b>          Alembic, reversible
+├── <b>docs/</b>                   ADRs, audits, this report
+└── <b>.github/workflows/</b>      CI, nightly, probe, keep-warm
+
+<i>58 Python files · 24 TypeScript files · ~17,600 lines</i></pre>
+
+  <h3>Running on real data, not fixtures</h3>
+  <div class="tw">
+    <table>
+      <tbody>
+        <tr><td>Evidence units collected</td><td class="num">20,263</td></tr>
+        <tr><td>Variants in the catalogue</td><td class="num">143</td></tr>
+        <tr><td>Variants with a published verdict</td><td class="num">134</td></tr>
+        <tr><td>Held back below the evidence floor</td><td class="num">9</td></tr>
+        <tr><td>Models &middot; manufacturers</td><td class="num">42 &middot; 16</td></tr>
+        <tr><td>Last full pipeline run</td><td class="num">53m 28s</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Owner reviews from CarWale and
+    BikeWale, CarDekho and BikeDekho, plus comments on YouTube review videos. Three sources because
+    three permit us: Team-BHP returns 403 to our agent and two other sites disallow us outright in
+    <code>robots.txt</code>, and we chose to respect that rather than spoof a browser.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 4. CODEBASE II ============================== -->
+<article class="page" data-run="1 &middot; Codebase" data-page="4">
+  <div class="eyebrow"><span>Mark 1 continued</span></div>
+  <h2>Structure that a build can enforce</h2>
+
+  <div class="note">
+    <span class="tag">The one rule that holds it together</span>
+    <p>Dependencies run in <strong>one direction only</strong>. The API and the pipeline both depend
+      on <code>revix_core</code>; core depends on neither, so the read path and the write path
+      cannot tangle.</p>
+    <p><strong>Enforced by import linting in CI, not by us remembering.</strong> In a single package
+      this would be a naming convention, and naming conventions lose. This is also why it is three
+      packages rather than one: the API physically cannot import the pipeline.</p>
+  </div>
+
+<pre>  revix-api ──────┐
+                  ├──&gt; <b>revix-core</b>   <i>models, settings, session</i>
+  revix-pipeline ─┘</pre>
+
+  <h3>The database mirrors the same idea</h3>
+  <p>Four Postgres schemas separated by lifecycle rather than by subject, so it is always obvious
+    which layer a table belongs to and what is allowed to write to it.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Schema</th><th>Holds</th><th>Written by</th></tr></thead>
+      <tbody>
+        <tr><td><code>raw</code></td><td>Fetched payloads, content-hashed</td><td>Ingest</td></tr>
+        <tr><td><code>core</code></td><td>Catalogue, sources, evidence units</td><td>Ingest and resolution</td></tr>
+        <tr><td><code>analysis</code></td><td>Aspect scores, evaluation runs</td><td>Enrichment and fusion</td></tr>
+        <tr><td><code>serving</code></td><td>Finished verdicts, claims, citations</td><td>Fusion; read by the API</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Schema changes are checked three ways</h3>
+  <ul class="tight">
+    <li>The migrations <strong>apply</strong> from empty.</li>
+    <li>They <strong>match the models</strong>, so editing a model without a migration is a red build.</li>
+    <li>They <strong>reverse cleanly</strong>, which is the one most projects never test.</li>
+  </ul>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 5. FRAMEWORKS I ============================== -->
+<article class="page" id="frameworks" data-run="2 &middot; Frameworks" data-page="5">
+  <div class="eyebrow"><span>Mark 2</span><span class="marks">10 marks</span></div>
+  <h2>Frameworks, with justification</h2>
+  <p class="lede">The artefact for this mark is the decision-record folder: nine ADRs, each stating
+    the decision, the alternatives considered, and the consequence we accepted.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Choice</th><th>Why this one</th><th>What we did not do</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>FastAPI</strong></td>
+          <td>Contract-first. The TypeScript client is generated from the OpenAPI schema, so the two <em>cannot</em> drift</td>
+          <td>Flask, and hand-syncing the client</td>
+        </tr>
+        <tr>
+          <td><strong>Pydantic v2</strong></td>
+          <td>Validation at the boundary, so a malformed request never reaches a query</td>
+          <td>Manual checks scattered through handlers</td>
+        </tr>
+        <tr>
+          <td><strong>SQLAlchemy 2.0</strong></td>
+          <td>Typed ORM with bound parameters everywhere, so injection has no surface</td>
+          <td>Raw SQL: quicker to write, impossible to refactor safely</td>
+        </tr>
+        <tr>
+          <td><strong>PostgreSQL</strong><br>+ pgvector + pg_trgm</td>
+          <td>One datastore covers relational, vector <em>and</em> fuzzy text. Resolution needs trigrams; deduplication needs vectors</td>
+          <td>A separate vector database, a second service to keep consistent</td>
+        </tr>
+        <tr>
+          <td><strong>Next.js 16</strong><br>App Router</td>
+          <td>Server rendering, so a verdict is a real URL that can be shared and indexed</td>
+          <td>A client-only single-page app</td>
+        </tr>
+        <tr>
+          <td><strong>Tailwind v4</strong></td>
+          <td>CSS-first theme, so the palette lives in one place. It was reworked once for contrast, and one place is why that was cheap</td>
+          <td>Ad-hoc stylesheets per component</td>
+        </tr>
+        <tr>
+          <td><strong>Typer</strong></td>
+          <td>The pipeline is a CLI, so every stage is runnable and debuggable on its own</td>
+          <td>A monolithic script</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 6. FRAMEWORKS II ============================== -->
+<article class="page" data-run="2 &middot; Frameworks" data-page="6">
+  <div class="eyebrow"><span>Mark 2 continued</span></div>
+  <h2>The two choices worth arguing about</h2>
+
+  <div class="note">
+    <span class="tag">ADR 0002 &middot; orchestration</span>
+    <p><strong>Scheduled GitHub Actions instead of Airflow or Prefect.</strong> An orchestrator is a
+      server to run, secure and pay for. Our pipeline is one nightly batch: no fan-out, no backfill,
+      no dynamic DAG. Actions already holds our secrets, already runs on a schedule, and already
+      gives us logs and alerting.</p>
+    <p>Choosing Airflow here would have been choosing a tool because it looks professional rather
+      than because the problem needs it. If we ever needed backfill or fan-out, that ADR is where
+      the decision gets revisited.</p>
+  </div>
+
+  <div class="note">
+    <span class="tag">ADR 0004 &middot; machine learning, and the honest result</span>
+    <p>We built a distant-supervision aspect classifier: lexicon labels train a TF-IDF into a
+      one-vs-rest logistic regression.</p>
+    <p><strong>It lost to the lexicon it learned from by 0.29 macro F1, so it ships disabled</strong>
+      and the number is published on our public metrics page rather than quietly dropped.</p>
+    <p>The alternative was shipping a model because we had built one, and the whole argument of this
+      project is that a number should be earned.</p>
+  </div>
+
+  <h3>The nine decision records</h3>
+  <div class="tw">
+    <table>
+      <tbody>
+        <tr><td class="num">0001</td><td>Record architecture decisions</td></tr>
+        <tr><td class="num">0002</td><td>Scheduled CI instead of Prefect</td></tr>
+        <tr><td class="num">0003</td><td>A uv workspace with three packages</td></tr>
+        <tr><td class="num">0004</td><td>A lexicon baseline before a classifier</td></tr>
+        <tr><td class="num">0005</td><td>The frontend stack, and why the switch is instant</td></tr>
+        <tr><td class="num">0006</td><td>Official APIs only, and what we checked before deciding</td></tr>
+        <tr><td class="num">0007</td><td>How the fusion experiment avoids fooling us</td></tr>
+        <tr><td class="num">0009</td><td>Two sources, not three</td></tr>
+        <tr><td class="num">0010</td><td>Basic auth for the operations surface</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 7. QUALITY I ============================== -->
+<article class="page" id="quality" data-run="3 &middot; Code quality" data-page="7">
+  <div class="eyebrow"><span>Mark 3</span><span class="marks">10 marks</span></div>
+  <h2>Code quality, measured</h2>
+  <p class="lede">Put through a review toolkit rather than described in prose.
+    <strong>Radon</strong> produces the score, <strong>Xenon</strong> enforces it,
+    <strong>Ruff</strong> and <strong>mypy</strong> cover lint and types,
+    <strong>PyTest</strong> runs the suite.</p>
+
+  <div class="scores">
+    <div class="score">
+      <div class="n">A<small> &middot; all 43 files</small></div>
+      <div class="k">Maintainability index</div>
+      <div class="d">Radon. Every file grade A, no exceptions</div>
+    </div>
+    <div class="score">
+      <div class="n">3.90</div>
+      <div class="k">Average cyclomatic complexity</div>
+      <div class="d">Grade A, across 344 blocks</div>
+    </div>
+    <div class="score">
+      <div class="n">0</div>
+      <div class="k">Blocks graded E or F</div>
+      <div class="d">Was one before this review. See page 8</div>
+    </div>
+    <div class="score">
+      <div class="n">308<small> &middot; 64%</small></div>
+      <div class="k">Tests &middot; coverage</div>
+      <div class="d">Ruff, format and mypy strict all clean</div>
+    </div>
+  </div>
+
+  <h3>Complexity distribution, 344 blocks</h3>
+  <div class="dist-bar" role="img" aria-label="Grade A 272 blocks, 79.1 percent. Grade B 44 blocks, 12.8 percent. Grade C 26 blocks, 7.6 percent. Grade D 2 blocks, 0.6 percent. No blocks at E or F.">
+    <span style="width:79.1%;background:#4a6b4f">A &middot; 272</span>
+    <span style="width:12.8%;background:#726b66">B &middot; 44</span>
+    <span style="width:7.6%;background:#b45309">C &middot; 26</span>
+    <span style="width:0.6%;background:#c41e3a;min-width:24px"></span>
+  </div>
+  <div class="dist-key">
+    <span><i style="background:#4a6b4f"></i>A &middot; 1&ndash;5 &middot; 79.1%</span>
+    <span><i style="background:#726b66"></i>B &middot; 6&ndash;10 &middot; 12.8%</span>
+    <span><i style="background:#b45309"></i>C &middot; 11&ndash;20 &middot; 7.6%</span>
+    <span><i style="background:#c41e3a"></i>D &middot; 21&ndash;30 &middot; 2 blocks</span>
+    <span>E and F &middot; <strong>none</strong></span>
+  </div>
+
+  <h3>What each tool measures</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Tool</th><th>Measures</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Radon</strong></td><td>Maintainability index, cyclomatic complexity, raw counts, Halstead</td><td><span class="chip ok">A throughout</span></td></tr>
+        <tr><td><strong>Xenon</strong></td><td>The same measurement, wired to an exit code</td><td><span class="chip ok">gate passes</span></td></tr>
+        <tr><td><strong>Ruff</strong></td><td>Lint and formatting, one tool instead of three</td><td><span class="chip ok">clean</span></td></tr>
+        <tr><td><strong>mypy</strong></td><td>Static types, strict, all three packages</td><td><span class="chip ok">clean</span></td></tr>
+        <tr><td><strong>PyTest</strong></td><td>308 tests, coverage measured in CI</td><td><span class="chip ok">64%</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 8. QUALITY II ============================== -->
+<article class="page" data-run="3 &middot; Code quality" data-page="8">
+  <div class="eyebrow"><span>Mark 3 continued</span></div>
+  <h2>The measurement changed the code</h2>
+
+  <div class="note">
+    <span class="tag">The only E grade in the codebase</span>
+    <p>One function scored <strong>E (33)</strong>, forty percent worse than the next worst block.
+      Reading it, the cause was plain: <code>_evaluate</code> drew samples from the corpus
+      <em>and</em> turned those observations into summary statistics. Neither half is complicated.
+      Doing both in one place was.</p>
+    <p>Split along that seam into five functions &mdash; <code>_draw</code>,
+      <code>_score_one_draw</code>, <code>_rank_correlation</code>, <code>_calibration</code> and
+      <code>_summarise</code> &mdash; with a small value object carrying observations between the
+      two halves. The thirteen tests covering it passed unchanged throughout, which is the only
+      reason a refactor there was safe to make.</p>
+  </div>
+
+  <div class="two">
+    <div>
+      <h3>Before and after</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th></th><th>Before</th><th>After</th></tr></thead>
+          <tbody>
+            <tr><td>Worst block</td><td class="num"><span class="chip stop">E (33)</span></td><td class="num"><span class="chip warn">D (24)</span></td></tr>
+            <tr><td>Blocks at E or worse</td><td class="num">1</td><td class="num"><strong>0</strong></td></tr>
+            <tr><td>Average complexity</td><td class="num">3.944</td><td class="num"><strong>3.895</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h3>Method, not luck</h3>
+      <p style="font-size:12.5px">Measure, find the worst thing, understand <em>why</em> it is the
+        worst thing, fix the one that is safe to fix, and document the ones that are not.</p>
+    </div>
+  </div>
+
+  <h3>The two blocks still at D, deliberately</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Block</th><th>Why the complexity is the domain's, not a style accident</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>fuse_variant</code><br><span class="chip warn">D (24)</span></td>
+          <td>The scoring engine: weighting, bootstrap interval, evidence floor, suppression,
+            citations. Splitting it into five functions that only ever run in sequence would move
+            the complexity into the call graph rather than remove it. It is the most heavily tested
+            function in the project.</td>
+        </tr>
+        <tr>
+          <td><code>run_connector</code><br><span class="chip warn">D (21)</span></td>
+          <td>The ingest loop, holding three failure modes open at once so that one source failing
+            never stops the others. <strong>That branching is the resilience
+            requirement.</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Both sit on the critical write
+    path, and a refactor that changes a verdict is worse than a D grade. A threshold should be set
+    where the code is and then defended, not chased.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 9. QUALITY III ============================== -->
+<article class="page" data-run="3 &middot; Code quality" data-page="9">
+  <div class="eyebrow"><span>Mark 3 continued</span></div>
+  <h2>Enforcing the score, and the tool we left out</h2>
+
+  <div class="note">
+    <span class="tag">Reporting is not enforcing</span>
+    <p>Radon will happily tell you a function scores E and then let you merge it. That is a report,
+      not a control. So Xenon runs on every pull request and <strong>fails the build</strong> on any
+      regression:</p>
+    <pre style="margin:10px 0 0">xenon --max-absolute D --max-modules B --max-average A</pre>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Threshold</th><th>Set to</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Any single block</td><td class="num">D</td><td>Where the code actually is. Nothing may get worse than the two functions on page 8</td></tr>
+        <tr><td>Any single module</td><td class="num">B</td><td>A module may contain a hard function; it may not become a hard module</td></tr>
+        <tr><td>The whole codebase</td><td class="num">A</td><td>The average must stay in the simplest band</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px">The grades in this document <strong>cannot silently decay</strong>,
+    because the next pull request that makes them worse does not merge. That is the difference
+    between a measurement and a property.</p>
+
+  <h3>Mutation testing, and why we did not use it</h3>
+  <p>Mutmut changes your code on purpose and asks whether any test notices, which measures
+    something no other tool here does. <strong>It has no native Windows support</strong> &mdash; it
+    prints <em>"To run mutmut on Windows, please use the WSL"</em>, and all three of us develop on
+    Windows. A quality tool only one environment can run is one that stops being run.</p>
+
+  <h3>What we answer instead: what the tests actually caught</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Defect</th><th>Why it mattered</th></tr></thead>
+      <tbody>
+        <tr><td>Macro-F1 averaged over zero-support aspects</td><td>A perfect system scored 0.22. <strong>Our evaluation was flattering us</strong></td></tr>
+        <tr><td>A connector recorded our own search term as the source's answer</td><td>We would have been <strong>citing ourselves as evidence</strong></td></tr>
+        <tr><td>An unordered <code>LIMIT</code> in fusion</td><td>Ingest and fusion silently disagreed about which variant they meant</td></tr>
+        <tr><td>Security headers added inside the rate limiter</td><td>A 429, the response most likely to reach a hostile client, went out bare</td></tr>
+        <tr><td>A migration emitting <code>NOT NULL</code> with no default</td><td>Would have failed against 129 existing production rows</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Coverage is deliberately not
+    gated: a threshold is trivially met by tests that execute code without asserting anything about
+    it, and we would rather the number stayed honest than high.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 10. NFR I ============================== -->
+<article class="page" id="nfr" data-run="4 &middot; NFRs" data-page="10">
+  <div class="eyebrow"><span>Mark 4</span><span class="marks">10 marks</span></div>
+  <h2>Non-functional requirements</h2>
+  <p class="lede">All nine categories audited against the actual code rather than against what the
+    proposal claimed. <strong>Six were already satisfied by a single architectural decision</strong>,
+    and that decision is worth explaining before the list.</p>
+
+  <h3>The write path and the read path are strictly separated</h3>
+  <svg viewBox="0 0 668 236" width="100%" role="img" aria-label="Diagram. The write path runs nightly with nobody waiting: ingest, extract, resolve, fuse and score, ending in the serving schema as finished rows. The read path runs per request with somebody waiting: browser to API to one indexed read. No model runs on the read path.">
+    <rect x="1" y="1" width="666" height="234" rx="8" fill="var(--paper-2)" stroke="var(--line)"></rect>
+
+    <text x="22" y="28" fill="var(--faint)" font-family="IBM Plex Mono, monospace" font-size="9.5" letter-spacing="1.3">WRITE PATH &#183; NIGHTLY &#183; NOBODY WAITING</text>
+    <g font-family="IBM Plex Sans, sans-serif" font-size="11">
+      <rect x="22" y="40" width="88" height="34" rx="6" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="66" y="61" fill="var(--ink-2)" text-anchor="middle">Ingest</text>
+      <rect x="124" y="40" width="88" height="34" rx="6" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="168" y="61" fill="var(--ink-2)" text-anchor="middle">Extract</text>
+      <rect x="226" y="40" width="88" height="34" rx="6" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="270" y="61" fill="var(--ink-2)" text-anchor="middle">Resolve</text>
+      <rect x="328" y="40" width="98" height="34" rx="6" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="377" y="61" fill="var(--ink-2)" text-anchor="middle">Fuse &amp; score</text>
+      <rect x="452" y="40" width="194" height="34" rx="6" fill="var(--brand-soft)" stroke="var(--brand-line)"></rect>
+      <text x="549" y="61" fill="var(--brand)" text-anchor="middle" font-weight="600">serving schema</text>
+    </g>
+    <path d="M110 57 L122 57 M212 57 L224 57 M314 57 L326 57 M426 57 L450 57" stroke="var(--line)" stroke-width="1.4" fill="none"></path>
+    <text x="549" y="90" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif" font-size="10" text-anchor="middle">finished rows, computed overnight</text>
+
+    <line x1="22" y1="112" x2="646" y2="112" stroke="var(--line)" stroke-dasharray="3 4"></line>
+
+    <text x="22" y="138" fill="var(--faint)" font-family="IBM Plex Mono, monospace" font-size="9.5" letter-spacing="1.3">READ PATH &#183; PER REQUEST &#183; SOMEBODY WAITING</text>
+    <g font-family="IBM Plex Sans, sans-serif" font-size="11">
+      <rect x="22" y="150" width="104" height="34" rx="6" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="74" y="171" fill="var(--ink-2)" text-anchor="middle">Browser</text>
+      <rect x="152" y="150" width="104" height="34" rx="6" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="204" y="171" fill="var(--ink-2)" text-anchor="middle">API</text>
+      <rect x="282" y="150" width="160" height="34" rx="6" fill="var(--brand-soft)" stroke="var(--brand-line)"></rect>
+      <text x="362" y="171" fill="var(--brand)" text-anchor="middle" font-weight="600">one indexed read</text>
+    </g>
+    <path d="M126 167 L150 167 M256 167 L280 167" stroke="var(--line)" stroke-width="1.4" fill="none"></path>
+    <text x="462" y="165" fill="var(--ink)" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600">No model runs here.</text>
+    <text x="462" y="180" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif" font-size="10">Nothing to be slow, nothing remote to fail.</text>
+
+    <text x="22" y="216" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif" font-size="10.5">Every endpoint is a single indexed read of a row the pipeline already computed.</text>
+  </svg>
+
+  <p style="margin-top:12px">That one decision delivers four requirements at once.
+    <strong>Performance</strong>, because nothing on the read path grows with the corpus, since the
+    corpus is not on the read path. <strong>Scalability</strong>, because going from twenty thousand
+    review units to a hundred thousand changes how long the night takes and changes nothing about a
+    request. <strong>Reliability</strong>, because a page cannot fail when a third-party model is
+    down. And <strong>availability</strong>, because a demo depends on nothing remote.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 11. NFR II ============================== -->
+<article class="page" data-run="4 &middot; NFRs" data-page="11">
+  <div class="eyebrow"><span>Mark 4 continued</span></div>
+  <h2>All nine, and where each is met</h2>
+
+  <div class="nfr">
+    <div><h4>1 &middot; Performance <span class="chip ok">met</span></h4><p>22&ndash;35 ms warm, 96&ndash;247 ms from India against a 300 ms target. Gzip 9.3&times;, cache directives, and <code>X-Response-Time-ms</code> on every response so the claim is checkable from outside</p></div>
+    <div><h4>2 &middot; Scalability <span class="chip ok">met</span></h4><p>Pagination capped at 200, bounded connection pool, the expensive work batched overnight where nobody is waiting</p></div>
+    <div><h4>3 &middot; Portability <span class="chip ok">met</span></h4><p>Docker image 364 MB running as a non-root user, uv lockfile, configuration only through environment variables. Developed on Windows, built and tested on Linux</p></div>
+    <div><h4>4 &middot; Usability <span class="chip ok">audited</span></h4><p>WCAG 2.1 AA clean on <strong>all ten pages</strong>, axe-core enforced in CI. The palette was reworked once because contrast failed, and the audit is what caught it</p></div>
+    <div><h4>5 &middot; Compatibility <span class="chip ok">met</span></h4><p>The TypeScript client is generated from the live schema, so the frontend cannot drift from the API. Responsive layout, standards only</p></div>
+    <div><h4>6 &middot; Security <span class="chip ok">met</span></h4><p>CSP and HSTS, CORS allow-list, rate limiting, no raw SQL, no secrets in a public repo, read-only public API and an authenticated operations surface</p></div>
+    <div><h4>7 &middot; Reliability <span class="chip ok">met</span></h4><p>Sources degrade independently behind a circuit breaker, every database wait is bounded, and no traceback ever reaches a caller</p></div>
+    <div><h4>8 &middot; Maintainability <span class="chip ok">met</span></h4><p>Strict types, 308 tests, nine decision records, a generated client, and configuration in one place</p></div>
+    <div><h4>9 &middot; Availability <span class="chip warn">stated honestly</span></h4><p>A 503 health contract and a keep-warm schedule. One free-tier instance is <em>resilient to its dependencies failing</em>, not <em>highly available</em></p></div>
+    <div style="background:var(--paper-2)"><h4>What the audit changed</h4><p>Five real gaps found and closed: no security headers anywhere, unbounded database waits, no rate limiting, no compression or caching, and no request identity</p></div>
+  </div>
+
+  <div class="note">
+    <span class="tag">Measured, not asserted</span>
+    <p>Accessibility 0 violations across ten pages &middot; catalogue payload 55.3 kB down to 5.9 kB
+      gzipped &middot; API image 364 MB, non-root &middot; thirteen tests in
+      <code>test_nfr.py</code> assert the headers, the limiter, the error shape and the compression,
+      because these are exactly the things that work the day they are added and quietly stop working
+      six commits later.</p>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 12. NFR III ============================== -->
+<article class="page" data-run="4 &middot; NFRs" data-page="12">
+  <div class="eyebrow"><span>Mark 4 continued</span></div>
+  <h2>The finding worth leading with</h2>
+
+  <div class="note">
+    <span class="tag">A requirement we had written, tested, and still not met</span>
+    <p>Our <code>/health</code> endpoint is deliberately built to report an unreachable database
+      as a <strong>503</strong> rather than a 500 with a stack trace. It was written that way on
+      purpose. There is a test for it.</p>
+    <p><strong>It could not actually do it.</strong> There was no connect timeout, so the driver sat
+      on the operating system's TCP timeout while the hosting platform's health probe gave up first.
+      A correct 503 became no answer at all &mdash; and a hang is worse than an error, because
+      nothing downstream can react to it.</p>
+    <p>What led us there was our own test run hanging for four hundred seconds against a machine
+      with no database. Every wait is now bounded. The lesson is the difference between
+      <em>writing</em> a non-functional requirement and <em>verifying</em> one: we had the code, the
+      intent and the test, and the requirement was still not met.</p>
+  </div>
+
+  <h3>Two limits we state rather than hide</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Limit</th><th>Why it is the right call at this size</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>The rate limiter is per instance and in memory</strong></td>
+          <td>It bounds what one instance absorbs rather than enforcing a global quota, which
+            fits the actual risk: one scraper exhausting a connection pool, not a distributed
+            attack. A global quota needs Redis, and adding a network dependency to the read path to
+            protect the read path is a bad trade here.</td>
+        </tr>
+        <tr>
+          <td><strong>A single free-tier instance is resilient, not highly available</strong></td>
+          <td>There is no redundancy and no failover; buying that means two instances and a load
+            balancer. Our mitigations target the failure that actually threatens a demo, a cold
+            start or a sleeping database, rather than the one that does not.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:12.5px;color:var(--muted)">Both are the first things that
+    would need replacing if Revix grew. Stating a limit before being asked reads as engineering
+    judgement; being caught at it does not.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 13. LIVE ============================== -->
+<article class="page" id="live" data-run="5 &middot; Run it live" data-page="13">
+  <div class="eyebrow"><span>In the session</span></div>
+  <h2>Run it live</h2>
+  <p class="lede">Every figure in this document is reproducible in under a minute. A number produced
+    in front of you is worth more than a number in a document.</p>
+
+  <h3>The score</h3>
+<pre><i># maintainability index, per file</i>
+uv run radon mi packages/revix_core/src pipeline/src apps/api/src -s
+
+<i># cyclomatic complexity: the average, plus anything above B</i>
+uv run radon cc packages/revix_core/src pipeline/src apps/api/src -a -s -nC
+
+<i># raw counts</i>
+uv run radon raw packages/revix_core/src pipeline/src apps/api/src -s</pre>
+
+  <h3>The gate CI runs</h3>
+<pre>uv run xenon --max-absolute D --max-modules B --max-average A \
+  packages/revix_core/src pipeline/src apps/api/src</pre>
+
+  <h3>The rest of the quality gate</h3>
+<pre>uv run ruff check . &amp;&amp; uv run ruff format --check .
+uv run mypy packages/revix_core/src pipeline/src apps/api/src
+uv run pytest --cov --cov-report=term
+cd apps/web &amp;&amp; npm run a11y</pre>
+
+  <h3>Live surfaces</h3>
+  <div class="runbar">
+    <a href="https://revix-reviews.vercel.app">Live site</a>
+    <a href="https://revix-api-tcyq.onrender.com/health">API health</a>
+    <a href="https://revix-api-tcyq.onrender.com/sources/health">Source health</a>
+    <a href="https://revix-api-tcyq.onrender.com/docs">OpenAPI</a>
+    <a href="https://github.com/saaachis/revix-evidence-traceable-review-system">Repository</a>
+  </div>
+
+  <div class="note" style="margin-top:20px">
+    <span class="tag">Supporting documents</span>
+    <p><code>docs/s3-lab-work/03-code-review-report.md</code> &mdash; the full toolkit report<br>
+      <code>docs/non-functional-requirements.md</code> &mdash; all nine categories in detail<br>
+      <code>docs/adr/</code> &mdash; the nine architecture decision records</p>
+  </div>
+
+  <div class="spacer"></div>
+  <p style="font-size:11.5px;color:var(--faint);margin:0">Revix &middot; S3 Lab Work &middot;
+    measured 18 September 2026 on <code>main</code>. Figures grow with every pipeline run; the
+    commands above reproduce all of them.</p>
+</article>
+
+</html>
