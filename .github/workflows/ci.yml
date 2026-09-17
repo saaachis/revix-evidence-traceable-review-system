@@ -183,9 +183,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Cache deliberately off in this job, unlike the Python one. The action
+      # prunes its cache in a post-job step, and here that step has twice hung
+      # for its full five-minute timeout and then failed the build with exit 2,
+      # after every real check had already passed. This job only needs uv to
+      # print the OpenAPI schema, which is seconds of work, so the cache was
+      # never buying enough to be worth a flaky red build.
       - uses: astral-sh/setup-uv@v5
         with:
-          enable-cache: true
+          enable-cache: false
 
       - uses: actions/setup-node@v4
         with:
