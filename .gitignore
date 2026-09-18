@@ -20,7 +20,14 @@ env/
 .coverage
 htmlcov/
 dist/
-build/
+
+# build/ is deliberately NOT ignored. build/reports/ holds the reports the
+# quality tools generate, coverage.py and mypy both write browsable HTML, and
+# those are published to Pages so they can be opened in a review rather than
+# taken on trust. Regenerate them with the commands in
+# docs/s3-lab-work/work/03-code-review-report.md.
+build/*
+!build/reports/
 
 # ---------- node / next.js ----------
 node_modules/

@@ -1,0 +1,343 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../mypy-html.css">
+</head>
+<body>
+<h2>revix_core.models.analysis</h2>
+<table>
+<caption>packages\revix_core\src\revix_core\models\analysis.py</caption>
+<tbody><tr>
+<td class="table-lines"><pre><span id="L1" class="lineno"><a class="lineno" href="#L1">1</a></span>
+<span id="L2" class="lineno"><a class="lineno" href="#L2">2</a></span>
+<span id="L3" class="lineno"><a class="lineno" href="#L3">3</a></span>
+<span id="L4" class="lineno"><a class="lineno" href="#L4">4</a></span>
+<span id="L5" class="lineno"><a class="lineno" href="#L5">5</a></span>
+<span id="L6" class="lineno"><a class="lineno" href="#L6">6</a></span>
+<span id="L7" class="lineno"><a class="lineno" href="#L7">7</a></span>
+<span id="L8" class="lineno"><a class="lineno" href="#L8">8</a></span>
+<span id="L9" class="lineno"><a class="lineno" href="#L9">9</a></span>
+<span id="L10" class="lineno"><a class="lineno" href="#L10">10</a></span>
+<span id="L11" class="lineno"><a class="lineno" href="#L11">11</a></span>
+<span id="L12" class="lineno"><a class="lineno" href="#L12">12</a></span>
+<span id="L13" class="lineno"><a class="lineno" href="#L13">13</a></span>
+<span id="L14" class="lineno"><a class="lineno" href="#L14">14</a></span>
+<span id="L15" class="lineno"><a class="lineno" href="#L15">15</a></span>
+<span id="L16" class="lineno"><a class="lineno" href="#L16">16</a></span>
+<span id="L17" class="lineno"><a class="lineno" href="#L17">17</a></span>
+<span id="L18" class="lineno"><a class="lineno" href="#L18">18</a></span>
+<span id="L19" class="lineno"><a class="lineno" href="#L19">19</a></span>
+<span id="L20" class="lineno"><a class="lineno" href="#L20">20</a></span>
+<span id="L21" class="lineno"><a class="lineno" href="#L21">21</a></span>
+<span id="L22" class="lineno"><a class="lineno" href="#L22">22</a></span>
+<span id="L23" class="lineno"><a class="lineno" href="#L23">23</a></span>
+<span id="L24" class="lineno"><a class="lineno" href="#L24">24</a></span>
+<span id="L25" class="lineno"><a class="lineno" href="#L25">25</a></span>
+<span id="L26" class="lineno"><a class="lineno" href="#L26">26</a></span>
+<span id="L27" class="lineno"><a class="lineno" href="#L27">27</a></span>
+<span id="L28" class="lineno"><a class="lineno" href="#L28">28</a></span>
+<span id="L29" class="lineno"><a class="lineno" href="#L29">29</a></span>
+<span id="L30" class="lineno"><a class="lineno" href="#L30">30</a></span>
+<span id="L31" class="lineno"><a class="lineno" href="#L31">31</a></span>
+<span id="L32" class="lineno"><a class="lineno" href="#L32">32</a></span>
+<span id="L33" class="lineno"><a class="lineno" href="#L33">33</a></span>
+<span id="L34" class="lineno"><a class="lineno" href="#L34">34</a></span>
+<span id="L35" class="lineno"><a class="lineno" href="#L35">35</a></span>
+<span id="L36" class="lineno"><a class="lineno" href="#L36">36</a></span>
+<span id="L37" class="lineno"><a class="lineno" href="#L37">37</a></span>
+<span id="L38" class="lineno"><a class="lineno" href="#L38">38</a></span>
+<span id="L39" class="lineno"><a class="lineno" href="#L39">39</a></span>
+<span id="L40" class="lineno"><a class="lineno" href="#L40">40</a></span>
+<span id="L41" class="lineno"><a class="lineno" href="#L41">41</a></span>
+<span id="L42" class="lineno"><a class="lineno" href="#L42">42</a></span>
+<span id="L43" class="lineno"><a class="lineno" href="#L43">43</a></span>
+<span id="L44" class="lineno"><a class="lineno" href="#L44">44</a></span>
+<span id="L45" class="lineno"><a class="lineno" href="#L45">45</a></span>
+<span id="L46" class="lineno"><a class="lineno" href="#L46">46</a></span>
+<span id="L47" class="lineno"><a class="lineno" href="#L47">47</a></span>
+<span id="L48" class="lineno"><a class="lineno" href="#L48">48</a></span>
+<span id="L49" class="lineno"><a class="lineno" href="#L49">49</a></span>
+<span id="L50" class="lineno"><a class="lineno" href="#L50">50</a></span>
+<span id="L51" class="lineno"><a class="lineno" href="#L51">51</a></span>
+<span id="L52" class="lineno"><a class="lineno" href="#L52">52</a></span>
+<span id="L53" class="lineno"><a class="lineno" href="#L53">53</a></span>
+<span id="L54" class="lineno"><a class="lineno" href="#L54">54</a></span>
+<span id="L55" class="lineno"><a class="lineno" href="#L55">55</a></span>
+<span id="L56" class="lineno"><a class="lineno" href="#L56">56</a></span>
+<span id="L57" class="lineno"><a class="lineno" href="#L57">57</a></span>
+<span id="L58" class="lineno"><a class="lineno" href="#L58">58</a></span>
+<span id="L59" class="lineno"><a class="lineno" href="#L59">59</a></span>
+<span id="L60" class="lineno"><a class="lineno" href="#L60">60</a></span>
+<span id="L61" class="lineno"><a class="lineno" href="#L61">61</a></span>
+<span id="L62" class="lineno"><a class="lineno" href="#L62">62</a></span>
+<span id="L63" class="lineno"><a class="lineno" href="#L63">63</a></span>
+<span id="L64" class="lineno"><a class="lineno" href="#L64">64</a></span>
+<span id="L65" class="lineno"><a class="lineno" href="#L65">65</a></span>
+<span id="L66" class="lineno"><a class="lineno" href="#L66">66</a></span>
+<span id="L67" class="lineno"><a class="lineno" href="#L67">67</a></span>
+<span id="L68" class="lineno"><a class="lineno" href="#L68">68</a></span>
+<span id="L69" class="lineno"><a class="lineno" href="#L69">69</a></span>
+<span id="L70" class="lineno"><a class="lineno" href="#L70">70</a></span>
+<span id="L71" class="lineno"><a class="lineno" href="#L71">71</a></span>
+<span id="L72" class="lineno"><a class="lineno" href="#L72">72</a></span>
+<span id="L73" class="lineno"><a class="lineno" href="#L73">73</a></span>
+<span id="L74" class="lineno"><a class="lineno" href="#L74">74</a></span>
+<span id="L75" class="lineno"><a class="lineno" href="#L75">75</a></span>
+<span id="L76" class="lineno"><a class="lineno" href="#L76">76</a></span>
+<span id="L77" class="lineno"><a class="lineno" href="#L77">77</a></span>
+<span id="L78" class="lineno"><a class="lineno" href="#L78">78</a></span>
+<span id="L79" class="lineno"><a class="lineno" href="#L79">79</a></span>
+<span id="L80" class="lineno"><a class="lineno" href="#L80">80</a></span>
+<span id="L81" class="lineno"><a class="lineno" href="#L81">81</a></span>
+<span id="L82" class="lineno"><a class="lineno" href="#L82">82</a></span>
+<span id="L83" class="lineno"><a class="lineno" href="#L83">83</a></span>
+<span id="L84" class="lineno"><a class="lineno" href="#L84">84</a></span>
+<span id="L85" class="lineno"><a class="lineno" href="#L85">85</a></span>
+<span id="L86" class="lineno"><a class="lineno" href="#L86">86</a></span>
+<span id="L87" class="lineno"><a class="lineno" href="#L87">87</a></span>
+<span id="L88" class="lineno"><a class="lineno" href="#L88">88</a></span>
+<span id="L89" class="lineno"><a class="lineno" href="#L89">89</a></span>
+<span id="L90" class="lineno"><a class="lineno" href="#L90">90</a></span>
+<span id="L91" class="lineno"><a class="lineno" href="#L91">91</a></span>
+<span id="L92" class="lineno"><a class="lineno" href="#L92">92</a></span>
+<span id="L93" class="lineno"><a class="lineno" href="#L93">93</a></span>
+<span id="L94" class="lineno"><a class="lineno" href="#L94">94</a></span>
+<span id="L95" class="lineno"><a class="lineno" href="#L95">95</a></span>
+<span id="L96" class="lineno"><a class="lineno" href="#L96">96</a></span>
+<span id="L97" class="lineno"><a class="lineno" href="#L97">97</a></span>
+<span id="L98" class="lineno"><a class="lineno" href="#L98">98</a></span>
+<span id="L99" class="lineno"><a class="lineno" href="#L99">99</a></span>
+<span id="L100" class="lineno"><a class="lineno" href="#L100">100</a></span>
+<span id="L101" class="lineno"><a class="lineno" href="#L101">101</a></span>
+<span id="L102" class="lineno"><a class="lineno" href="#L102">102</a></span>
+<span id="L103" class="lineno"><a class="lineno" href="#L103">103</a></span>
+<span id="L104" class="lineno"><a class="lineno" href="#L104">104</a></span>
+<span id="L105" class="lineno"><a class="lineno" href="#L105">105</a></span>
+<span id="L106" class="lineno"><a class="lineno" href="#L106">106</a></span>
+<span id="L107" class="lineno"><a class="lineno" href="#L107">107</a></span>
+<span id="L108" class="lineno"><a class="lineno" href="#L108">108</a></span>
+<span id="L109" class="lineno"><a class="lineno" href="#L109">109</a></span>
+<span id="L110" class="lineno"><a class="lineno" href="#L110">110</a></span>
+<span id="L111" class="lineno"><a class="lineno" href="#L111">111</a></span>
+<span id="L112" class="lineno"><a class="lineno" href="#L112">112</a></span>
+<span id="L113" class="lineno"><a class="lineno" href="#L113">113</a></span>
+<span id="L114" class="lineno"><a class="lineno" href="#L114">114</a></span>
+<span id="L115" class="lineno"><a class="lineno" href="#L115">115</a></span>
+<span id="L116" class="lineno"><a class="lineno" href="#L116">116</a></span>
+<span id="L117" class="lineno"><a class="lineno" href="#L117">117</a></span>
+<span id="L118" class="lineno"><a class="lineno" href="#L118">118</a></span>
+<span id="L119" class="lineno"><a class="lineno" href="#L119">119</a></span>
+<span id="L120" class="lineno"><a class="lineno" href="#L120">120</a></span>
+<span id="L121" class="lineno"><a class="lineno" href="#L121">121</a></span>
+<span id="L122" class="lineno"><a class="lineno" href="#L122">122</a></span>
+<span id="L123" class="lineno"><a class="lineno" href="#L123">123</a></span>
+<span id="L124" class="lineno"><a class="lineno" href="#L124">124</a></span>
+<span id="L125" class="lineno"><a class="lineno" href="#L125">125</a></span>
+<span id="L126" class="lineno"><a class="lineno" href="#L126">126</a></span>
+<span id="L127" class="lineno"><a class="lineno" href="#L127">127</a></span>
+<span id="L128" class="lineno"><a class="lineno" href="#L128">128</a></span>
+<span id="L129" class="lineno"><a class="lineno" href="#L129">129</a></span>
+<span id="L130" class="lineno"><a class="lineno" href="#L130">130</a></span>
+<span id="L131" class="lineno"><a class="lineno" href="#L131">131</a></span>
+<span id="L132" class="lineno"><a class="lineno" href="#L132">132</a></span>
+<span id="L133" class="lineno"><a class="lineno" href="#L133">133</a></span>
+<span id="L134" class="lineno"><a class="lineno" href="#L134">134</a></span>
+<span id="L135" class="lineno"><a class="lineno" href="#L135">135</a></span>
+<span id="L136" class="lineno"><a class="lineno" href="#L136">136</a></span>
+<span id="L137" class="lineno"><a class="lineno" href="#L137">137</a></span>
+<span id="L138" class="lineno"><a class="lineno" href="#L138">138</a></span>
+<span id="L139" class="lineno"><a class="lineno" href="#L139">139</a></span>
+<span id="L140" class="lineno"><a class="lineno" href="#L140">140</a></span>
+<span id="L141" class="lineno"><a class="lineno" href="#L141">141</a></span>
+<span id="L142" class="lineno"><a class="lineno" href="#L142">142</a></span>
+<span id="L143" class="lineno"><a class="lineno" href="#L143">143</a></span>
+<span id="L144" class="lineno"><a class="lineno" href="#L144">144</a></span>
+</pre></td>
+<td class="table-code"><pre><span class="line-empty" title="No Anys on this line!">"""Derived opinion, embeddings and weighting configurations.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">Everything in this schema is recomputable from raw and core. If it were</span>
+<span class="line-empty" title="No Anys on this line!">dropped entirely, one full enrichment pass would rebuild it.</span>
+<span class="line-empty" title="No Anys on this line!">"""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from __future__ import annotations</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">import uuid</span>
+<span class="line-precise" title="No Anys on this line!">from datetime import datetime</span>
+<span class="line-precise" title="No Anys on this line!">from typing import Any</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from pgvector.sqlalchemy import Vector</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy import (</span>
+<span class="line-empty" title="No Anys on this line!">    CheckConstraint,</span>
+<span class="line-empty" title="No Anys on this line!">    Enum,</span>
+<span class="line-empty" title="No Anys on this line!">    ForeignKey,</span>
+<span class="line-empty" title="No Anys on this line!">    Index,</span>
+<span class="line-empty" title="No Anys on this line!">    Integer,</span>
+<span class="line-empty" title="No Anys on this line!">    Numeric,</span>
+<span class="line-empty" title="No Anys on this line!">    String,</span>
+<span class="line-empty" title="No Anys on this line!">    Text,</span>
+<span class="line-empty" title="No Anys on this line!">    UniqueConstraint,</span>
+<span class="line-empty" title="No Anys on this line!">)</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy.dialects.postgresql import JSONB</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy.orm import Mapped, mapped_column</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.enums import AspectKey</span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.models.base import SCHEMA_ANALYSIS, SCHEMA_CORE, Base, TimestampMixin, uuid_pk</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">#: paraphrase-multilingual-MiniLM-L12-v2. Multilingual rather than English</span>
+<span class="line-empty" title="No Anys on this line!">#: only, because Indian owner reviews are heavily code-mixed.</span>
+<span class="line-precise" title="No Anys on this line!">EMBEDDING_DIM = 384</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class EvidenceChunk(Base):</span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "evidence_chunk"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        UniqueConstraint("evidence_unit_id", "chunk_index"),</span>
+<span class="line-empty" title="No Anys on this line!">        # Approximate nearest neighbour. Built after the first bulk load, since</span>
+<span class="line-empty" title="No Anys on this line!">        # ivfflat wants data present before it can choose sensible lists.</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x1)">        Index(</span>
+<span class="line-precise" title="No Anys on this line!">            "ix_evidence_chunk_embedding",</span>
+<span class="line-precise" title="No Anys on this line!">            "embedding",</span>
+<span class="line-precise" title="No Anys on this line!">            postgresql_using="ivfflat",</span>
+<span class="line-precise" title="No Anys on this line!">            postgresql_with={"lists": 100},</span>
+<span class="line-precise" title="No Anys on this line!">            postgresql_ops={"embedding": "vector_cosine_ops"},</span>
+<span class="line-empty" title="No Anys on this line!">        ),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_ANALYSIS},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    evidence_unit_id: Mapped[uuid.UUID] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        ForeignKey(f"{SCHEMA_CORE}.evidence_unit.id", ondelete="CASCADE"), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    text: Mapped[str] = mapped_column(Text, nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x15)">    embedding: Mapped[Any] = mapped_column(Vector(EMBEDDING_DIM))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class AspectOpinion(Base):</span>
+<span class="line-empty" title="No Anys on this line!">    """One opinion, about one topic, extracted from one piece of evidence."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "aspect_opinion"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x5)">        CheckConstraint("polarity &gt;= -1 AND polarity &lt;= 1", name="polarity_range"),</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x5)">        CheckConstraint("confidence &gt;= 0 AND confidence &lt;= 1", name="confidence_range"),</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        Index("ix_aspect_opinion_unit_aspect", "evidence_unit_id", "aspect_key"),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_ANALYSIS},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    evidence_unit_id: Mapped[uuid.UUID] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        ForeignKey(f"{SCHEMA_CORE}.evidence_unit.id", ondelete="CASCADE"), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    chunk_id: Mapped[uuid.UUID | None] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        ForeignKey(f"{SCHEMA_ANALYSIS}.evidence_chunk.id", ondelete="SET NULL")</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    aspect_key: Mapped[AspectKey] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x2)">        Enum(AspectKey, name="aspect_key", schema=SCHEMA_CORE, create_type=False), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    polarity: Mapped[float] = mapped_column(Numeric(4, 3), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    confidence: Mapped[float] = mapped_column(Numeric(4, 3), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    extracted_span: Mapped[str | None] = mapped_column(Text)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class EvalRun(Base, TimestampMixin):</span>
+<span class="line-empty" title="No Anys on this line!">    """One measurement of one component, kept so it can be plotted over time.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    Proposal section 18.4 asks for every metric to be written here and</span>
+<span class="line-empty" title="No Anys on this line!">    rendered publicly, including trend. A score that exists only in the log of</span>
+<span class="line-empty" title="No Anys on this line!">    the run that produced it cannot be compared with last week's, and</span>
+<span class="line-empty" title="No Anys on this line!">    "accuracy improved" is a claim rather than a fact until it can be.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "eval_run"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        Index("ix_eval_run_component_time", "component", "created_at"),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_ANALYSIS},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-empty" title="No Anys on this line!">    #: "aspect_extraction", "entity_resolution", "fusion", and so on.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    component: Mapped[str] = mapped_column(String(40), nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!">    #: Which system produced it: "lexicon", "classifier", a fusion strategy.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    system: Mapped[str] = mapped_column(String(40), nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!">    #: The commit, so a number on the metrics page can be traced to the code</span>
+<span class="line-empty" title="No Anys on this line!">    #: that produced it rather than to a date.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    git_sha: Mapped[str | None] = mapped_column(String(40))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    n_items: Mapped[int] = mapped_column(Integer, default=0, nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!">    #: The headline figure, whatever that means for this component.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    primary_metric: Mapped[str] = mapped_column(String(40), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    primary_value: Mapped[float] = mapped_column(Numeric(6, 4), nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!">    #: Everything else, including the per-aspect breakdown. JSONB because the</span>
+<span class="line-empty" title="No Anys on this line!">    #: shape genuinely differs per component and inventing a common one would</span>
+<span class="line-empty" title="No Anys on this line!">    #: be a schema fighting its own data.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x15)">    detail: Mapped[dict[str, Any] | None] = mapped_column(JSONB)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class FusionConfig(Base):</span>
+<span class="line-empty" title="No Anys on this line!">    """A named, versioned, hashable set of weighting parameters.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    Verdicts are keyed by this, which is the only reason the weighting switch</span>
+<span class="line-empty" title="No Anys on this line!">    in the interface is affordable: changing it is a lookup by</span>
+<span class="line-empty" title="No Anys on this line!">    (variant_id, fusion_config_id), never a recomputation.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "fusion_config"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        UniqueConstraint("config_hash"),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_ANALYSIS},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    name: Mapped[str] = mapped_column(String(60), nullable=False, unique=True)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    label: Mapped[str] = mapped_column(String(120), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    description: Mapped[str | None] = mapped_column(Text)</span>
+<span class="line-empty" title="No Anys on this line!">    # sha256 of the canonical JSON of params. Two configs with identical</span>
+<span class="line-empty" title="No Anys on this line!">    # parameters cannot both exist, which stops silent duplicates.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    config_hash: Mapped[str] = mapped_column(String(64), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x15)">    params: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    is_default: Mapped[bool] = mapped_column(default=False, nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    created_at: Mapped[datetime | None] = mapped_column()</span>
+</pre></td>
+</tr></tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../mypy-html.css">
+</head>
+<body>
+<h2>revix_core.db</h2>
+<table>
+<caption>packages\revix_core\src\revix_core\db.py</caption>
+<tbody><tr>
+<td class="table-lines"><pre><span id="L1" class="lineno"><a class="lineno" href="#L1">1</a></span>
+<span id="L2" class="lineno"><a class="lineno" href="#L2">2</a></span>
+<span id="L3" class="lineno"><a class="lineno" href="#L3">3</a></span>
+<span id="L4" class="lineno"><a class="lineno" href="#L4">4</a></span>
+<span id="L5" class="lineno"><a class="lineno" href="#L5">5</a></span>
+<span id="L6" class="lineno"><a class="lineno" href="#L6">6</a></span>
+<span id="L7" class="lineno"><a class="lineno" href="#L7">7</a></span>
+<span id="L8" class="lineno"><a class="lineno" href="#L8">8</a></span>
+<span id="L9" class="lineno"><a class="lineno" href="#L9">9</a></span>
+<span id="L10" class="lineno"><a class="lineno" href="#L10">10</a></span>
+<span id="L11" class="lineno"><a class="lineno" href="#L11">11</a></span>
+<span id="L12" class="lineno"><a class="lineno" href="#L12">12</a></span>
+<span id="L13" class="lineno"><a class="lineno" href="#L13">13</a></span>
+<span id="L14" class="lineno"><a class="lineno" href="#L14">14</a></span>
+<span id="L15" class="lineno"><a class="lineno" href="#L15">15</a></span>
+<span id="L16" class="lineno"><a class="lineno" href="#L16">16</a></span>
+<span id="L17" class="lineno"><a class="lineno" href="#L17">17</a></span>
+<span id="L18" class="lineno"><a class="lineno" href="#L18">18</a></span>
+<span id="L19" class="lineno"><a class="lineno" href="#L19">19</a></span>
+<span id="L20" class="lineno"><a class="lineno" href="#L20">20</a></span>
+<span id="L21" class="lineno"><a class="lineno" href="#L21">21</a></span>
+<span id="L22" class="lineno"><a class="lineno" href="#L22">22</a></span>
+<span id="L23" class="lineno"><a class="lineno" href="#L23">23</a></span>
+<span id="L24" class="lineno"><a class="lineno" href="#L24">24</a></span>
+<span id="L25" class="lineno"><a class="lineno" href="#L25">25</a></span>
+<span id="L26" class="lineno"><a class="lineno" href="#L26">26</a></span>
+<span id="L27" class="lineno"><a class="lineno" href="#L27">27</a></span>
+<span id="L28" class="lineno"><a class="lineno" href="#L28">28</a></span>
+<span id="L29" class="lineno"><a class="lineno" href="#L29">29</a></span>
+<span id="L30" class="lineno"><a class="lineno" href="#L30">30</a></span>
+<span id="L31" class="lineno"><a class="lineno" href="#L31">31</a></span>
+<span id="L32" class="lineno"><a class="lineno" href="#L32">32</a></span>
+<span id="L33" class="lineno"><a class="lineno" href="#L33">33</a></span>
+<span id="L34" class="lineno"><a class="lineno" href="#L34">34</a></span>
+<span id="L35" class="lineno"><a class="lineno" href="#L35">35</a></span>
+<span id="L36" class="lineno"><a class="lineno" href="#L36">36</a></span>
+<span id="L37" class="lineno"><a class="lineno" href="#L37">37</a></span>
+<span id="L38" class="lineno"><a class="lineno" href="#L38">38</a></span>
+<span id="L39" class="lineno"><a class="lineno" href="#L39">39</a></span>
+<span id="L40" class="lineno"><a class="lineno" href="#L40">40</a></span>
+<span id="L41" class="lineno"><a class="lineno" href="#L41">41</a></span>
+<span id="L42" class="lineno"><a class="lineno" href="#L42">42</a></span>
+<span id="L43" class="lineno"><a class="lineno" href="#L43">43</a></span>
+<span id="L44" class="lineno"><a class="lineno" href="#L44">44</a></span>
+<span id="L45" class="lineno"><a class="lineno" href="#L45">45</a></span>
+<span id="L46" class="lineno"><a class="lineno" href="#L46">46</a></span>
+<span id="L47" class="lineno"><a class="lineno" href="#L47">47</a></span>
+<span id="L48" class="lineno"><a class="lineno" href="#L48">48</a></span>
+<span id="L49" class="lineno"><a class="lineno" href="#L49">49</a></span>
+<span id="L50" class="lineno"><a class="lineno" href="#L50">50</a></span>
+<span id="L51" class="lineno"><a class="lineno" href="#L51">51</a></span>
+<span id="L52" class="lineno"><a class="lineno" href="#L52">52</a></span>
+<span id="L53" class="lineno"><a class="lineno" href="#L53">53</a></span>
+<span id="L54" class="lineno"><a class="lineno" href="#L54">54</a></span>
+<span id="L55" class="lineno"><a class="lineno" href="#L55">55</a></span>
+<span id="L56" class="lineno"><a class="lineno" href="#L56">56</a></span>
+<span id="L57" class="lineno"><a class="lineno" href="#L57">57</a></span>
+<span id="L58" class="lineno"><a class="lineno" href="#L58">58</a></span>
+<span id="L59" class="lineno"><a class="lineno" href="#L59">59</a></span>
+<span id="L60" class="lineno"><a class="lineno" href="#L60">60</a></span>
+<span id="L61" class="lineno"><a class="lineno" href="#L61">61</a></span>
+<span id="L62" class="lineno"><a class="lineno" href="#L62">62</a></span>
+<span id="L63" class="lineno"><a class="lineno" href="#L63">63</a></span>
+<span id="L64" class="lineno"><a class="lineno" href="#L64">64</a></span>
+<span id="L65" class="lineno"><a class="lineno" href="#L65">65</a></span>
+<span id="L66" class="lineno"><a class="lineno" href="#L66">66</a></span>
+<span id="L67" class="lineno"><a class="lineno" href="#L67">67</a></span>
+<span id="L68" class="lineno"><a class="lineno" href="#L68">68</a></span>
+<span id="L69" class="lineno"><a class="lineno" href="#L69">69</a></span>
+<span id="L70" class="lineno"><a class="lineno" href="#L70">70</a></span>
+<span id="L71" class="lineno"><a class="lineno" href="#L71">71</a></span>
+<span id="L72" class="lineno"><a class="lineno" href="#L72">72</a></span>
+<span id="L73" class="lineno"><a class="lineno" href="#L73">73</a></span>
+<span id="L74" class="lineno"><a class="lineno" href="#L74">74</a></span>
+<span id="L75" class="lineno"><a class="lineno" href="#L75">75</a></span>
+<span id="L76" class="lineno"><a class="lineno" href="#L76">76</a></span>
+<span id="L77" class="lineno"><a class="lineno" href="#L77">77</a></span>
+<span id="L78" class="lineno"><a class="lineno" href="#L78">78</a></span>
+</pre></td>
+<td class="table-code"><pre><span class="line-empty" title="No Anys on this line!">"""Engine and session management.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">One engine per process, created lazily so that importing the package does not</span>
+<span class="line-empty" title="No Anys on this line!">try to reach a database. Tests and the CLI both use session_scope; the API</span>
+<span class="line-empty" title="No Anys on this line!">uses get_session as a FastAPI dependency.</span>
+<span class="line-empty" title="No Anys on this line!">"""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from __future__ import annotations</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from collections.abc import Iterator</span>
+<span class="line-precise" title="No Anys on this line!">from contextlib import contextmanager</span>
+<span class="line-precise" title="No Anys on this line!">from functools import lru_cache</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy import Engine, create_engine</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy.orm import Session, sessionmaker</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.settings import get_settings</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x4)
+Explicit (x4)">@lru_cache</span>
+<span class="line-precise" title="No Anys on this line!">def get_engine() -&gt; Engine:</span>
+<span class="line-empty" title="No Anys on this line!">    """One engine, with every wait bounded.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    Every timeout here exists because its absence turns a fast, legible</span>
+<span class="line-empty" title="No Anys on this line!">    failure into a hang, and a hang is the worst failure mode a demo can have.</span>
+<span class="line-empty" title="No Anys on this line!">    /health is written to report an unreachable database as a 503, but without</span>
+<span class="line-empty" title="No Anys on this line!">    connect_timeout it never gets the chance: psycopg waits on the operating</span>
+<span class="line-empty" title="No Anys on this line!">    system's TCP timeout, the platform's health probe gives up first, and the</span>
+<span class="line-empty" title="No Anys on this line!">    instance is marked unhealthy with nothing in the log explaining why.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-precise" title="No Anys on this line!">    settings = get_settings()</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x11)">    return create_engine(</span>
+<span class="line-precise" title="No Anys on this line!">        settings.sync_database_url,</span>
+<span class="line-precise" title="No Anys on this line!">        echo=settings.db_echo,</span>
+<span class="line-precise" title="No Anys on this line!">        pool_size=settings.db_pool_size,</span>
+<span class="line-empty" title="No Anys on this line!">        # A little headroom over pool_size rather than a hard wall, so a burst</span>
+<span class="line-empty" title="No Anys on this line!">        # queues briefly instead of erroring.</span>
+<span class="line-precise" title="No Anys on this line!">        max_overflow=settings.db_pool_size,</span>
+<span class="line-empty" title="No Anys on this line!">        # Neon can be asleep, and a sleeping database answers the TCP</span>
+<span class="line-empty" title="No Anys on this line!">        # handshake without completing the connection. This bounds that.</span>
+<span class="line-precise" title="No Anys on this line!">        pool_pre_ping=True,</span>
+<span class="line-precise" title="No Anys on this line!">        pool_recycle=settings.db_pool_recycle_seconds,</span>
+<span class="line-empty" title="No Anys on this line!">        # How long a request waits for a free connection before giving up.</span>
+<span class="line-empty" title="No Anys on this line!">        # SQLAlchemy defaults to thirty seconds, which is far longer than any</span>
+<span class="line-empty" title="No Anys on this line!">        # reader will wait: under load we would rather refuse quickly than</span>
+<span class="line-empty" title="No Anys on this line!">        # accumulate a queue of browsers that have already left.</span>
+<span class="line-precise" title="No Anys on this line!">        pool_timeout=settings.db_pool_timeout_seconds,</span>
+<span class="line-precise" title="No Anys on this line!">        connect_args={"connect_timeout": settings.db_connect_timeout_seconds},</span>
+<span class="line-precise" title="No Anys on this line!">        future=True,</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x4)
+Explicit (x4)">@lru_cache</span>
+<span class="line-precise" title="No Anys on this line!">def get_sessionmaker() -&gt; sessionmaker[Session]:</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x3)
+Explicit (x2)">    return sessionmaker(bind=get_engine(), expire_on_commit=False, future=True)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x6)">@contextmanager</span>
+<span class="line-precise" title="No Anys on this line!">def session_scope() -&gt; Iterator[Session]:</span>
+<span class="line-empty" title="No Anys on this line!">    """Transactional scope. Commits on success, rolls back on any exception."""</span>
+<span class="line-precise" title="No Anys on this line!">    session = get_sessionmaker()()</span>
+<span class="line-empty" title="No Anys on this line!">    try:</span>
+<span class="line-precise" title="No Anys on this line!">        yield session</span>
+<span class="line-precise" title="No Anys on this line!">        session.commit()</span>
+<span class="line-precise" title="No Anys on this line!">    except Exception:</span>
+<span class="line-precise" title="No Anys on this line!">        session.rollback()</span>
+<span class="line-empty" title="No Anys on this line!">        raise</span>
+<span class="line-empty" title="No Anys on this line!">    finally:</span>
+<span class="line-precise" title="No Anys on this line!">        session.close()</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def get_session() -&gt; Iterator[Session]:</span>
+<span class="line-empty" title="No Anys on this line!">    """FastAPI dependency. Read-only by convention; the API never commits."""</span>
+<span class="line-precise" title="No Anys on this line!">    session = get_sessionmaker()()</span>
+<span class="line-empty" title="No Anys on this line!">    try:</span>
+<span class="line-precise" title="No Anys on this line!">        yield session</span>
+<span class="line-empty" title="No Anys on this line!">    finally:</span>
+<span class="line-precise" title="No Anys on this line!">        session.close()</span>
+</pre></td>
+</tr></tbody>
+</table>
+</body>
+</html>

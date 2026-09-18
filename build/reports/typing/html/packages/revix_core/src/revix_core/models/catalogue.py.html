@@ -1,0 +1,463 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../mypy-html.css">
+</head>
+<body>
+<h2>revix_core.models.catalogue</h2>
+<table>
+<caption>packages\revix_core\src\revix_core\models\catalogue.py</caption>
+<tbody><tr>
+<td class="table-lines"><pre><span id="L1" class="lineno"><a class="lineno" href="#L1">1</a></span>
+<span id="L2" class="lineno"><a class="lineno" href="#L2">2</a></span>
+<span id="L3" class="lineno"><a class="lineno" href="#L3">3</a></span>
+<span id="L4" class="lineno"><a class="lineno" href="#L4">4</a></span>
+<span id="L5" class="lineno"><a class="lineno" href="#L5">5</a></span>
+<span id="L6" class="lineno"><a class="lineno" href="#L6">6</a></span>
+<span id="L7" class="lineno"><a class="lineno" href="#L7">7</a></span>
+<span id="L8" class="lineno"><a class="lineno" href="#L8">8</a></span>
+<span id="L9" class="lineno"><a class="lineno" href="#L9">9</a></span>
+<span id="L10" class="lineno"><a class="lineno" href="#L10">10</a></span>
+<span id="L11" class="lineno"><a class="lineno" href="#L11">11</a></span>
+<span id="L12" class="lineno"><a class="lineno" href="#L12">12</a></span>
+<span id="L13" class="lineno"><a class="lineno" href="#L13">13</a></span>
+<span id="L14" class="lineno"><a class="lineno" href="#L14">14</a></span>
+<span id="L15" class="lineno"><a class="lineno" href="#L15">15</a></span>
+<span id="L16" class="lineno"><a class="lineno" href="#L16">16</a></span>
+<span id="L17" class="lineno"><a class="lineno" href="#L17">17</a></span>
+<span id="L18" class="lineno"><a class="lineno" href="#L18">18</a></span>
+<span id="L19" class="lineno"><a class="lineno" href="#L19">19</a></span>
+<span id="L20" class="lineno"><a class="lineno" href="#L20">20</a></span>
+<span id="L21" class="lineno"><a class="lineno" href="#L21">21</a></span>
+<span id="L22" class="lineno"><a class="lineno" href="#L22">22</a></span>
+<span id="L23" class="lineno"><a class="lineno" href="#L23">23</a></span>
+<span id="L24" class="lineno"><a class="lineno" href="#L24">24</a></span>
+<span id="L25" class="lineno"><a class="lineno" href="#L25">25</a></span>
+<span id="L26" class="lineno"><a class="lineno" href="#L26">26</a></span>
+<span id="L27" class="lineno"><a class="lineno" href="#L27">27</a></span>
+<span id="L28" class="lineno"><a class="lineno" href="#L28">28</a></span>
+<span id="L29" class="lineno"><a class="lineno" href="#L29">29</a></span>
+<span id="L30" class="lineno"><a class="lineno" href="#L30">30</a></span>
+<span id="L31" class="lineno"><a class="lineno" href="#L31">31</a></span>
+<span id="L32" class="lineno"><a class="lineno" href="#L32">32</a></span>
+<span id="L33" class="lineno"><a class="lineno" href="#L33">33</a></span>
+<span id="L34" class="lineno"><a class="lineno" href="#L34">34</a></span>
+<span id="L35" class="lineno"><a class="lineno" href="#L35">35</a></span>
+<span id="L36" class="lineno"><a class="lineno" href="#L36">36</a></span>
+<span id="L37" class="lineno"><a class="lineno" href="#L37">37</a></span>
+<span id="L38" class="lineno"><a class="lineno" href="#L38">38</a></span>
+<span id="L39" class="lineno"><a class="lineno" href="#L39">39</a></span>
+<span id="L40" class="lineno"><a class="lineno" href="#L40">40</a></span>
+<span id="L41" class="lineno"><a class="lineno" href="#L41">41</a></span>
+<span id="L42" class="lineno"><a class="lineno" href="#L42">42</a></span>
+<span id="L43" class="lineno"><a class="lineno" href="#L43">43</a></span>
+<span id="L44" class="lineno"><a class="lineno" href="#L44">44</a></span>
+<span id="L45" class="lineno"><a class="lineno" href="#L45">45</a></span>
+<span id="L46" class="lineno"><a class="lineno" href="#L46">46</a></span>
+<span id="L47" class="lineno"><a class="lineno" href="#L47">47</a></span>
+<span id="L48" class="lineno"><a class="lineno" href="#L48">48</a></span>
+<span id="L49" class="lineno"><a class="lineno" href="#L49">49</a></span>
+<span id="L50" class="lineno"><a class="lineno" href="#L50">50</a></span>
+<span id="L51" class="lineno"><a class="lineno" href="#L51">51</a></span>
+<span id="L52" class="lineno"><a class="lineno" href="#L52">52</a></span>
+<span id="L53" class="lineno"><a class="lineno" href="#L53">53</a></span>
+<span id="L54" class="lineno"><a class="lineno" href="#L54">54</a></span>
+<span id="L55" class="lineno"><a class="lineno" href="#L55">55</a></span>
+<span id="L56" class="lineno"><a class="lineno" href="#L56">56</a></span>
+<span id="L57" class="lineno"><a class="lineno" href="#L57">57</a></span>
+<span id="L58" class="lineno"><a class="lineno" href="#L58">58</a></span>
+<span id="L59" class="lineno"><a class="lineno" href="#L59">59</a></span>
+<span id="L60" class="lineno"><a class="lineno" href="#L60">60</a></span>
+<span id="L61" class="lineno"><a class="lineno" href="#L61">61</a></span>
+<span id="L62" class="lineno"><a class="lineno" href="#L62">62</a></span>
+<span id="L63" class="lineno"><a class="lineno" href="#L63">63</a></span>
+<span id="L64" class="lineno"><a class="lineno" href="#L64">64</a></span>
+<span id="L65" class="lineno"><a class="lineno" href="#L65">65</a></span>
+<span id="L66" class="lineno"><a class="lineno" href="#L66">66</a></span>
+<span id="L67" class="lineno"><a class="lineno" href="#L67">67</a></span>
+<span id="L68" class="lineno"><a class="lineno" href="#L68">68</a></span>
+<span id="L69" class="lineno"><a class="lineno" href="#L69">69</a></span>
+<span id="L70" class="lineno"><a class="lineno" href="#L70">70</a></span>
+<span id="L71" class="lineno"><a class="lineno" href="#L71">71</a></span>
+<span id="L72" class="lineno"><a class="lineno" href="#L72">72</a></span>
+<span id="L73" class="lineno"><a class="lineno" href="#L73">73</a></span>
+<span id="L74" class="lineno"><a class="lineno" href="#L74">74</a></span>
+<span id="L75" class="lineno"><a class="lineno" href="#L75">75</a></span>
+<span id="L76" class="lineno"><a class="lineno" href="#L76">76</a></span>
+<span id="L77" class="lineno"><a class="lineno" href="#L77">77</a></span>
+<span id="L78" class="lineno"><a class="lineno" href="#L78">78</a></span>
+<span id="L79" class="lineno"><a class="lineno" href="#L79">79</a></span>
+<span id="L80" class="lineno"><a class="lineno" href="#L80">80</a></span>
+<span id="L81" class="lineno"><a class="lineno" href="#L81">81</a></span>
+<span id="L82" class="lineno"><a class="lineno" href="#L82">82</a></span>
+<span id="L83" class="lineno"><a class="lineno" href="#L83">83</a></span>
+<span id="L84" class="lineno"><a class="lineno" href="#L84">84</a></span>
+<span id="L85" class="lineno"><a class="lineno" href="#L85">85</a></span>
+<span id="L86" class="lineno"><a class="lineno" href="#L86">86</a></span>
+<span id="L87" class="lineno"><a class="lineno" href="#L87">87</a></span>
+<span id="L88" class="lineno"><a class="lineno" href="#L88">88</a></span>
+<span id="L89" class="lineno"><a class="lineno" href="#L89">89</a></span>
+<span id="L90" class="lineno"><a class="lineno" href="#L90">90</a></span>
+<span id="L91" class="lineno"><a class="lineno" href="#L91">91</a></span>
+<span id="L92" class="lineno"><a class="lineno" href="#L92">92</a></span>
+<span id="L93" class="lineno"><a class="lineno" href="#L93">93</a></span>
+<span id="L94" class="lineno"><a class="lineno" href="#L94">94</a></span>
+<span id="L95" class="lineno"><a class="lineno" href="#L95">95</a></span>
+<span id="L96" class="lineno"><a class="lineno" href="#L96">96</a></span>
+<span id="L97" class="lineno"><a class="lineno" href="#L97">97</a></span>
+<span id="L98" class="lineno"><a class="lineno" href="#L98">98</a></span>
+<span id="L99" class="lineno"><a class="lineno" href="#L99">99</a></span>
+<span id="L100" class="lineno"><a class="lineno" href="#L100">100</a></span>
+<span id="L101" class="lineno"><a class="lineno" href="#L101">101</a></span>
+<span id="L102" class="lineno"><a class="lineno" href="#L102">102</a></span>
+<span id="L103" class="lineno"><a class="lineno" href="#L103">103</a></span>
+<span id="L104" class="lineno"><a class="lineno" href="#L104">104</a></span>
+<span id="L105" class="lineno"><a class="lineno" href="#L105">105</a></span>
+<span id="L106" class="lineno"><a class="lineno" href="#L106">106</a></span>
+<span id="L107" class="lineno"><a class="lineno" href="#L107">107</a></span>
+<span id="L108" class="lineno"><a class="lineno" href="#L108">108</a></span>
+<span id="L109" class="lineno"><a class="lineno" href="#L109">109</a></span>
+<span id="L110" class="lineno"><a class="lineno" href="#L110">110</a></span>
+<span id="L111" class="lineno"><a class="lineno" href="#L111">111</a></span>
+<span id="L112" class="lineno"><a class="lineno" href="#L112">112</a></span>
+<span id="L113" class="lineno"><a class="lineno" href="#L113">113</a></span>
+<span id="L114" class="lineno"><a class="lineno" href="#L114">114</a></span>
+<span id="L115" class="lineno"><a class="lineno" href="#L115">115</a></span>
+<span id="L116" class="lineno"><a class="lineno" href="#L116">116</a></span>
+<span id="L117" class="lineno"><a class="lineno" href="#L117">117</a></span>
+<span id="L118" class="lineno"><a class="lineno" href="#L118">118</a></span>
+<span id="L119" class="lineno"><a class="lineno" href="#L119">119</a></span>
+<span id="L120" class="lineno"><a class="lineno" href="#L120">120</a></span>
+<span id="L121" class="lineno"><a class="lineno" href="#L121">121</a></span>
+<span id="L122" class="lineno"><a class="lineno" href="#L122">122</a></span>
+<span id="L123" class="lineno"><a class="lineno" href="#L123">123</a></span>
+<span id="L124" class="lineno"><a class="lineno" href="#L124">124</a></span>
+<span id="L125" class="lineno"><a class="lineno" href="#L125">125</a></span>
+<span id="L126" class="lineno"><a class="lineno" href="#L126">126</a></span>
+<span id="L127" class="lineno"><a class="lineno" href="#L127">127</a></span>
+<span id="L128" class="lineno"><a class="lineno" href="#L128">128</a></span>
+<span id="L129" class="lineno"><a class="lineno" href="#L129">129</a></span>
+<span id="L130" class="lineno"><a class="lineno" href="#L130">130</a></span>
+<span id="L131" class="lineno"><a class="lineno" href="#L131">131</a></span>
+<span id="L132" class="lineno"><a class="lineno" href="#L132">132</a></span>
+<span id="L133" class="lineno"><a class="lineno" href="#L133">133</a></span>
+<span id="L134" class="lineno"><a class="lineno" href="#L134">134</a></span>
+<span id="L135" class="lineno"><a class="lineno" href="#L135">135</a></span>
+<span id="L136" class="lineno"><a class="lineno" href="#L136">136</a></span>
+<span id="L137" class="lineno"><a class="lineno" href="#L137">137</a></span>
+<span id="L138" class="lineno"><a class="lineno" href="#L138">138</a></span>
+<span id="L139" class="lineno"><a class="lineno" href="#L139">139</a></span>
+<span id="L140" class="lineno"><a class="lineno" href="#L140">140</a></span>
+<span id="L141" class="lineno"><a class="lineno" href="#L141">141</a></span>
+<span id="L142" class="lineno"><a class="lineno" href="#L142">142</a></span>
+<span id="L143" class="lineno"><a class="lineno" href="#L143">143</a></span>
+<span id="L144" class="lineno"><a class="lineno" href="#L144">144</a></span>
+<span id="L145" class="lineno"><a class="lineno" href="#L145">145</a></span>
+<span id="L146" class="lineno"><a class="lineno" href="#L146">146</a></span>
+<span id="L147" class="lineno"><a class="lineno" href="#L147">147</a></span>
+<span id="L148" class="lineno"><a class="lineno" href="#L148">148</a></span>
+<span id="L149" class="lineno"><a class="lineno" href="#L149">149</a></span>
+<span id="L150" class="lineno"><a class="lineno" href="#L150">150</a></span>
+<span id="L151" class="lineno"><a class="lineno" href="#L151">151</a></span>
+<span id="L152" class="lineno"><a class="lineno" href="#L152">152</a></span>
+<span id="L153" class="lineno"><a class="lineno" href="#L153">153</a></span>
+<span id="L154" class="lineno"><a class="lineno" href="#L154">154</a></span>
+<span id="L155" class="lineno"><a class="lineno" href="#L155">155</a></span>
+<span id="L156" class="lineno"><a class="lineno" href="#L156">156</a></span>
+<span id="L157" class="lineno"><a class="lineno" href="#L157">157</a></span>
+<span id="L158" class="lineno"><a class="lineno" href="#L158">158</a></span>
+<span id="L159" class="lineno"><a class="lineno" href="#L159">159</a></span>
+<span id="L160" class="lineno"><a class="lineno" href="#L160">160</a></span>
+<span id="L161" class="lineno"><a class="lineno" href="#L161">161</a></span>
+<span id="L162" class="lineno"><a class="lineno" href="#L162">162</a></span>
+<span id="L163" class="lineno"><a class="lineno" href="#L163">163</a></span>
+<span id="L164" class="lineno"><a class="lineno" href="#L164">164</a></span>
+<span id="L165" class="lineno"><a class="lineno" href="#L165">165</a></span>
+<span id="L166" class="lineno"><a class="lineno" href="#L166">166</a></span>
+<span id="L167" class="lineno"><a class="lineno" href="#L167">167</a></span>
+<span id="L168" class="lineno"><a class="lineno" href="#L168">168</a></span>
+<span id="L169" class="lineno"><a class="lineno" href="#L169">169</a></span>
+<span id="L170" class="lineno"><a class="lineno" href="#L170">170</a></span>
+<span id="L171" class="lineno"><a class="lineno" href="#L171">171</a></span>
+<span id="L172" class="lineno"><a class="lineno" href="#L172">172</a></span>
+<span id="L173" class="lineno"><a class="lineno" href="#L173">173</a></span>
+<span id="L174" class="lineno"><a class="lineno" href="#L174">174</a></span>
+<span id="L175" class="lineno"><a class="lineno" href="#L175">175</a></span>
+<span id="L176" class="lineno"><a class="lineno" href="#L176">176</a></span>
+<span id="L177" class="lineno"><a class="lineno" href="#L177">177</a></span>
+<span id="L178" class="lineno"><a class="lineno" href="#L178">178</a></span>
+<span id="L179" class="lineno"><a class="lineno" href="#L179">179</a></span>
+<span id="L180" class="lineno"><a class="lineno" href="#L180">180</a></span>
+<span id="L181" class="lineno"><a class="lineno" href="#L181">181</a></span>
+<span id="L182" class="lineno"><a class="lineno" href="#L182">182</a></span>
+<span id="L183" class="lineno"><a class="lineno" href="#L183">183</a></span>
+<span id="L184" class="lineno"><a class="lineno" href="#L184">184</a></span>
+<span id="L185" class="lineno"><a class="lineno" href="#L185">185</a></span>
+<span id="L186" class="lineno"><a class="lineno" href="#L186">186</a></span>
+<span id="L187" class="lineno"><a class="lineno" href="#L187">187</a></span>
+</pre></td>
+<td class="table-code"><pre><span class="line-empty" title="No Anys on this line!">"""The canonical catalogue.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">vehicle_variant is the centre of the system. Everything resolves to it, every</span>
+<span class="line-empty" title="No Anys on this line!">verdict is keyed by it, and its specifications provide both the hard</span>
+<span class="line-empty" title="No Anys on this line!">constraints used during matching and the ground truth used to check claims.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">The reason variant granularity matters, and model granularity does not, is on</span>
+<span class="line-empty" title="No Anys on this line!">the model page of the prototype: the Creta diesel manual and the Creta turbo</span>
+<span class="line-empty" title="No Anys on this line!">automatic sit 1.1 points apart. Averaging them produces the number least</span>
+<span class="line-empty" title="No Anys on this line!">useful to someone choosing between them.</span>
+<span class="line-empty" title="No Anys on this line!">"""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from __future__ import annotations</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">import uuid</span>
+<span class="line-precise" title="No Anys on this line!">from typing import Any</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy import (</span>
+<span class="line-empty" title="No Anys on this line!">    CheckConstraint,</span>
+<span class="line-empty" title="No Anys on this line!">    Enum,</span>
+<span class="line-empty" title="No Anys on this line!">    ForeignKey,</span>
+<span class="line-empty" title="No Anys on this line!">    Index,</span>
+<span class="line-empty" title="No Anys on this line!">    Integer,</span>
+<span class="line-empty" title="No Anys on this line!">    Numeric,</span>
+<span class="line-empty" title="No Anys on this line!">    SmallInteger,</span>
+<span class="line-empty" title="No Anys on this line!">    String,</span>
+<span class="line-empty" title="No Anys on this line!">    Text,</span>
+<span class="line-empty" title="No Anys on this line!">    UniqueConstraint,</span>
+<span class="line-empty" title="No Anys on this line!">)</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy.dialects.postgresql import JSONB</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy.orm import Mapped, mapped_column, relationship</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.enums import AspectKey, FuelType, Transmission, VehicleClass</span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.models.base import SCHEMA_CORE, Base, TimestampMixin, uuid_pk</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class Manufacturer(Base, TimestampMixin):</span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "manufacturer"</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x2)">    __table_args__ = {"schema": SCHEMA_CORE}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    name: Mapped[str] = mapped_column(String(120), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    slug: Mapped[str] = mapped_column(String(120), nullable=False, unique=True)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    country: Mapped[str | None] = mapped_column(String(2))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x13)">    models: Mapped[list[VehicleModel]] = relationship(back_populates="manufacturer")</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class VehicleModel(Base, TimestampMixin):</span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "vehicle_model"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        UniqueConstraint("manufacturer_id", "slug"),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_CORE},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    manufacturer_id: Mapped[uuid.UUID] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        ForeignKey(f"{SCHEMA_CORE}.manufacturer.id", ondelete="CASCADE"), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    name: Mapped[str] = mapped_column(String(120), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    slug: Mapped[str] = mapped_column(String(120), nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    # The class discriminator. A motorcycle is a catalogue row with a different</span>
+<span class="line-empty" title="No Anys on this line!">    # specification profile, not a separate subsystem. Proposal section 6.3.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    vehicle_class: Mapped[VehicleClass] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x2)">        Enum(VehicleClass, name="vehicle_class", schema=SCHEMA_CORE), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    body_style: Mapped[str | None] = mapped_column(String(40))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    segment: Mapped[str | None] = mapped_column(String(40))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    launch_year: Mapped[int | None] = mapped_column(SmallInteger)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    discontinued_year: Mapped[int | None] = mapped_column(SmallInteger)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x13)">    manufacturer: Mapped[Manufacturer] = relationship(back_populates="models")</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x13)">    variants: Mapped[list[VehicleVariant]] = relationship(back_populates="model")</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class VehicleVariant(Base, TimestampMixin):</span>
+<span class="line-empty" title="No Anys on this line!">    """THE canonical entity."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "vehicle_variant"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        UniqueConstraint("model_id", "trim_code", "fuel_type", "transmission"),</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x5)">        CheckConstraint(</span>
+<span class="line-precise" title="No Anys on this line!">            "spec_completeness &gt;= 0 AND spec_completeness &lt;= 1", name="spec_completeness_range"</span>
+<span class="line-empty" title="No Anys on this line!">        ),</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x1)">        Index(</span>
+<span class="line-precise" title="No Anys on this line!">            "ix_vehicle_variant_trim_trgm",</span>
+<span class="line-precise" title="No Anys on this line!">            "trim_code",</span>
+<span class="line-precise" title="No Anys on this line!">            postgresql_using="gin",</span>
+<span class="line-precise" title="No Anys on this line!">            postgresql_ops={"trim_code": "gin_trgm_ops"},</span>
+<span class="line-empty" title="No Anys on this line!">        ),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_CORE},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    model_id: Mapped[uuid.UUID] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        ForeignKey(f"{SCHEMA_CORE}.vehicle_model.id", ondelete="CASCADE"), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    variant_name: Mapped[str] = mapped_column(String(160), nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!">    # Normalised for matching: "SX (O) Knight" becomes "sx-o-knight". The</span>
+<span class="line-empty" title="No Anys on this line!">    # trigram index above is on this column, not on the display name.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    trim_code: Mapped[str] = mapped_column(String(160), nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    # These three are the hard constraints. A petrol listing is never matched</span>
+<span class="line-empty" title="No Anys on this line!">    # to a diesel variant, whatever the embeddings say. Eliminating candidates</span>
+<span class="line-empty" title="No Anys on this line!">    # deterministically is what lets matching reach high precision cheaply.</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    fuel_type: Mapped[FuelType] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x2)">        Enum(FuelType, name="fuel_type", schema=SCHEMA_CORE), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    transmission: Mapped[Transmission] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x2)">        Enum(Transmission, name="transmission", schema=SCHEMA_CORE), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    engine_cc: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    drivetrain: Mapped[str | None] = mapped_column(String(20))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    engine_power_bhp: Mapped[float | None] = mapped_column(Numeric(6, 2))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    engine_torque_nm: Mapped[float | None] = mapped_column(Numeric(6, 2))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    arai_mileage_kmpl: Mapped[float | None] = mapped_column(Numeric(5, 2))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    length_mm: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    width_mm: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    height_mm: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    wheelbase_mm: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    ground_clearance_mm: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    fuel_tank_litres: Mapped[float | None] = mapped_column(Numeric(5, 2))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    # Car-specific</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    boot_litres: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    seating_capacity: Mapped[int | None] = mapped_column(SmallInteger)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    # Two-wheeler specific</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    kerb_weight_kg: Mapped[float | None] = mapped_column(Numeric(6, 2))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    seat_height_mm: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    braking_type: Mapped[str | None] = mapped_column(String(40))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    ex_showroom_price_min: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    ex_showroom_price_max: Mapped[int | None] = mapped_column(Integer)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    price_band: Mapped[str | None] = mapped_column(String(30))</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    production_status: Mapped[str | None] = mapped_column(String(20))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)
+Omitted Generics (x2)">    spec_completeness: Mapped[float] = mapped_column(Numeric(3, 2), default=0, nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x15)">    spec_source_refs: Mapped[dict[str, Any] | None] = mapped_column(JSONB)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x13)">    model: Mapped[VehicleModel] = relationship(back_populates="variants")</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x13)">    features: Mapped[list[VariantFeature]] = relationship(</span>
+<span class="line-precise" title="No Anys on this line!">        back_populates="variant", cascade="all, delete-orphan"</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class VariantFeature(Base):</span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "variant_feature"</span>
+<span class="line-precise" title="No Anys on this line!">    __table_args__ = (</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        UniqueConstraint("variant_id", "feature_key"),</span>
+<span class="line-precise" title="No Anys on this line!">        {"schema": SCHEMA_CORE},</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    variant_id: Mapped[uuid.UUID] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x1)">        ForeignKey(f"{SCHEMA_CORE}.vehicle_variant.id", ondelete="CASCADE"), nullable=False</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    feature_key: Mapped[str] = mapped_column(String(80), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    feature_value: Mapped[str | None] = mapped_column(Text)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    is_standard: Mapped[bool] = mapped_column(default=True, nullable=False)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x13)">    variant: Mapped[VehicleVariant] = relationship(back_populates="features")</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class Aspect(Base):</span>
+<span class="line-empty" title="No Anys on this line!">    """The nine topics, as rows.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    Kept as a table rather than only an enum so that verdict_aspect can carry</span>
+<span class="line-empty" title="No Anys on this line!">    a foreign key, and so display labels and ordering can change without a</span>
+<span class="line-empty" title="No Anys on this line!">    migration.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    __tablename__ = "aspect"</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x2)">    __table_args__ = {"schema": SCHEMA_CORE}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    id: Mapped[uuid.UUID] = uuid_pk()</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    key: Mapped[AspectKey] = mapped_column(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x2)">        Enum(AspectKey, name="aspect_key", schema=SCHEMA_CORE), nullable=False, unique=True</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    label_car: Mapped[str] = mapped_column(String(80), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    label_two_wheeler: Mapped[str] = mapped_column(String(80), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    aspect_group: Mapped[str] = mapped_column(String(20), nullable=False)</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x14)">    display_order: Mapped[int] = mapped_column(SmallInteger, nullable=False)</span>
+</pre></td>
+</tr></tbody>
+</table>
+</body>
+</html>
