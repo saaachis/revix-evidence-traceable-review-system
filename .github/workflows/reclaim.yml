@@ -1,0 +1,67 @@
+name: Reclaim the raw store
+
+# Emergency recovery for a database that has filled up and can no longer be
+# pruned, because a delete has to write and there is nowhere to write it.
+#
+# Deliberately manual and deliberately awkward, like the purge workflow. It
+# empties raw.raw_payload completely, which is affordable only because nothing
+# reads those bodies back: parse() works on the payload in memory during the
+# same run, and no replay path exists yet. Evidence units, verdicts and
+# citations are untouched.
+#
+# If the database is merely large rather than stuck, use the nightly's own
+# sweep instead. This is for the case where that sweep cannot run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RESET to confirm. Anything else stops the run."
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  reclaim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check the confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "RESET" ]; then
+            echo "::error::confirm was '${{ inputs.confirm }}'. Type RESET exactly. Nothing was touched."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --all-packages --frozen
+
+      # What it looks like going in, so the log records the state that made
+      # this necessary rather than only the state it left behind.
+      - name: Before
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db sizes
+
+      - name: Empty the raw store
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: uv run revix db reset-raw --yes
+
+      - name: After
+        if: always()
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          uv run revix db sizes
+          uv run revix db status
+
+      - name: What to do next
+        run: |
+          echo "::notice::Raw payloads are gone and the database has room again. Run the Nightly pipeline; its sweep and the gzip on write keep it inside budget from here."
