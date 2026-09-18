@@ -1,13 +1,19 @@
-name: Wireframes
+name: Pages
 
-# Publishes wireframes/ to GitHub Pages.
+# Publishes the wireframes and the quality reports to GitHub Pages.
 # One-time setup: repository Settings > Pages > Source = "GitHub Actions".
+#
+# The reports are here rather than only in the repository because GitHub shows
+# an HTML file as source, not as a page. A coverage report you cannot click
+# through is a coverage report nobody opens, and these exist to be opened in a
+# review.
 
 on:
   push:
     branches: [main]
     paths:
       - 'wireframes/**'
+      - 'build/reports/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -69,10 +75,24 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
 
-      - name: Upload wireframes
+      # Wireframes stay at the root so existing links keep working; the
+      # reports mount underneath at /reports/.
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -r wireframes/* _site/
+          if [ -d build/reports ]; then
+            mkdir -p _site/reports
+            cp -r build/reports/* _site/reports/
+            echo "reports mounted at /reports/"
+          else
+            echo "::warning::build/reports is absent; publishing wireframes only"
+          fi
+
+      - name: Upload the site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: wireframes
+          path: _site
 
       - name: Deploy
         id: deploy

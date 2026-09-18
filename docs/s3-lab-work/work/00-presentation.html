@@ -352,6 +352,66 @@
     .cover-mid h1 { font-size: 62px; }
   }
 
+  /* ---------- added for the expanded sections ---------- */
+
+  /* A measured value with its meaning, used on the per-tool sheets. */
+  .verdict {
+    display: grid; grid-template-columns: auto 1fr; gap: 0 18px;
+    align-items: baseline; margin: 4px 0 14px;
+  }
+  .verdict .big {
+    font-family: var(--mono); font-weight: 600; font-size: 40px; line-height: 1;
+    color: var(--brand); letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+  }
+  .verdict .big small { font-size: 17px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .verdict .says { font-size: 13.5px; color: var(--ink-2); }
+  .verdict .says b { display: block; font-size: 14.5px; color: var(--ink); margin-bottom: 2px; }
+
+  /* The band a score sits in, drawn once so the reader can place it. */
+  .scale { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin: 2px 0 6px; }
+  .scale div {
+    flex: 1; padding: 7px 9px; font-size: 11.5px; text-align: center;
+    border-right: 1px solid var(--line); color: var(--muted); background: var(--paper);
+  }
+  .scale div:last-child { border-right: 0; }
+  .scale div.here { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .scale div b { display: block; font-family: var(--mono); font-size: 12.5px; }
+
+  /* How a figure was produced, sat directly under it. */
+  .howto {
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 8px 11px; margin: 0 0 12px;
+    overflow-x: auto; white-space: pre;
+  }
+
+  /* Two columns of label and value, tighter than a table. */
+  .facts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .facts-grid > div { background: var(--paper); padding: 11px 14px; display: flex;
+    justify-content: space-between; align-items: baseline; gap: 12px; }
+  .facts-grid dt { font-size: 12.5px; color: var(--ink-2); margin: 0; }
+  .facts-grid dd { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink);
+    font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* A horizontal stage flow, for the pipeline. */
+  .stages { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; margin: 4px 0 14px; }
+  .stages > div {
+    flex: 1 1 0; min-width: 96px; border: 1px solid var(--line); border-radius: 7px;
+    background: var(--paper-2); padding: 10px 11px;
+  }
+  .stages h4 {
+    margin: 0 0 4px; font-family: var(--mono); font-size: 11px; color: var(--brand);
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .stages p { margin: 0; font-size: 11.5px; color: var(--muted); }
+
+  @media print {
+    .verdict .big { font-size: 38px; }
+    .stages > div { padding: 9px 10px; }
+    .facts-grid > div { padding: 10px 13px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
@@ -382,14 +442,14 @@
 <article class="page" id="contents" data-run="Contents" data-page="2">
   <div class="eyebrow"><span>Contents</span></div>
   <h2>What this report covers</h2>
-  <p class="lede">Five sections, in the order of the assessment breakdown.</p>
+  <p class="lede">Five sections, in the order of the assessment breakdown. Section three gives each measuring tool a sheet of its own.</p>
 
   <ol class="toc">
-    <li><a href="#codebase"><span class="n">1</span><span class="t">Codebase</span><span class="d">Shape, scale, and the one rule</span><span class="pg">3&ndash;4</span></a></li>
-    <li><a href="#frameworks"><span class="n">2</span><span class="t">Frameworks, with justification</span><span class="d">Choices and what we rejected</span><span class="pg">5&ndash;6</span></a></li>
-    <li><a href="#quality"><span class="n">3</span><span class="t">Code quality, measured</span><span class="d">Radon scores, and what changed</span><span class="pg">7&ndash;9</span></a></li>
-    <li><a href="#nfr"><span class="n">4</span><span class="t">Non-functional requirements</span><span class="d">All nine, audited</span><span class="pg">10&ndash;12</span></a></li>
-    <li><a href="#live"><span class="n">5</span><span class="t">Run it live</span><span class="d">Reproduce every figure</span><span class="pg">13</span></a></li>
+    <li><a href="#codebase"><span class="n">1</span><span class="t">Codebase</span><span class="d">Shape, the pipeline, and what it serves</span><span class="pg">3&ndash;6</span></a></li>
+    <li><a href="#frameworks"><span class="n">2</span><span class="t">Frameworks, with justification</span><span class="d">Choices, what we rejected, where it runs</span><span class="pg">7&ndash;10</span></a></li>
+    <li><a href="#quality"><span class="n">3</span><span class="t">Code quality, measured</span><span class="d">Six tools, one sheet each, and the reports</span><span class="pg">11&ndash;19</span></a></li>
+    <li><a href="#nfr"><span class="n">4</span><span class="t">Non-functional requirements</span><span class="d">All nine, audited</span><span class="pg">20&ndash;22</span></a></li>
+    <li><a href="#live"><span class="n">5</span><span class="t">Run it live</span><span class="d">Reproduce every figure</span><span class="pg">23</span></a></li>
   </ol>
 
   <h3>Assessment breakdown</h3>
@@ -505,8 +565,120 @@
   <div class="spacer"></div>
 </article>
 
+<!-- ===== CODEBASE: the pipeline ===== -->
+<article class="page" data-run="Codebase" data-page="5">
+  <div class="eyebrow"><span>Section 1, continued</span></div>
+  <h2>The pipeline, stage by stage</h2>
+  <p class="lede">Five stages, each a separate command, each runnable and debuggable on its own.
+    The nightly simply runs them in order.</p>
+
+  <div class="stages">
+    <div><h4>Ingest</h4><p>Fetch from each source, politely. Store the response, deduplicate by hash</p></div>
+    <div><h4>Extract</h4><p>Split into sentences, find the topic and the polarity of each</p></div>
+    <div><h4>Resolve</h4><p>Decide which vehicle a listing is about, or refuse and queue it</p></div>
+    <div><h4>Fuse</h4><p>Weight, score, bootstrap the interval, apply the evidence floor</p></div>
+    <div><h4>Publish</h4><p>Write verdicts, claims and citations into the serving schema</p></div>
+  </div>
+
+  <h3>What each stage guarantees</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Stage</th><th>The property it holds</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Ingest</strong></td>
+          <td>Idempotent, and isolated per source</td>
+          <td>Re-running costs a hash lookup, not a duplicate. One dead source never stops the others</td>
+        </tr>
+        <tr>
+          <td><strong>Extract</strong></td>
+          <td>Deterministic, no model call</td>
+          <td>The same sentence always yields the same topic, so a verdict can be reproduced</td>
+        </tr>
+        <tr>
+          <td><strong>Resolve</strong></td>
+          <td>Refuses below its confidence floor</td>
+          <td>An unsure match becomes a queued decision for a person, never a guess in the data</td>
+        </tr>
+        <tr>
+          <td><strong>Fuse</strong></td>
+          <td>Writes citations before prose exists</td>
+          <td>The score is computed <em>from</em> the cited rows, so a citation cannot be wrong</td>
+        </tr>
+        <tr>
+          <td><strong>Publish</strong></td>
+          <td>One row per variant per weighting</td>
+          <td>Switching weighting on the site is a lookup, never a recomputation</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="tag">Politeness is built in, not bolted on</span>
+    <p>Every outbound request passes a rate limiter, a <code>robots.txt</code> check and a circuit
+      breaker that stops asking after repeated refusals. Three sources are read because three permit
+      it: Team-BHP returns 403 to our agent and two others disallow us outright.
+      <strong>We respect that rather than spoof a browser.</strong></p>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ===== CODEBASE: what it serves ===== -->
+<article class="page" data-run="Codebase" data-page="6">
+  <div class="eyebrow"><span>Section 1, continued</span></div>
+  <h2>What it serves, and what tests it</h2>
+
+  <h3>API surface: 15 endpoints, 7 public and 8 operational</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Endpoint</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>GET /variants</code></td><td>The catalogue, filtered and paginated, capped at 200</td></tr>
+        <tr><td><code>GET /variants/{id}/verdict</code></td><td><strong>The endpoint.</strong> One indexed read, no computation</td></tr>
+        <tr><td><code>GET /claims/{id}/evidence</code></td><td>The sentences behind one claim, ranked by contribution</td></tr>
+        <tr><td><code>GET /fusion-configs</code></td><td>The three weightings the switch offers</td></tr>
+        <tr><td><code>GET /metrics</code></td><td>Every measurement recorded, including unflattering ones</td></tr>
+        <tr><td><code>GET /sources/health</code></td><td>Where each source stands, so a gap is visible</td></tr>
+        <tr><td><code>GET /health</code></td><td>503 when the database is unreachable, not a stack trace</td></tr>
+        <tr><td><code>/admin/*</code></td><td>Eight operational routes, authenticated, never cached</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Web surface: 11 routes, all server-rendered</h3>
+  <div class="facts-grid">
+    <div><dt>Landing and search</dt><dd>/ &middot; /search</dd></div>
+    <div><dt>Catalogue and comparison</dt><dd>/browse &middot; /compare</dd></div>
+    <div><dt>The verdict and its evidence</dt><dd>/v/[id] &middot; /evidence/[id]</dd></div>
+    <div><dt>How and how well</dt><dd>/method &middot; /accuracy</dd></div>
+    <div><dt>Where it comes from</dt><dd>/sources &middot; /status</dd></div>
+    <div><dt>Operations, gated</dt><dd>/admin</dd></div>
+  </div>
+
+  <h3>Test suite: 19 modules, 312 tests</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>What is covered</th><th>Modules</th><th>Tests</th></tr></thead>
+      <tbody>
+        <tr><td>Pipeline, fusion and round trips</td><td class="num">3</td><td class="num">60</td></tr>
+        <tr><td>Connectors and live sources</td><td class="num">4</td><td class="num">87</td></tr>
+        <tr><td>API, CORS, health and admin auth</td><td class="num">4</td><td class="num">36</td></tr>
+        <tr><td>Non-functional guarantees, quota, retention</td><td class="num">4</td><td class="num">39</td></tr>
+        <tr><td>Schema, reference data, evidence model</td><td class="num">4</td><td class="num">90</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:13.5px;color:var(--muted)">266 run without a database; CI runs
+    the full suite against a real Postgres with pgvector, and also checks the migrations apply, match
+    the models, and reverse cleanly.</p>
+
+  <div class="spacer"></div>
+</article>
+
 <!-- ============================== 5. FRAMEWORKS I ============================== -->
-<article class="page" id="frameworks" data-run="Frameworks" data-page="5">
+<article class="page" id="frameworks" data-run="Frameworks" data-page="7">
   <div class="eyebrow"><span>Section 2</span></div>
   <h2>Frameworks, with justification</h2>
   <p class="lede">The artefact for this mark is the decision-record folder: nine ADRs, each stating
@@ -567,7 +739,7 @@
 </article>
 
 <!-- ============================== 6. FRAMEWORKS II ============================== -->
-<article class="page" data-run="Frameworks" data-page="6">
+<article class="page" data-run="Frameworks" data-page="8">
   <div class="eyebrow"><span>Section 2, continued</span></div>
   <h2>The two choices worth arguing about</h2>
 
@@ -612,8 +784,111 @@
   <div class="spacer"></div>
 </article>
 
+<!-- ===== FRAMEWORKS: where it runs ===== -->
+<article class="page" data-run="Frameworks" data-page="9">
+  <div class="eyebrow"><span>Section 2, continued</span></div>
+  <h2>Where it runs</h2>
+  <p class="lede">Four platforms, each doing the one thing it is best at, and none of them required
+    for a page to render except the database.</p>
+
+  <svg viewBox="0 0 668 210" width="100%" role="img" aria-label="Diagram. GitHub Actions runs the pipeline nightly and writes to Neon Postgres. The API on Render reads from Neon. The web app on Vercel reads from the API and serves the browser.">
+    <rect x="1" y="1" width="666" height="208" rx="8" fill="var(--paper-2)" stroke="var(--line)"></rect>
+
+    <g font-family="IBM Plex Sans, sans-serif" font-size="11.5">
+      <rect x="22" y="26" width="150" height="48" rx="7" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="97" y="47" fill="var(--ink)" text-anchor="middle" font-weight="600">GitHub Actions</text>
+      <text x="97" y="63" fill="var(--muted)" text-anchor="middle" font-size="10.5">pipeline, nightly</text>
+
+      <rect x="259" y="26" width="150" height="48" rx="7" fill="var(--brand-soft)" stroke="var(--brand-line)"></rect>
+      <text x="334" y="47" fill="var(--brand)" text-anchor="middle" font-weight="600">Neon</text>
+      <text x="334" y="63" fill="var(--muted)" text-anchor="middle" font-size="10.5">Postgres + pgvector</text>
+
+      <rect x="259" y="118" width="150" height="48" rx="7" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="334" y="139" fill="var(--ink)" text-anchor="middle" font-weight="600">Render</text>
+      <text x="334" y="155" fill="var(--muted)" text-anchor="middle" font-size="10.5">API, Docker, 364 MB</text>
+
+      <rect x="496" y="118" width="150" height="48" rx="7" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="571" y="139" fill="var(--ink)" text-anchor="middle" font-weight="600">Vercel</text>
+      <text x="571" y="155" fill="var(--muted)" text-anchor="middle" font-size="10.5">Next.js, CDN</text>
+
+      <rect x="22" y="118" width="150" height="48" rx="7" fill="var(--paper)" stroke="var(--line)"></rect>
+      <text x="97" y="139" fill="var(--ink)" text-anchor="middle" font-weight="600">Browser</text>
+      <text x="97" y="155" fill="var(--muted)" text-anchor="middle" font-size="10.5">a reader</text>
+    </g>
+
+    <path d="M172 50 L257 50" stroke="var(--line)" stroke-width="1.5" fill="none"></path>
+    <text x="214" y="43" fill="var(--faint)" font-family="IBM Plex Mono, monospace" font-size="9" text-anchor="middle">writes</text>
+    <path d="M334 116 L334 76" stroke="var(--line)" stroke-width="1.5" fill="none"></path>
+    <text x="352" y="99" fill="var(--faint)" font-family="IBM Plex Mono, monospace" font-size="9">reads</text>
+    <path d="M494 142 L411 142" stroke="var(--line)" stroke-width="1.5" fill="none"></path>
+    <path d="M257 142 L174 142" stroke="var(--line)" stroke-width="1.5" fill="none"></path>
+
+    <text x="334" y="194" fill="var(--muted)" font-family="IBM Plex Sans, sans-serif" font-size="10.5" text-anchor="middle">The write path runs on the left and overnight. The read path runs along the bottom, per request.</text>
+  </svg>
+
+  <div class="tw" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Platform</th><th>Runs</th><th>Chosen because</th></tr></thead>
+      <tbody>
+        <tr><td><strong>GitHub Actions</strong></td><td>The nightly pipeline, and CI</td><td>Already holds the secrets and the schedule. No orchestrator to run or pay for</td></tr>
+        <tr><td><strong>Neon</strong></td><td>Postgres 16, pgvector, pg_trgm</td><td>Serverless Postgres with the extensions we need, and a free tier</td></tr>
+        <tr><td><strong>Render</strong></td><td>The API, as a Docker image</td><td>Container hosting with a health-check contract we already satisfy</td></tr>
+        <tr><td><strong>Vercel</strong></td><td>The Next.js frontend</td><td>Static assets on a CDN, so the site stays up independently of the API</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ===== FRAMEWORKS: the toolchain ===== -->
+<article class="page" data-run="Frameworks" data-page="10">
+  <div class="eyebrow"><span>Section 2, continued</span></div>
+  <h2>The development toolchain</h2>
+  <p class="lede">Chosen on one principle: a mistake should become a failed build rather than a
+    defect a reader finds.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Tool</th><th>Job</th><th>Enforced where</th></tr></thead>
+      <tbody>
+        <tr><td><strong>uv</strong></td><td>Workspace and lockfile across three packages</td><td>CI installs from <code>uv.lock</code>, frozen</td></tr>
+        <tr><td><strong>Ruff</strong></td><td>Lint and format, replacing black, isort and flake8</td><td>Fails the build</td></tr>
+        <tr><td><strong>mypy</strong></td><td>Static types, strict, all three packages</td><td>Fails the build</td></tr>
+        <tr><td><strong>Radon</strong></td><td>Maintainability and complexity scores</td><td>Printed every run</td></tr>
+        <tr><td><strong>Xenon</strong></td><td>The same scores, as a ceiling</td><td>Fails the build</td></tr>
+        <tr><td><strong>PyTest</strong> + coverage</td><td>312 tests, coverage measured</td><td>Fails the build</td></tr>
+        <tr><td><strong>Alembic</strong></td><td>Migrations, applied and reversed</td><td>Fails the build</td></tr>
+        <tr><td><strong>openapi-typescript</strong></td><td>Generates the frontend client from the schema</td><td>Fails if the committed client drifts</td></tr>
+        <tr><td><strong>Playwright</strong></td><td>Browser smoke test, 10 checks</td><td>Fails the build</td></tr>
+        <tr><td><strong>axe-core</strong></td><td>WCAG 2.1 AA across all 11 routes</td><td>Fails on a violation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="tag">The check worth defending hardest</span>
+    <p>CI regenerates the TypeScript client from the live OpenAPI schema and <strong>fails if the
+      committed types differ</strong>. A response shape that changes without the frontend changing
+      is a red build, not something a user discovers.</p>
+    <p>It is structural rather than procedural: it does not depend on anybody remembering.</p>
+  </div>
+
+  <h3>Six CI jobs, on every pull request</h3>
+  <div class="facts-grid">
+    <div><dt>Repository hygiene</dt><dd>secrets, payloads, links</dd></div>
+    <div><dt>API and pipeline</dt><dd>lint, types, gate, tests</dd></div>
+    <div><dt>Web</dt><dd>lint, types, build, a11y</dd></div>
+    <div><dt>API image</dt><dd>Docker builds</dd></div>
+    <div><dt>Migrations</dt><dd>apply, match, reverse</dd></div>
+    <div><dt>Pipeline end to end</dt><dd>runs on fixtures</dd></div>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
 <!-- ============================== 7. QUALITY I ============================== -->
-<article class="page" id="quality" data-run="Code quality" data-page="7">
+<article class="page" id="quality" data-run="Code quality" data-page="11">
   <div class="eyebrow"><span>Section 3</span></div>
   <h2>Code quality, measured</h2>
   <p class="lede">Put through a review toolkit rather than described in prose.
@@ -676,8 +951,119 @@
   <div class="spacer"></div>
 </article>
 
+<!-- ===== TOOL 1: Radon MI ===== -->
+<article class="page" data-run="Code quality" data-page="12">
+  <div class="eyebrow"><span>Tool 1 of 6 &middot; Radon</span></div>
+  <h2>Maintainability index</h2>
+
+  <div class="verdict">
+    <div class="big">A<small> &middot; all 43 files</small></div>
+    <div class="says">
+      <b>Every source file is maintainable, with no exceptions.</b>
+      The weakest file still scores 24.17, four points clear of the grade boundary.
+    </div>
+  </div>
+
+  <div class="howto">uv run radon mi packages/revix_core/src pipeline/src apps/api/src -s</div>
+
+  <h3>What the number is</h3>
+  <p>A single score from 0 to 100 per file, from Halstead volume (how much there is to read),
+    cyclomatic complexity (how many paths through it) and lines of code. It answers
+    <strong>how hard this file will be to change in six months</strong>.</p>
+
+  <div class="scale">
+    <div class="here"><b>A</b>20 to 100<br>maintainable</div>
+    <div><b>B</b>10 to 19<br>moderate</div>
+    <div><b>C</b>0 to 9<br>difficult</div>
+  </div>
+
+  <h3>Where our files sit</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Grade</th><th>Files</th><th>Share</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A</strong> &middot; maintainable</td><td class="num">43</td><td class="num">100%</td></tr>
+        <tr><td>B &middot; moderate</td><td class="num">0</td><td class="num">0%</td></tr>
+        <tr><td>C &middot; difficult</td><td class="num">0</td><td class="num">0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>The four lowest, and why</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>File</th><th>Score</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>cli.py</code></td><td class="num">A (24.17)</td><td>Thirty-odd small commands in one module. Long rather than complicated</td></tr>
+        <tr><td><code>enrichment/fuse.py</code></td><td class="num">A (34.77)</td><td>The scoring engine. The densest logic in the project, and the most tested</td></tr>
+        <tr><td><code>evaluation/fusion_experiment.py</code></td><td class="num">A (39.95)</td><td>The evaluation harness, refactored during this review</td></tr>
+        <tr><td><code>catalogue_discovery.py</code></td><td class="num">A (43.89)</td><td>Reads two sites' markup, so it carries the shape of somebody else's HTML</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:13.5px;color:var(--muted)"><strong>The three lowest scores are
+    the three files that do the most genuine work.</strong> That is the metric behaving as intended,
+    and a reason to trust it here rather than be alarmed by it.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ===== TOOL 2: Radon CC ===== -->
+<article class="page" data-run="Code quality" data-page="13">
+  <div class="eyebrow"><span>Tool 2 of 6 &middot; Radon</span></div>
+  <h2>Cyclomatic complexity</h2>
+
+  <div class="verdict">
+    <div class="big">3.90<small> &middot; grade A</small></div>
+    <div class="says">
+      <b>Average across 345 blocks, in the simplest band.</b>
+      Nearly four fifths of the codebase is grade A, and nothing scores E or F.
+    </div>
+  </div>
+
+  <div class="howto">uv run radon cc packages/revix_core/src pipeline/src apps/api/src -a -s -nC</div>
+
+  <h3>What the number is</h3>
+  <p>The count of independent paths through a block of code, which is also
+    <strong>the minimum number of test cases needed to cover it</strong>. A function scoring 24 has
+    twenty-four ways through, so it needs at least twenty-four tests to exercise fully.</p>
+
+  <h3>Distribution across 345 blocks</h3>
+  <div class="dist-bar" role="img" aria-label="Grade A 272 blocks 78.8 percent, grade B 45 blocks 13 percent, grade C 26 blocks 7.5 percent, grade D 2 blocks 0.6 percent, nothing at E or F.">
+    <span style="width:78.8%;background:#4a6b4f">A &middot; 272</span>
+    <span style="width:13.0%;background:#726b66">B &middot; 45</span>
+    <span style="width:7.5%;background:#b45309">C &middot; 26</span>
+    <span style="width:0.7%;background:#c41e3a;min-width:24px"></span>
+  </div>
+  <div class="dist-key">
+    <span><i style="background:#4a6b4f"></i>A &middot; 1 to 5 &middot; simple</span>
+    <span><i style="background:#726b66"></i>B &middot; 6 to 10</span>
+    <span><i style="background:#b45309"></i>C &middot; 11 to 20</span>
+    <span><i style="background:#c41e3a"></i>D &middot; 21 to 30 &middot; 2 blocks</span>
+    <span>E and F &middot; <strong>none</strong></span>
+  </div>
+
+  <div class="tw" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Grade</th><th>Blocks</th><th>Share</th><th>Reads as</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A</strong></td><td class="num">272</td><td class="num">78.8%</td><td>Simple, low risk</td></tr>
+        <tr><td><strong>B</strong></td><td class="num">45</td><td class="num">13.0%</td><td>Well structured, stable</td></tr>
+        <tr><td><strong>C</strong></td><td class="num">26</td><td class="num">7.5%</td><td>Slightly complex, worth watching</td></tr>
+        <tr><td><strong>D</strong></td><td class="num">2</td><td class="num">0.6%</td><td>Complex, justified on the next page</td></tr>
+        <tr><td>E, F</td><td class="num">0</td><td class="num">0%</td><td>Would need fixing. There are none</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:10px;font-size:13.5px;color:var(--muted)"><strong>91.8% of the codebase is A
+    or B.</strong> The 26 blocks at C are mostly source parsers, which branch because real-world
+    markup does.</p>
+
+  <div class="spacer"></div>
+</article>
+
 <!-- ============================== 8. QUALITY II ============================== -->
-<article class="page" data-run="Code quality" data-page="8">
+<article class="page" data-run="Code quality" data-page="14">
   <div class="eyebrow"><span>Section 3, continued</span></div>
   <h2>The measurement changed the code</h2>
 
@@ -743,39 +1129,170 @@
   <div class="spacer"></div>
 </article>
 
-<!-- ============================== 9. QUALITY III ============================== -->
-<article class="page" data-run="Code quality" data-page="9">
-  <div class="eyebrow"><span>Section 3, continued</span></div>
-  <h2>Enforcing the score, and the tool we left out</h2>
+<!-- ===== TOOL 3 and 4: Xenon and Ruff ===== -->
+<article class="page" data-run="Code quality" data-page="15">
+  <div class="eyebrow"><span>Tools 3 and 4 &middot; Xenon, Ruff</span></div>
+  <h2>Enforcing the score, and the style</h2>
 
-  <div class="note">
-    <span class="tag">Reporting is not enforcing</span>
-    <p>Radon will tell you a function scores E and then let you merge it. That is a report, not a
-      control. Xenon runs on every pull request and <strong>fails the build</strong> on any
-      regression:</p>
-    <pre style="margin:10px 0 0">xenon --max-absolute D --max-modules B --max-average A</pre>
+  <h3>Xenon: the same measurement, wired to an exit code</h3>
+  <div class="verdict">
+    <div class="big">pass<small> &middot; gate holds</small></div>
+    <div class="says">
+      <b>Radon reports; Xenon refuses.</b>
+      A pull request that makes any grade worse does not merge.
+    </div>
   </div>
+
+  <div class="howto">uv run xenon --max-absolute D --max-modules B --max-average A \
+  packages/revix_core/src pipeline/src apps/api/src</div>
 
   <div class="tw">
     <table>
-      <thead><tr><th>Threshold</th><th>Set to</th><th>Why</th></tr></thead>
+      <thead><tr><th>Ceiling on</th><th>Set to</th><th>Why there</th></tr></thead>
       <tbody>
-        <tr><td>Any single block</td><td class="num">D</td><td>Where the code is; nothing may get worse than the two on page 8</td></tr>
+        <tr><td>Any single block</td><td class="num">D</td><td>Where the code is; nothing may get worse than the two justified functions</td></tr>
         <tr><td>Any single module</td><td class="num">B</td><td>A module may contain a hard function, not become a hard module</td></tr>
         <tr><td>The whole codebase</td><td class="num">A</td><td>The average must stay in the simplest band</td></tr>
       </tbody>
     </table>
   </div>
-  <p style="margin-top:10px">The grades here <strong>cannot silently decay</strong>: the next
-    pull request that makes them worse does not merge. That is the difference between a measurement
-    and a property.</p>
+  <p style="margin-top:10px">Thresholds are set <strong>where the code actually is</strong>, so they
+    catch regression rather than flatter us. That is the difference between a measurement and a
+    property.</p>
 
-  <h3>Mutation testing, and why not</h3>
-  <p>Mutmut changes your code on purpose and asks whether any test notices.
-    <strong>It has no native Windows support</strong>, and all three of us develop on Windows.
-    A quality tool only one environment can run is one that stops being run.</p>
+  <h3>Ruff: lint and format, one tool instead of three</h3>
+  <div class="verdict">
+    <div class="big">0<small> &middot; findings</small></div>
+    <div class="says">
+      <b>Clean across 98 files, and the formatting is checked too.</b>
+      Replaces black, isort and flake8, so style is never a review conversation.
+    </div>
+  </div>
 
-  <h3>What we answer instead</h3>
+  <div class="howto">uv run ruff check .        # 0 findings
+uv run ruff format --check .   # 98 files already formatted</div>
+
+  <p style="font-size:13.5px;color:var(--muted)">Both run in CI and both fail the build. Formatting
+    being enforced rather than agreed is what keeps diffs about behaviour instead of whitespace.</p>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ===== TOOL 5: mypy ===== -->
+<article class="page" data-run="Code quality" data-page="16">
+  <div class="eyebrow"><span>Tool 5 of 6 &middot; mypy</span></div>
+  <h2>Static types, strict</h2>
+
+  <div class="verdict">
+    <div class="big">0<small> &middot; errors in 43 files</small></div>
+    <div class="says">
+      <b>Strict mode, across all three Python packages.</b>
+      No implicit <code>Any</code>, no untyped function bodies, no unchecked calls.
+    </div>
+  </div>
+
+  <div class="howto">uv run mypy packages/revix_core/src pipeline/src apps/api/src
+uv run mypy ... --html-report build/reports/typing   # the official report</div>
+
+  <h3>Type precision, from mypy's own report</h3>
+  <div class="verdict">
+    <div class="big">89.6%<small> &middot; precisely typed</small></div>
+    <div class="says">
+      <b>10.44% imprecise across 10,189 lines.</b>
+      Imprecise means an expression mypy could only narrow to <code>Any</code>, usually at a library
+      boundary rather than in our own logic.
+    </div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Where the imprecision is</th><th>Imprecise</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>ml/aspect_model</code></td><td class="num">7.95%</td><td>scikit-learn returns loosely typed arrays</td></tr>
+        <tr><td><code>ml/gold</code></td><td class="num">8.25%</td><td>Sampling over the same arrays</td></tr>
+        <tr><td><code>reference</code></td><td class="num">8.97%</td><td>Seed data read from JSON</td></tr>
+        <tr><td><strong>Whole codebase</strong></td><td class="num"><strong>10.44%</strong></td><td>Concentrated at third-party edges</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="tag">Why strict is worth the friction</span>
+    <p>A typed ORM, typed response models and a generated client only pay off if the types are
+      actually checked. Strict mypy is what turns <strong>"the API returns a different shape now"
+      into a failed build</strong> rather than a runtime surprise.</p>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ===== TOOL 6: pytest and coverage ===== -->
+<article class="page" data-run="Code quality" data-page="17">
+  <div class="eyebrow"><span>Tool 6 of 6 &middot; PyTest and coverage.py</span></div>
+  <h2>Tests, and how much they reach</h2>
+
+  <div class="verdict">
+    <div class="big">310<small> &middot; passing, 2 skipped</small></div>
+    <div class="says">
+      <b>Run against a real Postgres with pgvector in CI.</b>
+      266 of them need no database at all, so they run in a second on any laptop.
+    </div>
+  </div>
+
+  <div class="howto">uv run pytest --cov --cov-report=term
+uv run pytest --cov --cov-report=html:build/reports/coverage   # the official report</div>
+
+  <div class="verdict">
+    <div class="big">65%<small> &middot; line and branch coverage</small></div>
+    <div class="says">
+      <b>Measured in CI, where the database-backed tests also run.</b>
+      Deliberately not gated, and the next page explains why.
+    </div>
+  </div>
+
+  <h3>What the suite actually covers</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Area</th><th>Modules</th><th>Tests</th></tr></thead>
+      <tbody>
+        <tr><td>Schema, reference data, evidence model</td><td class="num">4</td><td class="num">90</td></tr>
+        <tr><td>Connectors and live sources</td><td class="num">4</td><td class="num">87</td></tr>
+        <tr><td>Pipeline, fusion and round trips</td><td class="num">3</td><td class="num">60</td></tr>
+        <tr><td>Non-functional guarantees, quota, retention</td><td class="num">4</td><td class="num">39</td></tr>
+        <tr><td>API, CORS, health, admin authentication</td><td class="num">4</td><td class="num">36</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="tag">Why coverage is not a gate</span>
+    <p>A coverage threshold is trivially satisfied by tests that execute code without asserting
+      anything about it. <strong>We would rather the number stayed honest than stayed high</strong>,
+      and judge the suite by what it has caught instead.</p>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
+<!-- ============================== 9. QUALITY III ============================== -->
+<article class="page" data-run="Code quality" data-page="18">
+  <div class="eyebrow"><span>Section 3, continued</span></div>
+  <h2>The tool we left out, and what answers it instead</h2>
+  <p class="lede">Five tools were used. The sixth was considered and rejected, which is worth
+    stating rather than leaving as a silent omission.</p>
+
+  <div class="note">
+    <span class="tag">Mutation testing</span>
+    <p>Mutmut changes your code on purpose and asks whether any test notices, which measures
+      something no other tool here does: not whether tests exist, but whether they would catch a
+      bug.</p>
+    <p><strong>It has no native Windows support</strong>, and all three of us develop on Windows.
+      A quality tool only one environment can run is one that stops being run.</p>
+  </div>
+
+  <h3>What answers the same question</h3>
+  <p>Whether the tests would catch a bug, answered with evidence rather than a score:
+    <strong>five real defects the suite caught before they reached anybody.</strong></p>
   <div class="tw">
     <table>
       <thead><tr><th>Defect</th><th>Why it mattered</th></tr></thead>
@@ -792,8 +1309,62 @@
   <div class="spacer"></div>
 </article>
 
+<!-- ===== Official reports ===== -->
+<article class="page" data-run="Code quality" data-page="19">
+  <div class="eyebrow"><span>Section 3, continued</span></div>
+  <h2>The reports the tools generate</h2>
+  <p class="lede">Two of the six tools produce a browsable report of their own. Both are generated
+    from the same run as the figures in this document, and both can be opened in the session.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Report</th><th>From</th><th>What it shows</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Coverage</strong><br><code>build/reports/coverage/</code></td>
+          <td>coverage.py, via pytest-cov</td>
+          <td>Every file, every line, coloured by whether a test reached it. Click into a file to see exactly which branches were missed</td>
+        </tr>
+        <tr>
+          <td><strong>Type precision</strong><br><code>build/reports/typing/</code></td>
+          <td>mypy <code>--html-report</code></td>
+          <td>Per module, the share of expressions mypy could type precisely, with the imprecise ones highlighted in the source</td>
+        </tr>
+        <tr>
+          <td><strong>Complexity data</strong><br><code>build/reports/complexity.json</code></td>
+          <td>Radon <code>--json</code></td>
+          <td>Machine-readable rather than browsable. Radon also emits XML and Code Climate format for CI tooling</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Generating them</h3>
+  <div class="howto">uv run pytest --cov --cov-report=html:build/reports/coverage
+uv run mypy packages/revix_core/src pipeline/src apps/api/src \
+  --html-report build/reports/typing
+uv run radon cc packages/revix_core/src pipeline/src apps/api/src -j \
+  &gt; build/reports/complexity.json</div>
+
+  <div class="note">
+    <span class="tag">What has no report, and why that is fine</span>
+    <p><strong>Ruff</strong> and <strong>Xenon</strong> report by exit code rather than by document,
+      which is the right shape for a gate: the answer is pass or fail, and the build already carries
+      it. Ruff can emit JSON or a statistics summary if a dashboard ever needs one.</p>
+  </div>
+
+  <div class="facts-grid">
+    <div><dt>Coverage report</dt><dd>65%, browsable</dd></div>
+    <div><dt>Type precision report</dt><dd>89.6% precise</dd></div>
+    <div><dt>Complexity export</dt><dd>345 blocks, JSON</dd></div>
+    <div><dt>Gates that only exit</dt><dd>Ruff, Xenon</dd></div>
+  </div>
+
+  <div class="spacer"></div>
+</article>
+
 <!-- ============================== 10. NFR I ============================== -->
-<article class="page" id="nfr" data-run="Non-functional requirements" data-page="10">
+<article class="page" id="nfr" data-run="Non-functional requirements" data-page="20">
   <div class="eyebrow"><span>Section 4</span></div>
   <h2>Non-functional requirements</h2>
   <p class="lede">All nine categories audited against the actual code rather than against what the
@@ -862,7 +1433,7 @@
 </article>
 
 <!-- ============================== 11. NFR II ============================== -->
-<article class="page" data-run="Non-functional requirements" data-page="11">
+<article class="page" data-run="Non-functional requirements" data-page="21">
   <div class="eyebrow"><span>Section 4, continued</span></div>
   <h2>All nine, and where each is met</h2>
 
@@ -892,7 +1463,7 @@
 </article>
 
 <!-- ============================== 12. NFR III ============================== -->
-<article class="page" data-run="Non-functional requirements" data-page="12">
+<article class="page" data-run="Non-functional requirements" data-page="22">
   <div class="eyebrow"><span>Section 4, continued</span></div>
   <h2>The finding worth leading with</h2>
 
@@ -940,7 +1511,7 @@
 </article>
 
 <!-- ============================== 13. LIVE ============================== -->
-<article class="page" id="live" data-run="Run it live" data-page="13">
+<article class="page" id="live" data-run="Run it live" data-page="23">
   <div class="eyebrow"><span>In the session</span></div>
   <h2>Run it live</h2>
   <p class="lede">Every figure in this document is reproducible in under a minute. A number produced

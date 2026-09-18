@@ -1,0 +1,54 @@
+Mypy Type Check Coverage Summary
+================================
+
+Script: index
+
++---------------------------------------------+-------------------+-----------+
+| Module                                      | Imprecision       | Lines     |
++---------------------------------------------+-------------------+-----------+
+| revix_api                                   |   0.00% imprecise |     3 LOC |
+| revix_api.admin                             |  17.64% imprecise |   533 LOC |
+| revix_api.main                              |  12.45% imprecise |   466 LOC |
+| revix_api.middleware                        |   2.79% imprecise |   215 LOC |
+| revix_api.schemas                           |   8.03% imprecise |   299 LOC |
+| revix_core                                  |   0.00% imprecise |     8 LOC |
+| revix_core.db                               |   0.00% imprecise |    78 LOC |
+| revix_core.enums                            |   0.00% imprecise |   161 LOC |
+| revix_core.models                           |   0.00% imprecise |    57 LOC |
+| revix_core.models.analysis                  |  19.44% imprecise |   144 LOC |
+| revix_core.models.base                      |   5.80% imprecise |    69 LOC |
+| revix_core.models.catalogue                 |  30.48% imprecise |   187 LOC |
+| revix_core.models.evidence                  |  24.83% imprecise |   290 LOC |
+| revix_core.models.serving                   |  21.74% imprecise |   184 LOC |
+| revix_core.settings                         |   0.48% imprecise |   209 LOC |
+| revix_pipeline                              |   0.00% imprecise |     7 LOC |
+| revix_pipeline.catalogue                    |  23.90% imprecise |   159 LOC |
+| revix_pipeline.catalogue_discovery          |  24.12% imprecise |   340 LOC |
+| revix_pipeline.cli                          |  19.79% imprecise |  1127 LOC |
+| revix_pipeline.connectors                   |   0.00% imprecise |    82 LOC |
+| revix_pipeline.connectors.base              |   1.20% imprecise |   166 LOC |
+| revix_pipeline.connectors.carwale           |   2.77% imprecise |   397 LOC |
+| revix_pipeline.connectors.dekho             |   5.20% imprecise |   173 LOC |
+| revix_pipeline.connectors.fixture           |   0.00% imprecise |   240 LOC |
+| revix_pipeline.connectors.hints             |   3.23% imprecise |   124 LOC |
+| revix_pipeline.connectors.politeness        |   0.41% imprecise |   244 LOC |
+| revix_pipeline.connectors.quota             |   1.23% imprecise |    81 LOC |
+| revix_pipeline.connectors.raw_store         |   0.00% imprecise |    64 LOC |
+| revix_pipeline.connectors.reddit            |  11.11% imprecise |   270 LOC |
+| revix_pipeline.connectors.runner            |   4.82% imprecise |   311 LOC |
+| revix_pipeline.connectors.schema_org        |   9.77% imprecise |   133 LOC |
+| revix_pipeline.connectors.youtube           |  10.03% imprecise |   319 LOC |
+| revix_pipeline.enrichment                   |   0.00% imprecise |    14 LOC |
+| revix_pipeline.enrichment.credibility       |   1.36% imprecise |   294 LOC |
+| revix_pipeline.enrichment.extract           |   1.04% imprecise |   480 LOC |
+| revix_pipeline.enrichment.fuse              |  12.85% imprecise |   638 LOC |
+| revix_pipeline.enrichment.resolve           |   5.23% imprecise |   306 LOC |
+| revix_pipeline.evaluation                   |   0.00% imprecise |    23 LOC |
+| revix_pipeline.evaluation.fusion_experiment |   9.50% imprecise |   600 LOC |
+| revix_pipeline.ml                           |   0.00% imprecise |    30 LOC |
+| revix_pipeline.ml.aspect_model              |   7.95% imprecise |   302 LOC |
+| revix_pipeline.ml.gold                      |   8.25% imprecise |   206 LOC |
+| revix_pipeline.reference                    |   8.97% imprecise |   156 LOC |
++---------------------------------------------+-------------------+-----------+
+| Total                                       |  10.44% imprecise | 10189 LOC |
++---------------------------------------------+-------------------+-----------+

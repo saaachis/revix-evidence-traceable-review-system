@@ -761,6 +761,116 @@ def db_prune_raw(
     )
 
 
+@db_app.command("reset-raw")
+def db_reset_raw(
+    yes: bool = typer.Option(False, "--yes", help="Required. There is no undo."),
+) -> None:
+    """Empty the raw payload store outright, when the database is too full to prune.
+
+    This exists because of a genuine deadlock. The routine sweep deletes the
+    surplus in batches, and a delete has to *write*: dead tuples are recorded
+    rather than merely dropped, and evidence_unit.raw_payload_id is ON DELETE
+    SET NULL, so every payload removed also rewrites the evidence rows pointing
+    at it. On a database that is already at its ceiling there is nowhere to put
+    any of that, and the sweep fails with the same DiskFull it was written to
+    cure. Fifty rows at a time did not help, because the problem is not the
+    size of the batch, it is that no write of any size can be recorded.
+
+    TRUNCATE is the way out, because it allocates nothing: it drops the whole
+    relation and creates an empty one. The foreign key is what normally forbids
+    it, and TRUNCATE ... CASCADE would take evidence_unit with it, which is the
+    product rather than the receipt. So the constraint comes off first, the
+    table is emptied, the now-dangling pointers are nulled while there is room
+    to do it, and the constraint goes back on.
+
+    What is lost is every stored HTTP response, including the recent ones the
+    retention window would have kept. That is affordable only because nothing
+    reads them: parse() works on the payload in memory during the same run, and
+    no replay path exists yet. Every evidence unit, verdict and citation is
+    untouched.
+
+    Not wired into the nightly, and it should not be. This is a recovery for a
+    database that has already stopped, and the ordinary sweep plus compression
+    is what stops it happening again.
+    """
+    if not yes:
+        typer.secho("refusing without --yes. This empties raw.raw_payload completely.", fg="red")
+        raise typer.Exit(1)
+
+    engine = get_engine()
+    with session_scope() as session:
+        before, before_bytes = session.execute(
+            text("select count(*), coalesce(sum(length(body)), 0) from raw.raw_payload")
+        ).one()
+        pointing = (
+            session.scalar(
+                text("select count(*) from core.evidence_unit where raw_payload_id is not null")
+            )
+            or 0
+        )
+        # By name from the catalogue rather than a guess at the convention, so
+        # this keeps working if the constraint is ever renamed.
+        constraints = [
+            row[0]
+            for row in session.execute(
+                text(
+                    """
+                    select con.conname
+                    from pg_constraint con
+                    join pg_class child on child.oid = con.conrelid
+                    join pg_namespace cn on cn.oid = child.relnamespace
+                    join pg_class parent on parent.oid = con.confrelid
+                    join pg_namespace pn on pn.oid = parent.relnamespace
+                    where con.contype = 'f'
+                      and pn.nspname = 'raw' and parent.relname = 'raw_payload'
+                      and cn.nspname = 'core' and child.relname = 'evidence_unit'
+                    """
+                )
+            ).all()
+        ]
+
+    typer.echo(f"  payloads held      {before:>8,}  ({_human(int(before_bytes))} logical)")
+    typer.echo(f"  evidence pointing  {pointing:>8,}")
+    typer.echo(f"  constraints to lift  {', '.join(constraints) or 'none'}")
+
+    # Autocommit throughout: TRUNCATE inside a transaction holds the old
+    # relation until commit, which defeats the entire point of using it on a
+    # database that has no room to hold anything.
+    with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+        for name in constraints:
+            conn.execute(text(f"alter table core.evidence_unit drop constraint {name}"))
+        typer.echo("  constraint lifted")
+
+        conn.execute(text("truncate table raw.raw_payload"))
+        typer.secho("  raw.raw_payload emptied", fg="green")
+
+        # Only now is there room to write anything, which is why this is here
+        # and not before the truncate.
+        conn.execute(
+            text(
+                "update core.evidence_unit set raw_payload_id = null where raw_payload_id is not null"
+            )
+        )
+        typer.echo("  dangling pointers cleared")
+
+        for name in constraints:
+            conn.execute(
+                text(
+                    f"alter table core.evidence_unit add constraint {name} "
+                    "foreign key (raw_payload_id) references raw.raw_payload(id) on delete set null"
+                )
+            )
+        typer.echo("  constraint restored")
+
+        conn.execute(text("vacuum (analyze) core.evidence_unit"))
+
+    typer.secho(
+        f"{before:,} payloads dropped. Evidence, verdicts and citations untouched.",
+        fg="green",
+        bold=True,
+    )
+
+
 # ---------------------------------------------------------------- catalogue
 
 

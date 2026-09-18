@@ -1,0 +1,660 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../mypy-html.css">
+</head>
+<body>
+<h2>revix_pipeline.ml.aspect_model</h2>
+<table>
+<caption>pipeline\src\revix_pipeline\ml\aspect_model.py</caption>
+<tbody><tr>
+<td class="table-lines"><pre><span id="L1" class="lineno"><a class="lineno" href="#L1">1</a></span>
+<span id="L2" class="lineno"><a class="lineno" href="#L2">2</a></span>
+<span id="L3" class="lineno"><a class="lineno" href="#L3">3</a></span>
+<span id="L4" class="lineno"><a class="lineno" href="#L4">4</a></span>
+<span id="L5" class="lineno"><a class="lineno" href="#L5">5</a></span>
+<span id="L6" class="lineno"><a class="lineno" href="#L6">6</a></span>
+<span id="L7" class="lineno"><a class="lineno" href="#L7">7</a></span>
+<span id="L8" class="lineno"><a class="lineno" href="#L8">8</a></span>
+<span id="L9" class="lineno"><a class="lineno" href="#L9">9</a></span>
+<span id="L10" class="lineno"><a class="lineno" href="#L10">10</a></span>
+<span id="L11" class="lineno"><a class="lineno" href="#L11">11</a></span>
+<span id="L12" class="lineno"><a class="lineno" href="#L12">12</a></span>
+<span id="L13" class="lineno"><a class="lineno" href="#L13">13</a></span>
+<span id="L14" class="lineno"><a class="lineno" href="#L14">14</a></span>
+<span id="L15" class="lineno"><a class="lineno" href="#L15">15</a></span>
+<span id="L16" class="lineno"><a class="lineno" href="#L16">16</a></span>
+<span id="L17" class="lineno"><a class="lineno" href="#L17">17</a></span>
+<span id="L18" class="lineno"><a class="lineno" href="#L18">18</a></span>
+<span id="L19" class="lineno"><a class="lineno" href="#L19">19</a></span>
+<span id="L20" class="lineno"><a class="lineno" href="#L20">20</a></span>
+<span id="L21" class="lineno"><a class="lineno" href="#L21">21</a></span>
+<span id="L22" class="lineno"><a class="lineno" href="#L22">22</a></span>
+<span id="L23" class="lineno"><a class="lineno" href="#L23">23</a></span>
+<span id="L24" class="lineno"><a class="lineno" href="#L24">24</a></span>
+<span id="L25" class="lineno"><a class="lineno" href="#L25">25</a></span>
+<span id="L26" class="lineno"><a class="lineno" href="#L26">26</a></span>
+<span id="L27" class="lineno"><a class="lineno" href="#L27">27</a></span>
+<span id="L28" class="lineno"><a class="lineno" href="#L28">28</a></span>
+<span id="L29" class="lineno"><a class="lineno" href="#L29">29</a></span>
+<span id="L30" class="lineno"><a class="lineno" href="#L30">30</a></span>
+<span id="L31" class="lineno"><a class="lineno" href="#L31">31</a></span>
+<span id="L32" class="lineno"><a class="lineno" href="#L32">32</a></span>
+<span id="L33" class="lineno"><a class="lineno" href="#L33">33</a></span>
+<span id="L34" class="lineno"><a class="lineno" href="#L34">34</a></span>
+<span id="L35" class="lineno"><a class="lineno" href="#L35">35</a></span>
+<span id="L36" class="lineno"><a class="lineno" href="#L36">36</a></span>
+<span id="L37" class="lineno"><a class="lineno" href="#L37">37</a></span>
+<span id="L38" class="lineno"><a class="lineno" href="#L38">38</a></span>
+<span id="L39" class="lineno"><a class="lineno" href="#L39">39</a></span>
+<span id="L40" class="lineno"><a class="lineno" href="#L40">40</a></span>
+<span id="L41" class="lineno"><a class="lineno" href="#L41">41</a></span>
+<span id="L42" class="lineno"><a class="lineno" href="#L42">42</a></span>
+<span id="L43" class="lineno"><a class="lineno" href="#L43">43</a></span>
+<span id="L44" class="lineno"><a class="lineno" href="#L44">44</a></span>
+<span id="L45" class="lineno"><a class="lineno" href="#L45">45</a></span>
+<span id="L46" class="lineno"><a class="lineno" href="#L46">46</a></span>
+<span id="L47" class="lineno"><a class="lineno" href="#L47">47</a></span>
+<span id="L48" class="lineno"><a class="lineno" href="#L48">48</a></span>
+<span id="L49" class="lineno"><a class="lineno" href="#L49">49</a></span>
+<span id="L50" class="lineno"><a class="lineno" href="#L50">50</a></span>
+<span id="L51" class="lineno"><a class="lineno" href="#L51">51</a></span>
+<span id="L52" class="lineno"><a class="lineno" href="#L52">52</a></span>
+<span id="L53" class="lineno"><a class="lineno" href="#L53">53</a></span>
+<span id="L54" class="lineno"><a class="lineno" href="#L54">54</a></span>
+<span id="L55" class="lineno"><a class="lineno" href="#L55">55</a></span>
+<span id="L56" class="lineno"><a class="lineno" href="#L56">56</a></span>
+<span id="L57" class="lineno"><a class="lineno" href="#L57">57</a></span>
+<span id="L58" class="lineno"><a class="lineno" href="#L58">58</a></span>
+<span id="L59" class="lineno"><a class="lineno" href="#L59">59</a></span>
+<span id="L60" class="lineno"><a class="lineno" href="#L60">60</a></span>
+<span id="L61" class="lineno"><a class="lineno" href="#L61">61</a></span>
+<span id="L62" class="lineno"><a class="lineno" href="#L62">62</a></span>
+<span id="L63" class="lineno"><a class="lineno" href="#L63">63</a></span>
+<span id="L64" class="lineno"><a class="lineno" href="#L64">64</a></span>
+<span id="L65" class="lineno"><a class="lineno" href="#L65">65</a></span>
+<span id="L66" class="lineno"><a class="lineno" href="#L66">66</a></span>
+<span id="L67" class="lineno"><a class="lineno" href="#L67">67</a></span>
+<span id="L68" class="lineno"><a class="lineno" href="#L68">68</a></span>
+<span id="L69" class="lineno"><a class="lineno" href="#L69">69</a></span>
+<span id="L70" class="lineno"><a class="lineno" href="#L70">70</a></span>
+<span id="L71" class="lineno"><a class="lineno" href="#L71">71</a></span>
+<span id="L72" class="lineno"><a class="lineno" href="#L72">72</a></span>
+<span id="L73" class="lineno"><a class="lineno" href="#L73">73</a></span>
+<span id="L74" class="lineno"><a class="lineno" href="#L74">74</a></span>
+<span id="L75" class="lineno"><a class="lineno" href="#L75">75</a></span>
+<span id="L76" class="lineno"><a class="lineno" href="#L76">76</a></span>
+<span id="L77" class="lineno"><a class="lineno" href="#L77">77</a></span>
+<span id="L78" class="lineno"><a class="lineno" href="#L78">78</a></span>
+<span id="L79" class="lineno"><a class="lineno" href="#L79">79</a></span>
+<span id="L80" class="lineno"><a class="lineno" href="#L80">80</a></span>
+<span id="L81" class="lineno"><a class="lineno" href="#L81">81</a></span>
+<span id="L82" class="lineno"><a class="lineno" href="#L82">82</a></span>
+<span id="L83" class="lineno"><a class="lineno" href="#L83">83</a></span>
+<span id="L84" class="lineno"><a class="lineno" href="#L84">84</a></span>
+<span id="L85" class="lineno"><a class="lineno" href="#L85">85</a></span>
+<span id="L86" class="lineno"><a class="lineno" href="#L86">86</a></span>
+<span id="L87" class="lineno"><a class="lineno" href="#L87">87</a></span>
+<span id="L88" class="lineno"><a class="lineno" href="#L88">88</a></span>
+<span id="L89" class="lineno"><a class="lineno" href="#L89">89</a></span>
+<span id="L90" class="lineno"><a class="lineno" href="#L90">90</a></span>
+<span id="L91" class="lineno"><a class="lineno" href="#L91">91</a></span>
+<span id="L92" class="lineno"><a class="lineno" href="#L92">92</a></span>
+<span id="L93" class="lineno"><a class="lineno" href="#L93">93</a></span>
+<span id="L94" class="lineno"><a class="lineno" href="#L94">94</a></span>
+<span id="L95" class="lineno"><a class="lineno" href="#L95">95</a></span>
+<span id="L96" class="lineno"><a class="lineno" href="#L96">96</a></span>
+<span id="L97" class="lineno"><a class="lineno" href="#L97">97</a></span>
+<span id="L98" class="lineno"><a class="lineno" href="#L98">98</a></span>
+<span id="L99" class="lineno"><a class="lineno" href="#L99">99</a></span>
+<span id="L100" class="lineno"><a class="lineno" href="#L100">100</a></span>
+<span id="L101" class="lineno"><a class="lineno" href="#L101">101</a></span>
+<span id="L102" class="lineno"><a class="lineno" href="#L102">102</a></span>
+<span id="L103" class="lineno"><a class="lineno" href="#L103">103</a></span>
+<span id="L104" class="lineno"><a class="lineno" href="#L104">104</a></span>
+<span id="L105" class="lineno"><a class="lineno" href="#L105">105</a></span>
+<span id="L106" class="lineno"><a class="lineno" href="#L106">106</a></span>
+<span id="L107" class="lineno"><a class="lineno" href="#L107">107</a></span>
+<span id="L108" class="lineno"><a class="lineno" href="#L108">108</a></span>
+<span id="L109" class="lineno"><a class="lineno" href="#L109">109</a></span>
+<span id="L110" class="lineno"><a class="lineno" href="#L110">110</a></span>
+<span id="L111" class="lineno"><a class="lineno" href="#L111">111</a></span>
+<span id="L112" class="lineno"><a class="lineno" href="#L112">112</a></span>
+<span id="L113" class="lineno"><a class="lineno" href="#L113">113</a></span>
+<span id="L114" class="lineno"><a class="lineno" href="#L114">114</a></span>
+<span id="L115" class="lineno"><a class="lineno" href="#L115">115</a></span>
+<span id="L116" class="lineno"><a class="lineno" href="#L116">116</a></span>
+<span id="L117" class="lineno"><a class="lineno" href="#L117">117</a></span>
+<span id="L118" class="lineno"><a class="lineno" href="#L118">118</a></span>
+<span id="L119" class="lineno"><a class="lineno" href="#L119">119</a></span>
+<span id="L120" class="lineno"><a class="lineno" href="#L120">120</a></span>
+<span id="L121" class="lineno"><a class="lineno" href="#L121">121</a></span>
+<span id="L122" class="lineno"><a class="lineno" href="#L122">122</a></span>
+<span id="L123" class="lineno"><a class="lineno" href="#L123">123</a></span>
+<span id="L124" class="lineno"><a class="lineno" href="#L124">124</a></span>
+<span id="L125" class="lineno"><a class="lineno" href="#L125">125</a></span>
+<span id="L126" class="lineno"><a class="lineno" href="#L126">126</a></span>
+<span id="L127" class="lineno"><a class="lineno" href="#L127">127</a></span>
+<span id="L128" class="lineno"><a class="lineno" href="#L128">128</a></span>
+<span id="L129" class="lineno"><a class="lineno" href="#L129">129</a></span>
+<span id="L130" class="lineno"><a class="lineno" href="#L130">130</a></span>
+<span id="L131" class="lineno"><a class="lineno" href="#L131">131</a></span>
+<span id="L132" class="lineno"><a class="lineno" href="#L132">132</a></span>
+<span id="L133" class="lineno"><a class="lineno" href="#L133">133</a></span>
+<span id="L134" class="lineno"><a class="lineno" href="#L134">134</a></span>
+<span id="L135" class="lineno"><a class="lineno" href="#L135">135</a></span>
+<span id="L136" class="lineno"><a class="lineno" href="#L136">136</a></span>
+<span id="L137" class="lineno"><a class="lineno" href="#L137">137</a></span>
+<span id="L138" class="lineno"><a class="lineno" href="#L138">138</a></span>
+<span id="L139" class="lineno"><a class="lineno" href="#L139">139</a></span>
+<span id="L140" class="lineno"><a class="lineno" href="#L140">140</a></span>
+<span id="L141" class="lineno"><a class="lineno" href="#L141">141</a></span>
+<span id="L142" class="lineno"><a class="lineno" href="#L142">142</a></span>
+<span id="L143" class="lineno"><a class="lineno" href="#L143">143</a></span>
+<span id="L144" class="lineno"><a class="lineno" href="#L144">144</a></span>
+<span id="L145" class="lineno"><a class="lineno" href="#L145">145</a></span>
+<span id="L146" class="lineno"><a class="lineno" href="#L146">146</a></span>
+<span id="L147" class="lineno"><a class="lineno" href="#L147">147</a></span>
+<span id="L148" class="lineno"><a class="lineno" href="#L148">148</a></span>
+<span id="L149" class="lineno"><a class="lineno" href="#L149">149</a></span>
+<span id="L150" class="lineno"><a class="lineno" href="#L150">150</a></span>
+<span id="L151" class="lineno"><a class="lineno" href="#L151">151</a></span>
+<span id="L152" class="lineno"><a class="lineno" href="#L152">152</a></span>
+<span id="L153" class="lineno"><a class="lineno" href="#L153">153</a></span>
+<span id="L154" class="lineno"><a class="lineno" href="#L154">154</a></span>
+<span id="L155" class="lineno"><a class="lineno" href="#L155">155</a></span>
+<span id="L156" class="lineno"><a class="lineno" href="#L156">156</a></span>
+<span id="L157" class="lineno"><a class="lineno" href="#L157">157</a></span>
+<span id="L158" class="lineno"><a class="lineno" href="#L158">158</a></span>
+<span id="L159" class="lineno"><a class="lineno" href="#L159">159</a></span>
+<span id="L160" class="lineno"><a class="lineno" href="#L160">160</a></span>
+<span id="L161" class="lineno"><a class="lineno" href="#L161">161</a></span>
+<span id="L162" class="lineno"><a class="lineno" href="#L162">162</a></span>
+<span id="L163" class="lineno"><a class="lineno" href="#L163">163</a></span>
+<span id="L164" class="lineno"><a class="lineno" href="#L164">164</a></span>
+<span id="L165" class="lineno"><a class="lineno" href="#L165">165</a></span>
+<span id="L166" class="lineno"><a class="lineno" href="#L166">166</a></span>
+<span id="L167" class="lineno"><a class="lineno" href="#L167">167</a></span>
+<span id="L168" class="lineno"><a class="lineno" href="#L168">168</a></span>
+<span id="L169" class="lineno"><a class="lineno" href="#L169">169</a></span>
+<span id="L170" class="lineno"><a class="lineno" href="#L170">170</a></span>
+<span id="L171" class="lineno"><a class="lineno" href="#L171">171</a></span>
+<span id="L172" class="lineno"><a class="lineno" href="#L172">172</a></span>
+<span id="L173" class="lineno"><a class="lineno" href="#L173">173</a></span>
+<span id="L174" class="lineno"><a class="lineno" href="#L174">174</a></span>
+<span id="L175" class="lineno"><a class="lineno" href="#L175">175</a></span>
+<span id="L176" class="lineno"><a class="lineno" href="#L176">176</a></span>
+<span id="L177" class="lineno"><a class="lineno" href="#L177">177</a></span>
+<span id="L178" class="lineno"><a class="lineno" href="#L178">178</a></span>
+<span id="L179" class="lineno"><a class="lineno" href="#L179">179</a></span>
+<span id="L180" class="lineno"><a class="lineno" href="#L180">180</a></span>
+<span id="L181" class="lineno"><a class="lineno" href="#L181">181</a></span>
+<span id="L182" class="lineno"><a class="lineno" href="#L182">182</a></span>
+<span id="L183" class="lineno"><a class="lineno" href="#L183">183</a></span>
+<span id="L184" class="lineno"><a class="lineno" href="#L184">184</a></span>
+<span id="L185" class="lineno"><a class="lineno" href="#L185">185</a></span>
+<span id="L186" class="lineno"><a class="lineno" href="#L186">186</a></span>
+<span id="L187" class="lineno"><a class="lineno" href="#L187">187</a></span>
+<span id="L188" class="lineno"><a class="lineno" href="#L188">188</a></span>
+<span id="L189" class="lineno"><a class="lineno" href="#L189">189</a></span>
+<span id="L190" class="lineno"><a class="lineno" href="#L190">190</a></span>
+<span id="L191" class="lineno"><a class="lineno" href="#L191">191</a></span>
+<span id="L192" class="lineno"><a class="lineno" href="#L192">192</a></span>
+<span id="L193" class="lineno"><a class="lineno" href="#L193">193</a></span>
+<span id="L194" class="lineno"><a class="lineno" href="#L194">194</a></span>
+<span id="L195" class="lineno"><a class="lineno" href="#L195">195</a></span>
+<span id="L196" class="lineno"><a class="lineno" href="#L196">196</a></span>
+<span id="L197" class="lineno"><a class="lineno" href="#L197">197</a></span>
+<span id="L198" class="lineno"><a class="lineno" href="#L198">198</a></span>
+<span id="L199" class="lineno"><a class="lineno" href="#L199">199</a></span>
+<span id="L200" class="lineno"><a class="lineno" href="#L200">200</a></span>
+<span id="L201" class="lineno"><a class="lineno" href="#L201">201</a></span>
+<span id="L202" class="lineno"><a class="lineno" href="#L202">202</a></span>
+<span id="L203" class="lineno"><a class="lineno" href="#L203">203</a></span>
+<span id="L204" class="lineno"><a class="lineno" href="#L204">204</a></span>
+<span id="L205" class="lineno"><a class="lineno" href="#L205">205</a></span>
+<span id="L206" class="lineno"><a class="lineno" href="#L206">206</a></span>
+<span id="L207" class="lineno"><a class="lineno" href="#L207">207</a></span>
+<span id="L208" class="lineno"><a class="lineno" href="#L208">208</a></span>
+<span id="L209" class="lineno"><a class="lineno" href="#L209">209</a></span>
+<span id="L210" class="lineno"><a class="lineno" href="#L210">210</a></span>
+<span id="L211" class="lineno"><a class="lineno" href="#L211">211</a></span>
+<span id="L212" class="lineno"><a class="lineno" href="#L212">212</a></span>
+<span id="L213" class="lineno"><a class="lineno" href="#L213">213</a></span>
+<span id="L214" class="lineno"><a class="lineno" href="#L214">214</a></span>
+<span id="L215" class="lineno"><a class="lineno" href="#L215">215</a></span>
+<span id="L216" class="lineno"><a class="lineno" href="#L216">216</a></span>
+<span id="L217" class="lineno"><a class="lineno" href="#L217">217</a></span>
+<span id="L218" class="lineno"><a class="lineno" href="#L218">218</a></span>
+<span id="L219" class="lineno"><a class="lineno" href="#L219">219</a></span>
+<span id="L220" class="lineno"><a class="lineno" href="#L220">220</a></span>
+<span id="L221" class="lineno"><a class="lineno" href="#L221">221</a></span>
+<span id="L222" class="lineno"><a class="lineno" href="#L222">222</a></span>
+<span id="L223" class="lineno"><a class="lineno" href="#L223">223</a></span>
+<span id="L224" class="lineno"><a class="lineno" href="#L224">224</a></span>
+<span id="L225" class="lineno"><a class="lineno" href="#L225">225</a></span>
+<span id="L226" class="lineno"><a class="lineno" href="#L226">226</a></span>
+<span id="L227" class="lineno"><a class="lineno" href="#L227">227</a></span>
+<span id="L228" class="lineno"><a class="lineno" href="#L228">228</a></span>
+<span id="L229" class="lineno"><a class="lineno" href="#L229">229</a></span>
+<span id="L230" class="lineno"><a class="lineno" href="#L230">230</a></span>
+<span id="L231" class="lineno"><a class="lineno" href="#L231">231</a></span>
+<span id="L232" class="lineno"><a class="lineno" href="#L232">232</a></span>
+<span id="L233" class="lineno"><a class="lineno" href="#L233">233</a></span>
+<span id="L234" class="lineno"><a class="lineno" href="#L234">234</a></span>
+<span id="L235" class="lineno"><a class="lineno" href="#L235">235</a></span>
+<span id="L236" class="lineno"><a class="lineno" href="#L236">236</a></span>
+<span id="L237" class="lineno"><a class="lineno" href="#L237">237</a></span>
+<span id="L238" class="lineno"><a class="lineno" href="#L238">238</a></span>
+<span id="L239" class="lineno"><a class="lineno" href="#L239">239</a></span>
+<span id="L240" class="lineno"><a class="lineno" href="#L240">240</a></span>
+<span id="L241" class="lineno"><a class="lineno" href="#L241">241</a></span>
+<span id="L242" class="lineno"><a class="lineno" href="#L242">242</a></span>
+<span id="L243" class="lineno"><a class="lineno" href="#L243">243</a></span>
+<span id="L244" class="lineno"><a class="lineno" href="#L244">244</a></span>
+<span id="L245" class="lineno"><a class="lineno" href="#L245">245</a></span>
+<span id="L246" class="lineno"><a class="lineno" href="#L246">246</a></span>
+<span id="L247" class="lineno"><a class="lineno" href="#L247">247</a></span>
+<span id="L248" class="lineno"><a class="lineno" href="#L248">248</a></span>
+<span id="L249" class="lineno"><a class="lineno" href="#L249">249</a></span>
+<span id="L250" class="lineno"><a class="lineno" href="#L250">250</a></span>
+<span id="L251" class="lineno"><a class="lineno" href="#L251">251</a></span>
+<span id="L252" class="lineno"><a class="lineno" href="#L252">252</a></span>
+<span id="L253" class="lineno"><a class="lineno" href="#L253">253</a></span>
+<span id="L254" class="lineno"><a class="lineno" href="#L254">254</a></span>
+<span id="L255" class="lineno"><a class="lineno" href="#L255">255</a></span>
+<span id="L256" class="lineno"><a class="lineno" href="#L256">256</a></span>
+<span id="L257" class="lineno"><a class="lineno" href="#L257">257</a></span>
+<span id="L258" class="lineno"><a class="lineno" href="#L258">258</a></span>
+<span id="L259" class="lineno"><a class="lineno" href="#L259">259</a></span>
+<span id="L260" class="lineno"><a class="lineno" href="#L260">260</a></span>
+<span id="L261" class="lineno"><a class="lineno" href="#L261">261</a></span>
+<span id="L262" class="lineno"><a class="lineno" href="#L262">262</a></span>
+<span id="L263" class="lineno"><a class="lineno" href="#L263">263</a></span>
+<span id="L264" class="lineno"><a class="lineno" href="#L264">264</a></span>
+<span id="L265" class="lineno"><a class="lineno" href="#L265">265</a></span>
+<span id="L266" class="lineno"><a class="lineno" href="#L266">266</a></span>
+<span id="L267" class="lineno"><a class="lineno" href="#L267">267</a></span>
+<span id="L268" class="lineno"><a class="lineno" href="#L268">268</a></span>
+<span id="L269" class="lineno"><a class="lineno" href="#L269">269</a></span>
+<span id="L270" class="lineno"><a class="lineno" href="#L270">270</a></span>
+<span id="L271" class="lineno"><a class="lineno" href="#L271">271</a></span>
+<span id="L272" class="lineno"><a class="lineno" href="#L272">272</a></span>
+<span id="L273" class="lineno"><a class="lineno" href="#L273">273</a></span>
+<span id="L274" class="lineno"><a class="lineno" href="#L274">274</a></span>
+<span id="L275" class="lineno"><a class="lineno" href="#L275">275</a></span>
+<span id="L276" class="lineno"><a class="lineno" href="#L276">276</a></span>
+<span id="L277" class="lineno"><a class="lineno" href="#L277">277</a></span>
+<span id="L278" class="lineno"><a class="lineno" href="#L278">278</a></span>
+<span id="L279" class="lineno"><a class="lineno" href="#L279">279</a></span>
+<span id="L280" class="lineno"><a class="lineno" href="#L280">280</a></span>
+<span id="L281" class="lineno"><a class="lineno" href="#L281">281</a></span>
+<span id="L282" class="lineno"><a class="lineno" href="#L282">282</a></span>
+<span id="L283" class="lineno"><a class="lineno" href="#L283">283</a></span>
+<span id="L284" class="lineno"><a class="lineno" href="#L284">284</a></span>
+<span id="L285" class="lineno"><a class="lineno" href="#L285">285</a></span>
+<span id="L286" class="lineno"><a class="lineno" href="#L286">286</a></span>
+<span id="L287" class="lineno"><a class="lineno" href="#L287">287</a></span>
+<span id="L288" class="lineno"><a class="lineno" href="#L288">288</a></span>
+<span id="L289" class="lineno"><a class="lineno" href="#L289">289</a></span>
+<span id="L290" class="lineno"><a class="lineno" href="#L290">290</a></span>
+<span id="L291" class="lineno"><a class="lineno" href="#L291">291</a></span>
+<span id="L292" class="lineno"><a class="lineno" href="#L292">292</a></span>
+<span id="L293" class="lineno"><a class="lineno" href="#L293">293</a></span>
+<span id="L294" class="lineno"><a class="lineno" href="#L294">294</a></span>
+<span id="L295" class="lineno"><a class="lineno" href="#L295">295</a></span>
+<span id="L296" class="lineno"><a class="lineno" href="#L296">296</a></span>
+<span id="L297" class="lineno"><a class="lineno" href="#L297">297</a></span>
+<span id="L298" class="lineno"><a class="lineno" href="#L298">298</a></span>
+<span id="L299" class="lineno"><a class="lineno" href="#L299">299</a></span>
+<span id="L300" class="lineno"><a class="lineno" href="#L300">300</a></span>
+<span id="L301" class="lineno"><a class="lineno" href="#L301">301</a></span>
+<span id="L302" class="lineno"><a class="lineno" href="#L302">302</a></span>
+</pre></td>
+<td class="table-code"><pre><span class="line-empty" title="No Anys on this line!">"""The aspect classifier, and the measurement that says whether it helped.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">Proposal section 17, component 2. Until now this was a lexicon: a list of cue</span>
+<span class="line-empty" title="No Anys on this line!">words per topic, matched case-insensitively. ADR 0004 argued for shipping that</span>
+<span class="line-empty" title="No Anys on this line!">first, and it was right, but a lexicon has a ceiling you can see from here. It</span>
+<span class="line-empty" title="No Anys on this line!">cannot know that "showroom guy promised 22 but I get 14" is about fuel economy</span>
+<span class="line-empty" title="No Anys on this line!">unless somebody thought to put "kmpl" in the list, and it will never learn</span>
+<span class="line-empty" title="No Anys on this line!">that "AC struggles in May" is about comfort.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">**Trained on weak labels.** The training targets come from the lexicon, over</span>
+<span class="line-empty" title="No Anys on this line!">every real review we hold. That sounds circular and is not, quite: a linear</span>
+<span class="line-empty" title="No Anys on this line!">model over character and word n-grams sees far more than the cue list it was</span>
+<span class="line-empty" title="No Anys on this line!">taught from, so it generalises to phrasings the lexicon misses. Distant</span>
+<span class="line-empty" title="No Anys on this line!">supervision is a standard way to get a first classifier without a labelling</span>
+<span class="line-empty" title="No Anys on this line!">budget, and its honesty depends entirely on the next paragraph.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">**Evaluated on hand labels.** The only score that counts is against sentences</span>
+<span class="line-empty" title="No Anys on this line!">a person read and labelled. Evaluating on lexicon output would measure how</span>
+<span class="line-empty" title="No Anys on this line!">well the model memorised the rules. Both the model and the lexicon are scored</span>
+<span class="line-empty" title="No Anys on this line!">on the same held-out human set, so the comparison answers the only question</span>
+<span class="line-empty" title="No Anys on this line!">worth asking: is this better than what it replaces?</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">Character n-grams alongside word n-grams, because Indian owner reviews are</span>
+<span class="line-empty" title="No Anys on this line!">code-mixed and full of transliterated Hindi. "gaadi", "chalata", "sahi" carry</span>
+<span class="line-empty" title="No Anys on this line!">meaning that a word-level model sees once and never again, while character</span>
+<span class="line-empty" title="No Anys on this line!">n-grams at least share substrings with their variants.</span>
+<span class="line-empty" title="No Anys on this line!">"""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from __future__ import annotations</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">import pathlib</span>
+<span class="line-precise" title="No Anys on this line!">from dataclasses import dataclass, field</span>
+<span class="line-precise" title="No Anys on this line!">from typing import Any</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy import select</span>
+<span class="line-precise" title="No Anys on this line!">from sqlalchemy.orm import Session</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.enums import AspectKey</span>
+<span class="line-precise" title="No Anys on this line!">from revix_core.models import EvidenceUnit</span>
+<span class="line-precise" title="No Anys on this line!">from revix_pipeline.enrichment.extract import ASPECT_CUES, split_sentences</span>
+<span class="line-precise" title="No Anys on this line!">from revix_pipeline.ml.gold import GoldItem</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">DEFAULT_MODEL_PATH = pathlib.Path("data/models/aspect_classifier.joblib")</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">#: Below this the model says nothing rather than guessing. A false aspect is</span>
+<span class="line-empty" title="No Anys on this line!">#: worse than a missing one here, because it puts a sentence about the boot</span>
+<span class="line-empty" title="No Anys on this line!">#: into the score for the gearbox and nobody reading the verdict can tell.</span>
+<span class="line-precise" title="No Anys on this line!">DEFAULT_THRESHOLD = 0.45</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">MIN_TRAINING_SENTENCES = 200</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x6)">@dataclass(slots=True)</span>
+<span class="line-precise" title="No Anys on this line!">class Evaluation:</span>
+<span class="line-empty" title="No Anys on this line!">    """How a labeller and a system agreed, per topic and overall."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    name: str</span>
+<span class="line-precise" title="No Anys on this line!">    n_items: int</span>
+<span class="line-precise" title="No Anys on this line!">    macro_f1: float</span>
+<span class="line-precise" title="No Anys on this line!">    micro_f1: float</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x32)
+Explicit (x7)">    per_aspect: dict[str, dict[str, float]] = field(default_factory=dict)</span>
+<span class="line-empty" title="No Anys on this line!">    #: Which topics the macro average covers. A macro F1 over two topics and</span>
+<span class="line-empty" title="No Anys on this line!">    #: one over nine are different claims, and the number alone hides that.</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x7)
+Explicit (x7)">    aspects_scored: list[str] = field(default_factory=list)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Explicit (x1)">    def as_dict(self) -&gt; dict[str, Any]:</span>
+<span class="line-empty" title="No Anys on this line!">        return {</span>
+<span class="line-precise" title="No Anys on this line!">            "name": self.name,</span>
+<span class="line-precise" title="No Anys on this line!">            "n_items": self.n_items,</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x4)">            "macro_f1": round(self.macro_f1, 4),</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x4)">            "micro_f1": round(self.micro_f1, 4),</span>
+<span class="line-precise" title="No Anys on this line!">            "aspects_scored": self.aspects_scored,</span>
+<span class="line-precise" title="No Anys on this line!">            "per_aspect": {</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x4)">                k: {m: round(v, 4) for m, v in scores.items()}</span>
+<span class="line-precise" title="No Anys on this line!">                for k, scores in self.per_aspect.items()</span>
+<span class="line-empty" title="No Anys on this line!">            },</span>
+<span class="line-empty" title="No Anys on this line!">        }</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class AspectClassifier:</span>
+<span class="line-empty" title="No Anys on this line!">    """Multi-label over the nine topics. One sentence in, zero or more out."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x1)">    def __init__(self, pipeline: Any, threshold: float = DEFAULT_THRESHOLD) -&gt; None:</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x2)">        self._pipeline = pipeline</span>
+<span class="line-precise" title="No Anys on this line!">        self.threshold = threshold</span>
+<span class="line-empty" title="No Anys on this line!">        # Fixed order, taken from the enum rather than from the training data,</span>
+<span class="line-empty" title="No Anys on this line!">        # so a topic that happened to be absent from one training run does not</span>
+<span class="line-empty" title="No Anys on this line!">        # silently shift every other column.</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x3)">        self.labels: list[AspectKey] = list(AspectKey)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    def predict(self, sentence: str) -&gt; set[AspectKey]:</span>
+<span class="line-precise" title="No Anys on this line!">        scores = self.predict_proba(sentence)</span>
+<span class="line-precise" title="No Anys on this line!">        return {aspect for aspect, p in scores.items() if p &gt;= self.threshold}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    def predict_proba(self, sentence: str) -&gt; dict[AspectKey, float]:</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x5)">        raw = self._pipeline.predict_proba([sentence])[0]</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x2)">        return {aspect: float(raw[i]) for i, aspect in enumerate(self.labels)}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    def save(self, path: pathlib.Path = DEFAULT_MODEL_PATH) -&gt; pathlib.Path:</span>
+<span class="line-any" title="No Anys on this line!">        import joblib</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">        path.parent.mkdir(parents=True, exist_ok=True)</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x3)
+Explicit (x1)">        joblib.dump({"pipeline": self._pipeline, "threshold": self.threshold}, path)</span>
+<span class="line-precise" title="No Anys on this line!">        return path</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    @classmethod</span>
+<span class="line-precise" title="No Anys on this line!">    def load(cls, path: pathlib.Path = DEFAULT_MODEL_PATH) -&gt; AspectClassifier | None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Returns None when there is no model, rather than raising.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">        The extraction stage falls back to the lexicon in that case, which is</span>
+<span class="line-empty" title="No Anys on this line!">        the promise ADR 0004 made: the pipeline runs with nothing trained.</span>
+<span class="line-empty" title="No Anys on this line!">        """</span>
+<span class="line-precise" title="No Anys on this line!">        if not path.exists():</span>
+<span class="line-precise" title="No Anys on this line!">            return None</span>
+<span class="line-any" title="No Anys on this line!">        import joblib</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x4)">        blob = joblib.load(path)</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x1)
+Unimported (x5)">        return cls(blob["pipeline"], blob.get("threshold", DEFAULT_THRESHOLD))</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def lexicon_aspects(sentence: str) -&gt; set[AspectKey]:</span>
+<span class="line-empty" title="No Anys on this line!">    """What the current rules say. The baseline the model has to beat."""</span>
+<span class="line-precise" title="No Anys on this line!">    lowered = sentence.casefold()</span>
+<span class="line-precise" title="No Anys on this line!">    return {a for a, cues in ASPECT_CUES.items() if any(cue in lowered for cue in cues)}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def build_training_set(</span>
+<span class="line-precise" title="No Anys on this line!">    session: Session, *, exclude: set[str] | None = None</span>
+<span class="line-empty" title="No Anys on this line!">) -&gt; tuple[list[str], list[list[int]]]:</span>
+<span class="line-empty" title="No Anys on this line!">    """Every real sentence, labelled by the lexicon.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    `exclude` holds the gold sentences. They are kept out of training so the</span>
+<span class="line-empty" title="No Anys on this line!">    evaluation is on data the model has never seen, which is the difference</span>
+<span class="line-empty" title="No Anys on this line!">    between a test score and a memory test.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x3)">    exclude = exclude or set()</span>
+<span class="line-precise" title="No Anys on this line!">    sentences: list[str] = []</span>
+<span class="line-precise" title="No Anys on this line!">    targets: list[list[int]] = []</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x3)">    order = list(AspectKey)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x5)
+Omitted Generics (x2)">    rows = session.scalars(</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x227)
+Omitted Generics (x220)">        select(EvidenceUnit.text).where(</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x4)">            EvidenceUnit.variant_id.is_not(None) | EvidenceUnit.model_id.is_not(None)</span>
+<span class="line-empty" title="No Anys on this line!">        )</span>
+<span class="line-empty" title="No Anys on this line!">    ).all()</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    for text in rows:</span>
+<span class="line-precise" title="No Anys on this line!">        for sentence in split_sentences(text):</span>
+<span class="line-precise" title="No Anys on this line!">            sentence = sentence.strip()</span>
+<span class="line-precise" title="No Anys on this line!">            if len(sentence) &lt; 20 or sentence in exclude:</span>
+<span class="line-precise" title="No Anys on this line!">                continue</span>
+<span class="line-precise" title="No Anys on this line!">            matched = lexicon_aspects(sentence)</span>
+<span class="line-precise" title="No Anys on this line!">            if not matched:</span>
+<span class="line-empty" title="No Anys on this line!">                # Negative examples matter as much as positive ones. Training</span>
+<span class="line-empty" title="No Anys on this line!">                # only on sentences the lexicon matched would teach the model</span>
+<span class="line-empty" title="No Anys on this line!">                # that every sentence is about something.</span>
+<span class="line-precise" title="No Anys on this line!">                sentences.append(sentence)</span>
+<span class="line-precise" title="No Anys on this line!">                targets.append([0] * len(order))</span>
+<span class="line-precise" title="No Anys on this line!">                continue</span>
+<span class="line-precise" title="No Anys on this line!">            sentences.append(sentence)</span>
+<span class="line-precise" title="No Anys on this line!">            targets.append([1 if a in matched else 0 for a in order])</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    return sentences, targets</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def train_classifier(</span>
+<span class="line-precise" title="No Anys on this line!">    sentences: list[str], targets: list[list[int]], *, seed: int = 20260906</span>
+<span class="line-empty" title="No Anys on this line!">) -&gt; AspectClassifier:</span>
+<span class="line-empty" title="No Anys on this line!">    """Word and character n-grams into one-vs-rest logistic regression.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    Deliberately a linear model. It trains in seconds on a laptop, its</span>
+<span class="line-empty" title="No Anys on this line!">    coefficients can be read to see which words drive a topic, and on a few</span>
+<span class="line-empty" title="No Anys on this line!">    thousand short sentences it is not obviously worse than anything larger.</span>
+<span class="line-empty" title="No Anys on this line!">    A model nobody can inspect would sit badly in a project whose entire</span>
+<span class="line-empty" title="No Anys on this line!">    argument is that you should be able to see why a number is what it is.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-precise" title="No Anys on this line!">    if len(sentences) &lt; MIN_TRAINING_SENTENCES:</span>
+<span class="line-precise" title="No Anys on this line!">        raise ValueError(</span>
+<span class="line-precise" title="No Anys on this line!">            f"only {len(sentences)} training sentences, need at least "</span>
+<span class="line-precise" title="No Anys on this line!">            f"{MIN_TRAINING_SENTENCES}. Ingest more evidence first."</span>
+<span class="line-empty" title="No Anys on this line!">        )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="No Anys on this line!">    from sklearn.feature_extraction.text import TfidfVectorizer</span>
+<span class="line-any" title="No Anys on this line!">    from sklearn.linear_model import LogisticRegression</span>
+<span class="line-any" title="No Anys on this line!">    from sklearn.multiclass import OneVsRestClassifier</span>
+<span class="line-any" title="No Anys on this line!">    from sklearn.pipeline import FeatureUnion, Pipeline</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x3)">    features = FeatureUnion(</span>
+<span class="line-empty" title="No Anys on this line!">        [</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x2)">            ("word", TfidfVectorizer(ngram_range=(1, 2), min_df=2, sublinear_tf=True)),</span>
+<span class="line-empty" title="No Anys on this line!">            # Character n-grams for the code-mixed half of the corpus, where</span>
+<span class="line-empty" title="No Anys on this line!">            # "gaadi" and "gadi" are the same word spelled by two people.</span>
+<span class="line-empty" title="No Anys on this line!">            (</span>
+<span class="line-precise" title="No Anys on this line!">                "char",</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x2)">                TfidfVectorizer(</span>
+<span class="line-precise" title="No Anys on this line!">                    analyzer="char_wb", ngram_range=(3, 5), min_df=3, sublinear_tf=True</span>
+<span class="line-empty" title="No Anys on this line!">                ),</span>
+<span class="line-empty" title="No Anys on this line!">            ),</span>
+<span class="line-empty" title="No Anys on this line!">        ]</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x3)">    pipeline = Pipeline(</span>
+<span class="line-empty" title="No Anys on this line!">        [</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x1)">            ("features", features),</span>
+<span class="line-empty" title="No Anys on this line!">            (</span>
+<span class="line-precise" title="No Anys on this line!">                "clf",</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x2)">                OneVsRestClassifier(</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x2)">                    LogisticRegression(</span>
+<span class="line-precise" title="No Anys on this line!">                        max_iter=2000,</span>
+<span class="line-empty" title="No Anys on this line!">                        # The topics are wildly imbalanced: everybody writes</span>
+<span class="line-empty" title="No Anys on this line!">                        # about looks, almost nobody about the service centre.</span>
+<span class="line-empty" title="No Anys on this line!">                        # Without this the rare topics are never predicted.</span>
+<span class="line-precise" title="No Anys on this line!">                        class_weight="balanced",</span>
+<span class="line-precise" title="No Anys on this line!">                        random_state=seed,</span>
+<span class="line-empty" title="No Anys on this line!">                    )</span>
+<span class="line-empty" title="No Anys on this line!">                ),</span>
+<span class="line-empty" title="No Anys on this line!">            ),</span>
+<span class="line-empty" title="No Anys on this line!">        ]</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x3)">    pipeline.fit(sentences, targets)</span>
+<span class="line-any" title="Any Types on this line: 
+Explicit (x1)
+Unimported (x1)">    return AspectClassifier(pipeline)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def _f1(true_positive: int, false_positive: int, false_negative: int) -&gt; dict[str, float]:</span>
+<span class="line-precise" title="No Anys on this line!">    precision = (</span>
+<span class="line-precise" title="No Anys on this line!">        true_positive / (true_positive + false_positive) if true_positive + false_positive else 0.0</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-precise" title="No Anys on this line!">    recall = (</span>
+<span class="line-precise" title="No Anys on this line!">        true_positive / (true_positive + false_negative) if true_positive + false_negative else 0.0</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-precise" title="No Anys on this line!">    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0</span>
+<span class="line-empty" title="No Anys on this line!">    return {</span>
+<span class="line-precise" title="No Anys on this line!">        "precision": precision,</span>
+<span class="line-precise" title="No Anys on this line!">        "recall": recall,</span>
+<span class="line-precise" title="No Anys on this line!">        "f1": f1,</span>
+<span class="line-precise" title="No Anys on this line!">        "support": float(true_positive + false_negative),</span>
+<span class="line-empty" title="No Anys on this line!">    }</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def score_predictions(</span>
+<span class="line-empty" title="No Anys on this line!">    name: str, gold: list[GoldItem], predictions: list[set[AspectKey]]</span>
+<span class="line-empty" title="No Anys on this line!">) -&gt; Evaluation:</span>
+<span class="line-empty" title="No Anys on this line!">    """Per-aspect precision, recall and F1, plus macro and micro averages.</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    Macro alongside micro on purpose. Micro is dominated by the common topics,</span>
+<span class="line-empty" title="No Anys on this line!">    so a system that handles looks and mileage well and service badly scores</span>
+<span class="line-empty" title="No Anys on this line!">    respectably on it. Macro treats every topic equally and is the number that</span>
+<span class="line-empty" title="No Anys on this line!">    notices.</span>
+<span class="line-empty" title="No Anys on this line!">    """</span>
+<span class="line-precise" title="No Anys on this line!">    per_aspect: dict[str, dict[str, float]] = {}</span>
+<span class="line-precise" title="No Anys on this line!">    micro_tp = micro_fp = micro_fn = 0</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    for aspect in AspectKey:</span>
+<span class="line-precise" title="No Anys on this line!">        tp = fp = fn = 0</span>
+<span class="line-precise" title="Any Types on this line: 
+Explicit (x9)
+Omitted Generics (x37)">        for item, predicted in zip(gold, predictions, strict=True):</span>
+<span class="line-precise" title="No Anys on this line!">            actual = item.aspect_keys</span>
+<span class="line-precise" title="No Anys on this line!">            if aspect in predicted and aspect in actual:</span>
+<span class="line-precise" title="No Anys on this line!">                tp += 1</span>
+<span class="line-precise" title="No Anys on this line!">            elif aspect in predicted:</span>
+<span class="line-precise" title="No Anys on this line!">                fp += 1</span>
+<span class="line-precise" title="No Anys on this line!">            elif aspect in actual:</span>
+<span class="line-precise" title="No Anys on this line!">                fn += 1</span>
+<span class="line-precise" title="No Anys on this line!">        per_aspect[aspect.value] = _f1(tp, fp, fn)</span>
+<span class="line-precise" title="No Anys on this line!">        micro_tp, micro_fp, micro_fn = micro_tp + tp, micro_fp + fp, micro_fn + fn</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!">    # Averaged over the topics this set can actually speak to: those with at</span>
+<span class="line-empty" title="No Anys on this line!">    # least one gold instance, plus any the system predicted, so a false</span>
+<span class="line-empty" title="No Anys on this line!">    # positive on an absent topic still costs something. Averaging over all</span>
+<span class="line-empty" title="No Anys on this line!">    # nine would score a perfect system 0.22 on a set covering two topics,</span>
+<span class="line-empty" title="No Anys on this line!">    # punishing it for questions nobody asked.</span>
+<span class="line-precise" title="No Anys on this line!">    scored = [</span>
+<span class="line-precise" title="No Anys on this line!">        aspect.value</span>
+<span class="line-precise" title="No Anys on this line!">        for aspect in AspectKey</span>
+<span class="line-precise" title="No Anys on this line!">        if per_aspect[aspect.value]["support"] &gt; 0</span>
+<span class="line-precise" title="No Anys on this line!">        or any(aspect in predicted for predicted in predictions)</span>
+<span class="line-empty" title="No Anys on this line!">    ]</span>
+<span class="line-precise" title="Any Types on this line: 
+Omitted Generics (x6)
+Explicit (x8)">    macro = sum(per_aspect[a]["f1"] for a in scored) / len(scored) if scored else 0.0</span>
+<span class="line-precise" title="No Anys on this line!">    return Evaluation(</span>
+<span class="line-precise" title="No Anys on this line!">        name=name,</span>
+<span class="line-precise" title="No Anys on this line!">        n_items=len(gold),</span>
+<span class="line-precise" title="No Anys on this line!">        macro_f1=macro,</span>
+<span class="line-precise" title="No Anys on this line!">        micro_f1=_f1(micro_tp, micro_fp, micro_fn)["f1"],</span>
+<span class="line-precise" title="No Anys on this line!">        per_aspect=per_aspect,</span>
+<span class="line-precise" title="No Anys on this line!">        aspects_scored=scored,</span>
+<span class="line-empty" title="No Anys on this line!">    )</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">def evaluate_against_gold(</span>
+<span class="line-empty" title="No Anys on this line!">    gold: list[GoldItem], classifier: AspectClassifier | None</span>
+<span class="line-empty" title="No Anys on this line!">) -&gt; list[Evaluation]:</span>
+<span class="line-empty" title="No Anys on this line!">    """Score the lexicon and, if one exists, the classifier on the same set."""</span>
+<span class="line-precise" title="No Anys on this line!">    labelled = [item for item in gold if item.is_labelled]</span>
+<span class="line-precise" title="No Anys on this line!">    if not labelled:</span>
+<span class="line-empty" title="No Anys on this line!">        return []</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    results = [score_predictions("lexicon", labelled, [lexicon_aspects(i.text) for i in labelled])]</span>
+<span class="line-precise" title="No Anys on this line!">    if classifier is not None:</span>
+<span class="line-precise" title="No Anys on this line!">        results.append(</span>
+<span class="line-precise" title="No Anys on this line!">            score_predictions(</span>
+<span class="line-precise" title="No Anys on this line!">                "classifier", labelled, [classifier.predict(i.text) for i in labelled]</span>
+<span class="line-empty" title="No Anys on this line!">            )</span>
+<span class="line-empty" title="No Anys on this line!">        )</span>
+<span class="line-precise" title="No Anys on this line!">    return results</span>
+</pre></td>
+</tr></tbody>
+</table>
+</body>
+</html>
