@@ -249,415 +249,421 @@ page-break-before: auto;
 </header>
 <h1 id="speaking-script-s3-code-review-and-lab-work">Speaking Script: S3
 Code Review and Lab Work</h1>
-<p>For the one-to-one with Prof. Naik. Internal working document, not a
-hand-in. It walks the presentation PDF sheet by sheet: what is on the
-page, what it means, and what to say.</p>
+<p>Internal notes. Walks the 23-sheet presentation PDF, sheet by sheet:
+the one thing on each, the number to say, and the line that carries
+it.</p>
 <table>
 <tbody>
 <tr>
-<td><strong>The document you present</strong></td>
-<td><code>group 5 - s3 code review &amp; lab work.pdf</code>, 13
+<td><strong>You present</strong></td>
+<td><code>group 5 - s3 code review &amp; lab work.pdf</code>, 23
 sheets</td>
 </tr>
 <tr>
-<td><strong>The backing document</strong></td>
+<td><strong>Backup document</strong></td>
 <td><code>detailed non-functional-requirements.pdf</code>, 8 sheets</td>
 </tr>
 <tr>
-<td><strong>Format</strong></td>
-<td>One-to-one, screen shared, terminal open alongside</td>
-</tr>
-<tr>
 <td><strong>Target</strong></td>
-<td>12 minutes spoken, leaving room for questions</td>
+<td>12 to 14 minutes, then questions</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Have open:</strong> the PDF, a terminal at the repo root,
+GitHub with green checks, the live site already warmed.</p>
+<p><strong>Two rules.</strong> Never claim quality, show what is
+enforced. And <strong>run the tools live</strong> on sheets 12 and 13,
+because he said the codebase does not need walking.</p>
 <hr />
-<h2 id="before-you-start">Before you start</h2>
-<p>Have these open, in this tab order. Nothing else.</p>
-<ol type="1">
-<li>The presentation PDF, on sheet 1</li>
-<li>A terminal at the repository root, cleared</li>
-<li>GitHub, on a pull request with the checks visible and green</li>
-<li>The live site, already loaded twice so it is warm</li>
-</ol>
-<p><strong>Two rules for the whole session.</strong></p>
-<p>Every claim is followed by the thing that proves it, on screen. Never
-say &quot;the code quality is good&quot;; say what is enforced and let the build
-be the evidence.</p>
-<p>He has said the whole codebase does not need walking. So <strong>run
-the tools live rather than describing them.</strong> The terminal is the
-point of this session.</p>
-<p>Bold sentences below are the ones that carry the argument. If you are
-cut short, say only those.</p>
-<hr />
-<h2 id="sheet-1-and-2-cover-and-contents-40-seconds">Sheet 1 and 2:
-cover and contents (40 seconds)</h2>
-<p>Do not read the cover out. Give the project in two sentences while it
-is on screen, then move to the contents page.</p>
-<blockquote>
-<p>Revix is an evidence-traceable review system for Indian cars and
-two-wheelers. The problem is that a star average hides who rated, what
-they cared about, and whether they agreed, so <strong>we rebuild the
-verdict from the reviews underneath it and keep every number traceable
-to the sentences it came from.</strong></p>
-<p>It runs on real data: <strong>twenty thousand review units across
-three sources, 143 variants, 42 models</strong>, refreshed by a pipeline
-that runs itself.</p>
-</blockquote>
-<p><strong>On the contents page</strong>, point at the five sections and
-say you will spend most of the time on section three, the measured code
-quality, since that is what the session is for.</p>
-<p><em>Do not demo the product.</em> That is the 16 October submission.
-If he starts clicking, let him, then steer back: &quot;I can show the full
-flow properly in the demo session; today I would rather show you what is
-underneath it.&quot;</p>
-<hr />
-<h2 id="sheets-3-and-4-codebase-2-minutes">Sheets 3 and 4: codebase (2
-minutes)</h2>
-<p><strong>Sheet 3</strong> is the shape and the scale. <strong>Sheet
-4</strong> is the part worth talking about.</p>
-<p>On sheet 3, do not read the tree. Say what it is and move:</p>
-<blockquote>
-<p>Three Python packages and a Next.js app, about seventeen thousand
-lines. The pipeline is the biggest piece and the API is deliberately the
-smallest, under two thousand lines, because almost nothing happens
-there.</p>
-</blockquote>
-<p>Then the numbers underneath it:</p>
-<blockquote>
-<p>Twenty thousand evidence units, 143 variants, and <strong>134 of them
-publish a verdict while nine are held back.</strong> Those nine are not
-missing data, they are below our evidence floor, and we would rather say
-nothing than publish a score built on four reviews.</p>
-</blockquote>
-<p><strong>Sheet 4 is where you slow down.</strong></p>
-<blockquote>
-<p>The one rule is that dependencies run in one direction. The API and
-the pipeline both depend on core, and core depends on neither, so the
-read path and the write path cannot tangle.</p>
-<p><strong>And it is enforced by import linting in CI, not by us
-remembering.</strong> That is also why it is three packages rather than
-one: in a single package this would be a naming convention, and naming
-conventions lose. Here the API physically cannot import the
-pipeline.</p>
-</blockquote>
-<p>Then the schemas, briefly:</p>
-<blockquote>
-<p>The database does the same thing: four schemas separated by lifecycle
-rather than by subject, so you can always tell which layer a table is in
-and what is allowed to write to it.</p>
-</blockquote>
-<p><strong>If he asks about the migration checks</strong>, the third one
-is the interesting one: CI checks migrations apply, that they match the
-models, <strong>and that they reverse cleanly</strong>, which most
-projects never test.</p>
-<hr />
-<h2 id="sheets-5-and-6-frameworks-25-minutes">Sheets 5 and 6: frameworks
-(2.5 minutes)</h2>
-<p><strong>Sheet 5</strong> is the table. Do not read it. Let him scan
-it and give the shape:</p>
-<blockquote>
-<p>Rather than justify these in prose, every choice is written down as a
-decision record, with the alternative we rejected. Nine of them.</p>
-</blockquote>
-<p>Then point at the closing note on that sheet, which is the actual
-argument:</p>
-<blockquote>
-<p><strong>Each of these was chosen so that a mistake becomes a failed
-build rather than a defect a reader finds.</strong> The generated
-client, the typed ORM, the migration checks and the contract-first
-schema are all the same move.</p>
-</blockquote>
-<p><strong>Sheet 6 has the two worth arguing about.</strong> These are
-your strongest minutes in the first half.</p>
-<p><strong>The orchestration one:</strong></p>
-<blockquote>
-<p>We use scheduled GitHub Actions instead of Airflow or Prefect. An
-orchestrator is a server to run, secure and pay for, and our pipeline is
-one nightly batch with no fan-out and no backfill. Actions already holds
-our secrets, already schedules, already alerts.</p>
-<p><strong>Choosing Airflow here would have been choosing a tool because
-it looks professional rather than because the problem needs
-it.</strong></p>
-</blockquote>
-<p><strong>The machine learning one:</strong></p>
-<blockquote>
-<p>We built a distant-supervision aspect classifier: lexicon labels
-train a TF-IDF into a one-vs-rest logistic regression.</p>
-<p><strong>It lost to the lexicon it learned from by 0.29 macro F1, so
-it ships disabled</strong>, and the number is published on our public
-metrics page rather than quietly dropped.</p>
-<p>The alternative was shipping a model because we had built one, and
-the whole argument of this project is that a number should be
-earned.</p>
-</blockquote>
-<p><em>Do not rush that and do not apologise for it. A negative result
-you published is a stronger claim than a positive one you did not
-check.</em></p>
-<hr />
-<h2 id="sheets-7-8-and-9-code-quality-4-minutes-the-core">Sheets 7, 8
-and 9: code quality (4 minutes, the core)</h2>
-<p>This is what the session is for. <strong>Move to the terminal for
-sheet 7.</strong></p>
-<h3 id="sheet-7-run-the-score-live">Sheet 7: run the score live</h3>
-<p>Type it. Do not paste a screenshot. It takes about ten seconds and a
-number produced in front of him is worth more than a number in a
-document.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon mi packages/revix_core/src pipeline/src apps/api/src <span class="at">-s</span></span></code></pre></div>
-<blockquote>
-<p>This is the maintainability index, the closest thing Python has to a
-single score for how hard a file will be to change in six months. Zero
-to a hundred, and anything above twenty is grade A.</p>
-<p><strong>Every one of our forty-three files is an A.</strong></p>
-</blockquote>
-<p>Then complexity:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon cc packages/revix_core/src pipeline/src apps/api/src <span class="at">-a</span> <span class="at">-s</span> <span class="at">-nC</span></span></code></pre></div>
-<blockquote>
-<p>Cyclomatic complexity counts the independent paths through a block,
-which is also the minimum number of tests needed to cover it.
-<strong>The average across 344 blocks is A, at 3.9</strong>, and four
-fifths of the codebase is in the simplest band. What is listed here is
-only the tail, anything above B.</p>
-</blockquote>
-<p>Back to sheet 7 and point at the distribution bar, then the toolkit
-table: Radon scores, Xenon enforces, Ruff and mypy cover lint and types,
-PyTest runs the suite.</p>
-<h3 id="sheet-8-what-the-measurement-changed">Sheet 8: what the
-measurement changed</h3>
-<p><em>This is the strongest single item in the whole session.</em></p>
-<blockquote>
-<p>The measurement did not just produce a number, it changed the code.
-One function graded <strong>E at 33</strong>, the only E in the codebase
-and forty percent worse than the next worst.</p>
-<p>When I read it, it was doing two unrelated jobs: drawing samples from
-the corpus, and turning those observations into summary statistics.
-Neither half is complicated. Doing both in one place was.</p>
-<p>Split into five functions along that seam, and <strong>the codebase
-now has no E-grade block at all.</strong> The thirteen tests covering it
-passed unchanged the whole way through, which is the only reason that
-refactor was safe to make.</p>
-</blockquote>
-<p><strong>Then volunteer the two at D</strong>, before he finds
-them:</p>
-<blockquote>
-<p>Two blocks still grade D and I would rather show you them than have
-you find them. <code>fuse_variant</code> is the scoring engine and
-<code>run_connector</code> is the ingest loop that holds three failure
-modes open so one dead source never stops the others.</p>
-<p><strong>In both, the branching is the requirement rather than a style
-accident.</strong> Splitting them into functions that only ever run in
-sequence would move the complexity into the call graph rather than
-remove it, and both are on the write path, where a refactor that changes
-a verdict is worse than a D grade.</p>
-</blockquote>
-<h3 id="sheet-9-enforcing-it-and-the-tool-we-skipped">Sheet 9: enforcing
-it, and the tool we skipped</h3>
-<p><strong>Show the Complexity gate step in CI.</strong></p>
-<blockquote>
-<p>Radon will tell you a function scores E and then let you merge it.
-That is a report, not a control. So we added <strong>Xenon, which is the
-same measurement wired to an exit code</strong>, and it runs on every
-pull request.</p>
-<p>The thresholds are set where the code actually is, so <strong>a
-change that makes any of these grades worse does not merge.</strong>
-That is the difference between a measurement and a property, and it is
-the part of this I would defend hardest.</p>
-</blockquote>
-<p><strong>Then the omission, before he notices it:</strong></p>
-<blockquote>
-<p>Mutation testing was the most interesting tool on your list and we
-left it out deliberately. <strong>Mutmut has no native Windows support,
-and all three of us develop on Windows.</strong> A quality tool that
-only one machine can run is a tool that stops being run.</p>
-<p>The question it answers, whether the tests would actually catch a
-bug, we answer with evidence instead.</p>
-</blockquote>
-<p>Then the defects table on the same sheet. <strong>Pick two, do not
-read all five.</strong> The macro-F1 one and the connector one are the
-best:</p>
-<blockquote>
-<p>Our macro-F1 was averaging over aspects with zero support, so a
-perfect system scored 0.22 on a two-topic set. <strong>Our evaluation
-was flattering us</strong>, and a test caught it.</p>
-<p>And a connector was recording our own search term as though the
-source had said it, which means <strong>we would have been citing
-ourselves as evidence.</strong></p>
-</blockquote>
-<hr />
-<h2 id="sheets-10-11-and-12-non-functional-requirements-3-minutes">Sheets
-10, 11 and 12: non-functional requirements (3 minutes)</h2>
-<h3 id="sheet-10-lead-with-the-architecture-not-the-list">Sheet 10: lead
-with the architecture, not the list</h3>
-<blockquote>
-<p>We audited all nine categories against the actual code rather than
-against what our proposal claimed. <strong>The first thing to say is
-that six of the nine were already satisfied by one architectural
-decision</strong>, and I would rather explain that decision than read
-you a list.</p>
-</blockquote>
-<p><strong>Point at the diagram.</strong></p>
-<blockquote>
-<p>The write path and the read path are strictly separated. Fusion,
-scoring, confidence intervals and claim generation all happen in the
-nightly pipeline and land as finished rows. <strong>Every endpoint is
-one indexed read of a row that already exists. No model runs during a
-user request.</strong></p>
-<p>That gives us four requirements at once. Performance, because nothing
-on the read path grows with the corpus, since the corpus is not on the
-read path. Scalability, because ten times the data changes how long the
-night takes and changes nothing about a request. Reliability, because a
-page cannot fail when a third-party model is down. And availability,
-because a demo depends on nothing remote.</p>
-</blockquote>
-<p><em>Pause here. This is the sentence the section rests on.</em> Then
-the two figures underneath: 22 to 35 milliseconds warm, 96 to 247 from
-India, against a 300 millisecond target.</p>
-<h3 id="sheet-11-the-nine-quickly">Sheet 11: the nine, quickly</h3>
-<p>Do not read the grid. Let him scan it and name the shape:</p>
-<blockquote>
-<p>Nine categories, eight met and one stated honestly. The audit found
-five real gaps and closed all five: no security headers anywhere,
-unbounded database waits, no rate limiting, no compression or caching,
-and no request identity.</p>
-</blockquote>
-<h3 id="sheet-12-the-finding-to-lead-with">Sheet 12: the finding to lead
-with</h3>
-<p><em>If only one NFR point lands, make it this one.</em></p>
-<blockquote>
-<p>The gap I would most like to tell you about was not a missing
-feature. It was a requirement we had already implemented, and tested,
-and still had not met.</p>
-<p>Our health endpoint is deliberately written to report an unreachable
-database as a 503 rather than a stack trace. It was written that way on
-purpose. There is a test for it.</p>
-<p><strong>It could not actually do it.</strong> There was no connect
-timeout, so the driver sat on the operating system&#39;s TCP timeout while
-the hosting platform&#39;s probe gave up first. <strong>A correct 503 became
-no answer at all</strong>, and a hang is worse than an error because
-nothing downstream can react to it.</p>
-<p>What led us there was our own test run hanging for four hundred
-seconds against a machine with no database. Every wait is now
-bounded.</p>
-<p><strong>The lesson is the difference between writing a non-functional
-requirement and verifying one.</strong> We had the code, the intent, and
-the test, and the requirement was still not met.</p>
-</blockquote>
-<p><strong>Then close with the two limits, before he finds
-them.</strong></p>
-<blockquote>
-<p>Two things we state rather than hide. The rate limiter is per
-instance and in memory, so it is not a global quota. And a single
-free-tier instance is resilient to its dependencies failing, not highly
-available; there is no redundancy and no failover.</p>
-<p>Both are the first things that would need replacing if this grew.</p>
-</blockquote>
-<hr />
-<h2 id="sheet-13-close-30-seconds">Sheet 13: close (30 seconds)</h2>
-<blockquote>
-<p>Every figure in the document is reproducible in under a minute, and
-the commands are on this last page. The detailed non-functional
-requirements document goes through all nine categories properly if you
-want the working.</p>
-<p>The site is live now if you want to look at it, and the working demo
-is the next submission.</p>
-</blockquote>
-<hr />
-<h2 id="questions-to-expect">Questions to expect</h2>
-<p><strong>&quot;Why is the classifier disabled? Isn&#39;t the ML the
-point?&quot;</strong></p>
-<blockquote>
-<p>The point is that a number should be earned. We measured it against
-the lexicon it was trained from and it lost by 0.29 macro F1. Shipping
-it anyway would contradict the whole argument of the project. The code,
-the result and the reason are all kept, and it is published on our
-metrics page.</p>
-</blockquote>
-<p><strong>&quot;How do you know the tests are worth anything?&quot;</strong></p>
-<p><em>The best question you can get.</em> Give the defects from sheet
-9, then:</p>
-<blockquote>
-<p>And that is also why we do not gate on coverage. A coverage threshold
-is trivially satisfied by tests that execute code without asserting
-anything about it, and we would rather the number stayed honest than
-stayed high.</p>
-</blockquote>
-<p><strong>&quot;Why not Airflow?&quot;</strong></p>
-<blockquote>
-<p>One nightly batch, no fan-out, no backfill. Actions already holds our
-secrets, schedules, and alerts. ADR 0002 records the decision and the
-trigger for revisiting it.</p>
-</blockquote>
-<p><strong>&quot;Your p95 target is 300ms. Have you measured
-it?&quot;</strong></p>
-<blockquote>
-<p>Yes, and we made it measurable from outside: every response carries
-an <code>X-Response-Time-ms</code> header. Warm and local it is 22 to 35
-milliseconds; from India against the deployed instance, 96 to 247. It
-holds because of the architecture, not tuning: there is nothing on the
-read path to be slow.</p>
-</blockquote>
-<p><strong>&quot;Only three sources?&quot;</strong></p>
-<blockquote>
-<p>Three that permit us. Team-BHP returns 403 to our agent and two other
-sites disallow us outright in robots.txt. <strong>We chose to respect
-that rather than spoof a browser.</strong> Working around it would mean
-misrepresenting who we are.</p>
-</blockquote>
-<p><strong>&quot;Is any of the data fabricated?&quot;</strong></p>
-<blockquote>
-<p>None of it. Twenty thousand real review units. Where a number does
-not exist we say so: nine variants sit below our evidence floor and are
-held back rather than shown.</p>
-</blockquote>
-<p><strong>&quot;Can I see the code?&quot;</strong></p>
-<blockquote>
-<p>Please. Which part? If he has no preference, open
-<code>admin.py</code> for the authentication and the fail-closed rule,
-or <code>fuse.py</code> for the scoring engine, which is the D-grade
-function from sheet 8.</p>
-</blockquote>
-<hr />
-<h2 id="if-something-goes-wrong">If something goes wrong</h2>
+<h2 id="the-six-numbers-to-know-cold">The six numbers to know cold</h2>
+<p>If you remember nothing else, these are the session.</p>
 <table>
 <thead>
 <tr>
-<th>Problem</th>
-<th>What to do</th>
+<th>Number</th>
+<th>What it is</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>A command errors in front of him</td>
-<td>Read the error out and diagnose it. A calm diagnosis reads far
-better than a flustered excuse</td>
+<td><strong>Grade A, all 43 files</strong></td>
+<td>Maintainability index. No exceptions</td>
 </tr>
 <tr>
-<td>CI is red on the day</td>
-<td>Open the failing job and read it. A red build you can explain in ten
-seconds beats a green one you cannot</td>
+<td><strong>3.90 average, grade A</strong></td>
+<td>Cyclomatic complexity over 345 blocks</td>
 </tr>
 <tr>
-<td>The live site is cold</td>
-<td>&quot;That is the free-tier cold start I mentioned.&quot; Turn it into the
-availability point</td>
+<td><strong>0 blocks at E or F</strong></td>
+<td>Was 1. We fixed it during the review</td>
 </tr>
 <tr>
-<td>He asks for something not built</td>
-<td>&quot;Not built, and here is what we chose instead and why.&quot; Never invent
-a feature</td>
+<td><strong>310 tests, 65% coverage</strong></td>
+<td>Run against a real Postgres in CI</td>
 </tr>
 <tr>
-<td>You lose the thread</td>
-<td>Go back to the five section headings: codebase, frameworks, code
-quality, non-functional requirements, run it live</td>
+<td><strong>89.6% type precision</strong></td>
+<td>mypy strict, 0 errors</td>
+</tr>
+<tr>
+<td><strong>20,263 evidence units</strong></td>
+<td>Real reviews, 3 sources, 143 variants</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="sheets-1-to-2-open-40-seconds">Sheets 1 to 2: open (40
+seconds)</h2>
+<blockquote>
+<p>Revix is an evidence-traceable review system for Indian cars and
+two-wheelers. A star average hides who rated and whether they agreed, so
+<strong>we rebuild the verdict from the reviews underneath and keep
+every number traceable to the sentences it came from.</strong></p>
+<p><strong>Twenty thousand review units, three sources, 143
+variants.</strong> Real data.</p>
+</blockquote>
+<p>On contents: &quot;Five sections. Most of the time on section three, the
+measured code quality, since that is what today is for.&quot;</p>
+<p><em>Do not demo the product. That is the 16 October session.</em></p>
+<hr />
+<h2 id="sheets-3-to-6-codebase-25-minutes">Sheets 3 to 6: codebase (2.5
+minutes)</h2>
+<table>
+<thead>
+<tr>
+<th>Sheet</th>
+<th>Say</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>3</strong> Shape</td>
+<td>Three Python packages and a Next.js app, <strong>~17,600
+lines</strong>. API is deliberately the smallest. <strong>134 of 143
+variants publish a verdict; nine are held back</strong> below the
+evidence floor</td>
+</tr>
+<tr>
+<td><strong>4</strong> Structure</td>
+<td><strong>The one rule: dependencies run one direction.</strong> Core
+depends on neither other package. <strong>Enforced by import linting in
+CI, not by us remembering</strong></td>
+</tr>
+<tr>
+<td><strong>5</strong> Pipeline</td>
+<td>Five stages, each runnable alone. Point at one property:
+<strong>fusion writes the citations before any prose exists</strong>, so
+a citation cannot be wrong</td>
+</tr>
+<tr>
+<td><strong>6</strong> What it serves</td>
+<td><strong>15 endpoints, 11 routes, 19 test modules.</strong> CI also
+checks migrations apply, match the models, <strong>and reverse
+cleanly</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The line to land on sheet 4:</strong></p>
+<blockquote>
+<p>In a single package this would be a naming convention, and naming
+conventions lose. Here <strong>the API physically cannot import the
+pipeline.</strong></p>
+</blockquote>
+<hr />
+<h2 id="sheets-7-to-10-frameworks-25-minutes">Sheets 7 to 10: frameworks
+(2.5 minutes)</h2>
+<table>
+<thead>
+<tr>
+<th>Sheet</th>
+<th>Say</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>7</strong> The table</td>
+<td>Let him scan it. &quot;Every choice is a written decision record, with
+the alternative we rejected. Nine of them&quot;</td>
+</tr>
+<tr>
+<td><strong>8</strong> Two ADRs</td>
+<td>The two below. <strong>Slow down here</strong></td>
+</tr>
+<tr>
+<td><strong>9</strong> Where it runs</td>
+<td>Four platforms. <strong>The write path runs overnight on the left,
+the read path along the bottom per request</strong></td>
+</tr>
+<tr>
+<td><strong>10</strong> Toolchain</td>
+<td>Ten tools, and the column that matters is &quot;fails the build&quot;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ADR 0002, orchestration:</strong></p>
+<blockquote>
+<p>Scheduled GitHub Actions instead of Airflow. One nightly batch, no
+fan-out, no backfill. Actions already holds our secrets and schedules.
+<strong>Choosing Airflow would have been choosing a tool because it
+looks professional rather than because the problem needs
+it.</strong></p>
+</blockquote>
+<p><strong>ADR 0004, the honest result:</strong></p>
+<blockquote>
+<p>We built an aspect classifier. <strong>It lost to the lexicon it
+learned from by 0.29 macro F1, so it ships disabled</strong>, and the
+number is published on our metrics page.</p>
+<p>The alternative was shipping a model because we had built one.</p>
+</blockquote>
+<p><em>Do not apologise for that. A negative result you published beats
+a positive one you did not check.</em></p>
+<p><strong>On sheet 10, the check to defend hardest:</strong></p>
+<blockquote>
+<p>CI regenerates the TypeScript client from the live schema and
+<strong>fails if the committed types differ.</strong> It is structural:
+it does not depend on anybody remembering.</p>
+</blockquote>
+<hr />
+<h2 id="sheets-11-to-19-code-quality-5-minutes-the-core">Sheets 11 to
+19: code quality (5 minutes, the core)</h2>
+<h3 id="sheet-11-the-scoreboard">Sheet 11, the scoreboard</h3>
+<blockquote>
+<p>Six tools. Radon scores it, Xenon enforces it, Ruff and mypy cover
+style and types, PyTest runs the suite. <strong>Every file grade A,
+average complexity A.</strong></p>
+</blockquote>
+<h3 id="sheets-12-and-13-run-these-live">Sheets 12 and 13, run these
+live</h3>
+<p><strong>Type them. Do not read the slide.</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon mi packages/revix_core/src pipeline/src apps/api/src <span class="at">-s</span></span></code></pre></div>
+<blockquote>
+<p>Maintainability index: how hard a file will be to change in six
+months. Above twenty is grade A. <strong>All forty-three of our files
+are A.</strong></p>
+</blockquote>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run radon cc packages/revix_core/src pipeline/src apps/api/src <span class="at">-a</span> <span class="at">-s</span> <span class="at">-nC</span></span></code></pre></div>
+<blockquote>
+<p>Complexity counts the paths through a block, which is also the
+minimum number of tests to cover it. <strong>Average 3.90 across 345
+blocks. 91.8% of the codebase is A or B. Nothing at E or F.</strong></p>
+</blockquote>
+<h3 id="sheet-14-what-the-measurement-changed">Sheet 14, what the
+measurement changed</h3>
+<p><em>The strongest item in the session.</em></p>
+<blockquote>
+<p>One function graded <strong>E at 33</strong>, the only E and forty
+percent worse than the next. It was doing two jobs: drawing samples, and
+summarising them. Neither half is complicated. Doing both in one place
+was.</p>
+<p>Split into five functions, and <strong>the codebase now has no E at
+all.</strong> The thirteen tests over it passed unchanged, which is the
+only reason that refactor was safe.</p>
+</blockquote>
+<p><strong>Then volunteer the two at D</strong>, before he finds
+them:</p>
+<blockquote>
+<p><code>fuse_variant</code> is the scoring engine,
+<code>run_connector</code> is the ingest loop holding three failure
+modes open so one dead source never stops the others. <strong>In both,
+the branching is the requirement, not a style accident.</strong> And a
+refactor that changes a verdict is worse than a D grade.</p>
+</blockquote>
+<h3 id="sheets-15-to-17-one-tool-each">Sheets 15 to 17, one tool
+each</h3>
+<table>
+<thead>
+<tr>
+<th>Sheet</th>
+<th>Number</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>15</strong> Xenon, Ruff</td>
+<td>gate passes, <strong>0 findings</strong></td>
+<td>&quot;Radon reports; <strong>Xenon refuses.</strong> A change that makes
+any grade worse does not merge&quot;</td>
+</tr>
+<tr>
+<td><strong>16</strong> mypy</td>
+<td><strong>0 errors, 89.6% precise</strong></td>
+<td>&quot;The 10.44% imprecise is at scikit-learn and JSON edges, not in our
+logic&quot;</td>
+</tr>
+<tr>
+<td><strong>17</strong> PyTest</td>
+<td><strong>310 tests, 65%</strong></td>
+<td>&quot;266 need no database. Coverage is <strong>deliberately not
+gated</strong>, and the next sheet says why&quot;</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sheet-18-the-tool-we-skipped">Sheet 18, the tool we skipped</h3>
+<blockquote>
+<p>Mutation testing was the most interesting on your list.
+<strong>Mutmut has no native Windows support, and all three of us are on
+Windows.</strong> A tool only one machine can run is one that stops
+being run.</p>
+<p>The question it answers, whether the tests would catch a bug, we
+answer with evidence.</p>
+</blockquote>
+<p><strong>Then pick two defects, not all five:</strong></p>
+<blockquote>
+<p>Our macro-F1 averaged over zero-support aspects, so a perfect system
+scored 0.22. <strong>Our evaluation was flattering us</strong>, and a
+test caught it.</p>
+<p>And a connector recorded our own search term as the source&#39;s answer,
+which means <strong>we would have been citing ourselves as
+evidence.</strong></p>
+</blockquote>
+<h3 id="sheet-19-the-generated-reports">Sheet 19, the generated
+reports</h3>
+<blockquote>
+<p>Two of the six produce a report you can open.
+<strong>coverage.py</strong> writes a per-line browsable report,
+<strong>mypy</strong> writes the per-module precision report the 89.6%
+comes from. Ruff and Xenon deliberately produce only an exit code,
+because a gate&#39;s answer is pass or fail.</p>
+</blockquote>
+<hr />
+<h2 id="sheets-20-to-22-non-functional-requirements-3-minutes">Sheets 20
+to 22: non-functional requirements (3 minutes)</h2>
+<h3 id="sheet-20-lead-with-the-architecture">Sheet 20, lead with the
+architecture</h3>
+<blockquote>
+<p>All nine audited against the code rather than the proposal.
+<strong>Six were already satisfied by one decision</strong>, and I would
+rather explain it than read a list.</p>
+<p>The write path and the read path are strictly separated.
+<strong>Every endpoint is one indexed read of a row that already exists.
+No model runs during a request.</strong></p>
+<p>That gives four at once: performance, because nothing on the read
+path grows with the corpus; scalability, because ten times the data
+changes the night and not the request; reliability, because a page
+cannot fail when a third-party model is down; availability, because a
+demo depends on nothing remote.</p>
+</blockquote>
+<p><em>Pause.</em> Then: <strong>22 to 35 ms warm, 96 to 247 from India,
+against a 300 ms target.</strong></p>
+<h3 id="sheet-21-the-nine">Sheet 21, the nine</h3>
+<blockquote>
+<p>Eight met, one stated honestly. The audit found <strong>five real
+gaps and closed all five</strong>: no security headers anywhere,
+unbounded database waits, no rate limiting, no compression, no request
+identity.</p>
+</blockquote>
+<h3 id="sheet-22-the-finding-to-lead-with">Sheet 22, the finding to lead
+with</h3>
+<p><em>If one NFR point lands, make it this.</em></p>
+<blockquote>
+<p>Our health endpoint is deliberately written to report an unreachable
+database as a 503 rather than a stack trace. Written that way on
+purpose. There is a test for it.</p>
+<p><strong>It could not actually do it.</strong> No connect timeout, so
+the driver sat on the OS TCP timeout while the platform&#39;s probe gave up
+first. <strong>A correct 503 became no answer at all</strong>, and a
+hang is worse than an error because nothing downstream can react.</p>
+<p><strong>The lesson is the difference between writing a non-functional
+requirement and verifying one.</strong> We had the code, the intent and
+the test, and it still was not met.</p>
+</blockquote>
+<p><strong>Close with the limits, before he finds them:</strong></p>
+<blockquote>
+<p>The rate limiter is per instance and in memory, not a global quota.
+And one free-tier instance is resilient, not highly available. Both are
+the first things that would need replacing.</p>
+</blockquote>
+<hr />
+<h2 id="sheet-23-close-30-seconds">Sheet 23: close (30 seconds)</h2>
+<blockquote>
+<p>Every figure is reproducible in under a minute and the commands are
+on this sheet. The detailed non-functional requirements document has the
+full working if you want it. The site is live now, and the working demo
+is the next submission.</p>
+</blockquote>
+<hr />
+<h2 id="questions-short-answers">Questions, short answers</h2>
+<p><strong>&quot;Why is the classifier disabled?&quot;</strong></p>
+<blockquote>
+<p>It lost to the lexicon it was trained from by 0.29 macro F1. Shipping
+it anyway would contradict the argument of the project. Published, not
+dropped.</p>
+</blockquote>
+<p><strong>&quot;How do you know the tests are worth anything?&quot;</strong></p>
+<blockquote>
+<p>By what they caught. <em>Give two defects from sheet 18.</em> And
+that is why we do not gate coverage: a threshold is trivially met by
+tests that assert nothing.</p>
+</blockquote>
+<p><strong>&quot;Why not Airflow?&quot;</strong></p>
+<blockquote>
+<p>One nightly batch, no fan-out, no backfill. ADR 0002 records it and
+the trigger for revisiting.</p>
+</blockquote>
+<p><strong>&quot;Have you actually measured the 300 ms?&quot;</strong></p>
+<blockquote>
+<p>Every response carries <code>X-Response-Time-ms</code>. 22 to 35
+warm, 96 to 247 from India. It holds because of the architecture, not
+tuning.</p>
+</blockquote>
+<p><strong>&quot;Only three sources?&quot;</strong></p>
+<blockquote>
+<p>Three that permit us. Team-BHP returns 403 and two others disallow us
+in robots.txt. <strong>We respect that rather than spoof a
+browser.</strong></p>
+</blockquote>
+<p><strong>&quot;Is the data real?&quot;</strong></p>
+<blockquote>
+<p>All of it. Twenty thousand review units. Nine variants sit below the
+evidence floor and are held back rather than shown.</p>
+</blockquote>
+<p><strong>&quot;Can I see the code?&quot;</strong></p>
+<blockquote>
+<p>Which part? Default to <code>admin.py</code> for the fail-closed
+authentication, or <code>fuse.py</code> for the D-grade scoring engine
+from sheet 14.</p>
+</blockquote>
+<hr />
+<h2 id="if-something-breaks">If something breaks</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A command errors live</td>
+<td>Read it out and diagnose. Calm diagnosis beats a flustered
+excuse</td>
+</tr>
+<tr>
+<td>CI red on the day</td>
+<td>Open the job and read it. A red build you can explain beats a green
+one you cannot</td>
+</tr>
+<tr>
+<td>Site is cold</td>
+<td>&quot;That is the free-tier cold start.&quot; Turn it into the availability
+point</td>
+</tr>
+<tr>
+<td>Asked for something unbuilt</td>
+<td>&quot;Not built, here is what we chose instead and why.&quot; Never
+invent</td>
+</tr>
+<tr>
+<td>Lost</td>
+<td>Back to the five headings: codebase, frameworks, code quality, NFRs,
+run it live</td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p><strong>Never say &quot;it usually works.&quot;</strong> Either show it, or say
-plainly that it is broken and what you would check first.</p>
+<p><strong>Never say &quot;it usually works.&quot;</strong> Show it, or say
+plainly it is broken and what you would check first.</p>
 </blockquote>
 </body>
 </html>

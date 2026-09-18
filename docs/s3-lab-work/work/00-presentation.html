@@ -1277,36 +1277,22 @@ uv run pytest --cov --cov-report=html:build/reports/coverage   # the official re
 <!-- ============================== 9. QUALITY III ============================== -->
 <article class="page" data-run="Code quality" data-page="18">
   <div class="eyebrow"><span>Section 3, continued</span></div>
-  <h2>Enforcing the score, and the tool we left out</h2>
+  <h2>The tool we left out, and what answers it instead</h2>
+  <p class="lede">Five tools were used. The sixth was considered and rejected, which is worth
+    stating rather than leaving as a silent omission.</p>
 
   <div class="note">
-    <span class="tag">Reporting is not enforcing</span>
-    <p>Radon will tell you a function scores E and then let you merge it. That is a report, not a
-      control. Xenon runs on every pull request and <strong>fails the build</strong> on any
-      regression:</p>
-    <pre style="margin:10px 0 0">xenon --max-absolute D --max-modules B --max-average A</pre>
+    <span class="tag">Mutation testing</span>
+    <p>Mutmut changes your code on purpose and asks whether any test notices, which measures
+      something no other tool here does: not whether tests exist, but whether they would catch a
+      bug.</p>
+    <p><strong>It has no native Windows support</strong>, and all three of us develop on Windows.
+      A quality tool only one environment can run is one that stops being run.</p>
   </div>
 
-  <div class="tw">
-    <table>
-      <thead><tr><th>Threshold</th><th>Set to</th><th>Why</th></tr></thead>
-      <tbody>
-        <tr><td>Any single block</td><td class="num">D</td><td>Where the code is; nothing may get worse than the two on page 8</td></tr>
-        <tr><td>Any single module</td><td class="num">B</td><td>A module may contain a hard function, not become a hard module</td></tr>
-        <tr><td>The whole codebase</td><td class="num">A</td><td>The average must stay in the simplest band</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="margin-top:10px">The grades here <strong>cannot silently decay</strong>: the next
-    pull request that makes them worse does not merge. That is the difference between a measurement
-    and a property.</p>
-
-  <h3>Mutation testing, and why not</h3>
-  <p>Mutmut changes your code on purpose and asks whether any test notices.
-    <strong>It has no native Windows support</strong>, and all three of us develop on Windows.
-    A quality tool only one environment can run is one that stops being run.</p>
-
-  <h3>What we answer instead</h3>
+  <h3>What answers the same question</h3>
+  <p>Whether the tests would catch a bug, answered with evidence rather than a score:
+    <strong>five real defects the suite caught before they reached anybody.</strong></p>
   <div class="tw">
     <table>
       <thead><tr><th>Defect</th><th>Why it mattered</th></tr></thead>
