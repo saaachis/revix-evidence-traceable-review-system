@@ -49,6 +49,6 @@ resolve_entities   → chunk_and_embed → extract_aspects → score_credibility
                    → verify_claims   → analyse_divergence → fuse → narrate
 ```
 
-Each stage writes its output and can be re-run independently. `fuse` runs once **per fusion configuration** — a loop, not extra architecture.
+Each stage writes its output and can be re-run independently. `fuse` runs once **per fusion configuration**: a loop, not extra architecture.
 
 Full detail in [docs/proposal.md](../docs/proposal.md), sections 9 and 14.

@@ -44,16 +44,21 @@ dev = [
     # volume. Xenon turns those scores into a build gate, so the grade cannot
     # quietly slide between one review and the next.
     #
-    # Mutation testing was the other candidate and was deliberately left out:
-    # mutmut has no native Windows support and tells you to use WSL, and all
-    # three of us develop on Windows. A quality tool nobody on the team can
-    # run is not a quality tool. The reasoning is written up in the code
-    # review report rather than left as a silent omission.
+    # Bandit is static security analysis over our own source, and pip-audit
+    # checks the dependency tree against the published advisory database. Both
+    # are gated in CI: a medium-or-higher Bandit finding or a known-vulnerable
+    # dependency fails the build rather than waiting to be noticed.
     #
-    # Both are read-only measurements that no other stage depends on, which is
-    # why they live in dev rather than in the packages themselves.
+    # Mutmut is mutation testing: it changes the code on purpose and asks
+    # whether a test notices. It has no native Windows support and tells you to
+    # use WSL, and all three of us develop on Windows, so it does not run in
+    # the local loop. CI runs on Linux, which is where it belongs, scoped to
+    # the quota ledger and reported rather than gated (see .github/workflows).
     "radon>=6.0",
     "xenon>=0.9",
+    "bandit>=1.9.4",
+    "pip-audit>=2.10.1",
+    "mutmut>=3.8.0",
 ]
 
 # ----------------------------------------------------------------------------
@@ -138,3 +143,21 @@ source = ["packages/revix_core/src", "pipeline/src", "apps/api/src"]
 [tool.coverage.report]
 skip_empty = true
 exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedError"]
+
+# ----------------------------------------------------------------------------
+# mutmut: mutation testing, Linux/CI only (see the dev group note above).
+#
+# Scoped to the quota ledger on purpose. It is small, pure, and already has a
+# focused test (tests/test_quota.py), so the surviving-mutant count is a real
+# statement about those assertions rather than a days-long run nobody reads.
+# ----------------------------------------------------------------------------
+[tool.mutmut]
+paths_to_mutate = ["pipeline/src/revix_pipeline/connectors/quota.py"]
+
+# ----------------------------------------------------------------------------
+# bandit: static security analysis. Run over our own source in CI, gated at
+# medium severity. Tests are not scanned; assert statements there are the
+# point, not a finding.
+# ----------------------------------------------------------------------------
+[tool.bandit]
+exclude_dirs = ["tests", "build", ".venv"]

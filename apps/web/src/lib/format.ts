@@ -43,7 +43,7 @@ export function priceRange(min?: number | null, max?: number | null): string | n
 }
 
 export function score(value: number | null | undefined): string {
-  return value == null ? "—" : value.toFixed(1);
+  return value == null ? "-" : value.toFixed(1);
 }
 
 export function relativeDay(iso: string | null | undefined): string {

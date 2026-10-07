@@ -4,7 +4,7 @@ Three people, twelve weeks, one repository. These rules exist so that nobody spe
 
 ---
 
-## 1. Before your first commit — set your identity
+## 1. Before your first commit: set your identity
 
 Commits are attributed by the email in your git config, **not** by which account you are logged into. If you use a work laptop, check this before you commit anything, otherwise your work shows up under the wrong account and cannot be reattributed without a history rewrite.
 
@@ -20,7 +20,7 @@ git config user.email          # must be your personal email
 git log -1 --pretty='%an <%ae>'   # after your first commit
 ```
 
-If your GitHub email is private, use your `username@users.noreply.github.com` address instead — GitHub still links the commit to your profile.
+If your GitHub email is private, use your `username@users.noreply.github.com` address instead, GitHub still links the commit to your profile.
 
 ## 2. Branching
 
@@ -57,7 +57,7 @@ chore(ci): run alembic migrations before the test job
 
 Scopes: `web`, `api`, `pipeline`, `db`, `docs`, `ci`, `eval`.
 
-Never commit: `.env`, credentials, API keys, raw scraped payloads, model binaries, `node_modules`, `__pycache__`, or anything under `data/raw/`. **This repository is public.** If a secret is ever committed, rotate the key first and rewrite history second — in that order.
+Never commit: `.env`, credentials, API keys, raw scraped payloads, model binaries, `node_modules`, `__pycache__`, or anything under `data/raw/`. **This repository is public.** If a secret is ever committed, rotate the key first and rewrite history second, in that order.
 
 ## 4. Pull requests
 
@@ -120,4 +120,4 @@ cp .env.example .env        # fill in your own values; never commit this file
 ## 9. Weekly rhythm
 
 - **The deployed application must work every Friday.** This is the single most important discipline in the project.
-- Checkpoints at **week 4** and **week 8**. If week 8 slips, cut in the order agreed in [docs/proposal.md](docs/proposal.md) section 24 — and never cut the fusion toggle, the metrics page or the admin dashboard.
+- Checkpoints at **week 4** and **week 8**. If week 8 slips, cut in the order agreed in [docs/proposal.md](docs/proposal.md) section 24, and never cut the fusion toggle, the metrics page or the admin dashboard.

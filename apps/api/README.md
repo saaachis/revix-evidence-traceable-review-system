@@ -28,7 +28,7 @@ GET  /sources/health                            connector status
 POST /admin/...                                 auth-gated mutations
 ```
 
-`fusion` defaults to the configuration flagged `is_default`. Passing a different one is a lookup by `(variant_id, fusion_config_id)`, not a recomputation — which is the only reason the interface toggle is affordable.
+`fusion` defaults to the configuration flagged `is_default`. Passing a different one is a lookup by `(variant_id, fusion_config_id)`, not a recomputation, which is the only reason the interface toggle is affordable.
 
 ## Responses state their own honesty
 

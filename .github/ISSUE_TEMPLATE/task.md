@@ -12,9 +12,9 @@ assignees: ''
 
 ## Area
 
-- [ ] `pipeline` — connectors, orchestration, raw store
-- [ ] `db` / intelligence — schema, entity resolution, fusion, evaluation
-- [ ] `apps` — API, frontend, deployment
+- [ ] `pipeline`, connectors, orchestration, raw store
+- [ ] `db` / intelligence, schema, entity resolution, fusion, evaluation
+- [ ] `apps`, API, frontend, deployment
 - [ ] `docs`
 
 ## Roadmap week

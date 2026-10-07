@@ -4,7 +4,7 @@
 
 **An evidence-traceable consumer decision support platform for the Indian automobile market.**
 
-A cross-source review system for cars and two-wheelers, covering what owners, experts, forums and official records actually say — and telling you which of them deserves to be believed.
+A cross-source review system for cars and two-wheelers, covering what owners, experts, forums and official records actually say, and telling you which of them deserves to be believed.
 
 > Modern Application Development · M.Sc. Data Science · Nilkamal School of Mathematics, Applied Statistics and Analytics, SVKM's NMIMS Mumbai
 
@@ -54,9 +54,9 @@ Two documents are the source of truth. Everything else defers to them.
 
 | Document | What it covers |
 |---|---|
-| [**Full proposal**](docs/proposal.md) | The complete concept note and software design specification — architecture, data model, fusion engine, evaluation strategy, twelve-week roadmap, scope and glossary |
-| [**Review 1 — concept, market gap and literature review**](docs/review-1/01-concept-market-gap-and-literature-review.md) | The idea and what it means, the competitive gap analysis, the background study, and what we are and are not claiming |
-| [Milestone 2 — wireframe demo](docs/review-1/02-milestone-2-wireframe-demo.md) | What we are building by 14 August 2026, how, by whom, and by when |
+| [**Full proposal**](docs/proposal.md) | The complete concept note and software design specification: architecture, data model, fusion engine, evaluation strategy, twelve-week roadmap, scope and glossary |
+| [**Review 1, concept, market gap and literature review**](docs/review-1/01-concept-market-gap-and-literature-review.md) | The idea and what it means, the competitive gap analysis, the background study, and what we are and are not claiming |
+| [Milestone 2: wireframe demo](docs/review-1/02-milestone-2-wireframe-demo.md) | What we are building by 14 August 2026, how, by whom, and by when |
 | [**Non-functional requirements**](docs/s3-lab-work/work/non-functional-requirements.md) | All nine categories audited against the code: where each is met, how it was measured, and the two limits we state rather than hide |
 | [S3 lab work](docs/s3-lab-work/work/01-lab-work-submission.md) | What the 2 October submission contains, mapped to the four marks, with a [speaking script](docs/s3-lab-work/work/02-lab-work-speaking-script.md) |
 | [S3 working demo](docs/s4-working-demo/01-working-demo-runbook.md) | The 16 October demo: pre-flight checks, the flow, what to do when something breaks, with a [speaking script](docs/s4-working-demo/02-working-demo-speaking-script.md) |
@@ -70,7 +70,7 @@ Two documents are the source of truth. Everything else defers to them.
 ```
 revix/
 ├── apps/
-│   ├── web/           Next.js + TypeScript + Tailwind — the user-facing application
+│   ├── web/           Next.js + TypeScript + Tailwind, the user-facing application
 │   └── api/           FastAPI, read-only, contract-first serving layer
 ├── pipeline/
 │   ├── connectors/    One isolated connector per source; any of them can fail safely
@@ -91,7 +91,7 @@ revix/
 |---|---|
 | Frontend | Next.js (App Router), TypeScript, Tailwind, shadcn/ui, Recharts |
 | API | Python 3.11, FastAPI, Pydantic v2, SQLAlchemy, Alembic |
-| Database | PostgreSQL + pgvector — **one** database, not four services |
+| Database | PostgreSQL + pgvector: **one** database, not four services |
 | Orchestration | Prefect, nightly batch |
 | ML | sentence-transformers, scikit-learn |
 | Language model | One free-tier provider behind a thin interface. Batch narration only, and **never required** |
@@ -109,9 +109,9 @@ Everything is on a free tier. The application renders a complete verdict with th
 
 | Name | Ownership area |
 |---|---|
-| Aditya Nariyapara | Platform and ingestion — connector framework, orchestration, raw store, admin backend |
-| Devika Jonjale | Intelligence — entity resolution, aspect extraction, credibility, fusion, evaluation |
-| Saachi Shinde | Application and experience — API contract, frontend, all user-facing surfaces, deployment |
+| Aditya Nariyapara | Platform and ingestion, connector framework, orchestration, raw store, admin backend |
+| Devika Jonjale | Intelligence, entity resolution, aspect extraction, credibility, fusion, evaluation |
+| Saachi Shinde | Application and experience, API contract, frontend, all user-facing surfaces, deployment |
 
 Roles are ownership areas, not silos. The schema in week 1 is owned by all three.
 
@@ -121,4 +121,4 @@ Sources are read at a polite rate, cached, credited and linked back to. We store
 
 ## License
 
-[MIT](LICENSE) — academic project, free to read, use and learn from.
+[MIT](LICENSE), academic project, free to read, use and learn from.

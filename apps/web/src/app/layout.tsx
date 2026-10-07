@@ -26,14 +26,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        {/* The figures are placeholders until the first full run against live
-            sources. Saying so is cheaper than being asked. */}
-        <div className="bg-(--color-brand-ink) py-1.5 text-center text-[12px] text-[#f6dde2]">
-          <b className="font-semibold text-white">PREVIEW</b>: every screen and every interaction
-          here is real. The figures come from a development corpus until our first full run
-          finishes.
-        </div>
-
         <nav className="sticky top-0 z-40 border-b border-(--color-line) bg-white/92 backdrop-blur-sm backdrop-saturate-150">
           <div className="wrap flex h-[62px] items-center gap-5">
             <Link href="/" aria-label="Revix home">

@@ -366,7 +366,7 @@ function AspectRow({
           key={`${aspect.aspect_key}-${aspect.score}`}
           className="score-anim num text-right text-[20px] font-bold tracking-[-0.02em]"
         >
-          {aspect.score?.toFixed(1) ?? "—"}
+          {aspect.score?.toFixed(1) ?? "-"}
         </div>
 
         <div className="hidden md:block">
