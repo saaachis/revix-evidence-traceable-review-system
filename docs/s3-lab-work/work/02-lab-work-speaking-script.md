@@ -82,11 +82,13 @@ code quality, since that is what today is for."
 
 **ADR 0004, the honest result:**
 
-> We built an aspect classifier. **It lost to the lexicon it learned from by
-> 0.29 macro F1, so it ships disabled**, and the number is published on our
-> metrics page.
+> We built an aspect classifier. **It lost to the lexicon it learned from, so
+> it ships disabled** rather than switched on because we had built it.
 >
-> The alternative was shipping a model because we had built one.
+> The harness is there and `/metrics` publishes what has been recorded.
+> **Nothing is recorded yet**, because the hand-labelled gold set that makes
+> the number defensible is our outstanding work. Quoting a figure we cannot
+> reproduce for you would be the same mistake as shipping the model.
 
 *Do not apologise for that. A negative result you published beats a positive
 one you did not check.*
@@ -242,8 +244,10 @@ target.**
 ## Questions, short answers
 
 **"Why is the classifier disabled?"**
-> It lost to the lexicon it was trained from by 0.29 macro F1. Shipping it
-> anyway would contradict the argument of the project. Published, not dropped.
+> It lost to the lexicon it was trained from. Shipping it anyway would
+> contradict the argument of the project. The harness is in the repository;
+> the labelled gold set that would let us re-run it on demand is the work we
+> have left.
 
 **"How do you know the tests are worth anything?"**
 > By what they caught. *Give two defects from sheet 18.* And that is why we do

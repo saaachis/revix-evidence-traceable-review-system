@@ -758,10 +758,12 @@
     <span class="tag">ADR 0004 &middot; machine learning, and the honest result</span>
     <p>We built a distant-supervision aspect classifier: lexicon labels train a TF-IDF into a
       one-vs-rest logistic regression.</p>
-    <p><strong>It lost to the lexicon it learned from by 0.29 macro F1, so it ships disabled</strong>
-      and the number is published on our public metrics page rather than quietly dropped.</p>
-    <p>The alternative was shipping a model because we had built one, and the whole argument of this
-      project is that a number should be earned.</p>
+    <p><strong>It lost to the lexicon it learned from, so it ships disabled</strong> rather than
+      being switched on because we had built it.</p>
+    <p>The comparison is a harness we can re-run, and <code>/metrics</code> publishes whatever has
+      been recorded. <strong>Nothing is recorded there yet</strong>, because the hand-labelled gold
+      set that makes the number defensible is the piece of work still outstanding. Quoting a figure
+      we cannot reproduce on request would be the same mistake as shipping the model.</p>
   </div>
 
   <h3>The nine decision records</h3>
