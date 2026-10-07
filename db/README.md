@@ -10,7 +10,7 @@ See [docs/proposal.md](../docs/proposal.md) sections 11 to 13 for the full model
 
 - Every derived table is recomputable from `raw` and `core`. Nothing important lives only in a derived table.
 - `(source_id, external_id)` is unique; `content_hash` deduplicates. Re-running a connector is always safe.
-- Migrations run in CI before deployment. Never edit a migration that has been applied to the shared database — write a new one.
+- Migrations run in CI before deployment. Never edit a migration that has been applied to the shared database, write a new one.
 - Indexes to remember: trigram GIN on normalised trim strings, ANN on `evidence_chunk.embedding`, B-tree on `(variant_id, aspect_id)` and `(verdict_id)`.
 - The API reads only from `serving`, refreshed at the end of each enrichment run.
 
@@ -22,4 +22,4 @@ alembic upgrade head
 alembic downgrade -1
 ```
 
-Autogenerate is a starting point, not an answer. Read every generated migration before committing it — especially anything it wants to drop.
+Autogenerate is a starting point, not an answer. Read every generated migration before committing it, especially anything it wants to drop.

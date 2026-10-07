@@ -239,10 +239,6 @@ const NAV = [
 function mountChrome(active, opts){
   opts = opts || {};
   document.body.insertAdjacentHTML('afterbegin', `
-    <div class="wf-flag">
-      <b>PREVIEW</b>: every screen and every interaction here is real. The figures are
-      placeholders until our first full run finishes.
-    </div>
     <nav class="nav"><div class="nav-in">
       <a class="brand" href="index.html"><span class="mark">revix</span><small>driven by reviews</small></a>
       <div class="nav-search">
@@ -258,7 +254,7 @@ function mountChrome(active, opts){
   document.body.insertAdjacentHTML('beforeend', `
     <footer class="foot"><div class="wrap foot-in">
       <span class="brand"><span class="mark">revix</span></span>
-      <span>Milestone 2 wireframe · M.Sc. Data Science, NMIMS Mumbai</span>
+      <span>Independent, and paid for by nobody.</span>
       <span style="margin-left:auto">
         <a href="index.html">Home</a> · <a href="sources.html">Sources</a> ·
         <a href="method.html">Method</a> · <a href="preferences.html">Preferences</a> ·

@@ -88,7 +88,7 @@ export default async function StatusPage() {
                     <td className="text-(--color-muted)">{relativeDay(s.last_success)}</td>
                     <td className="text-right num">{s.units_total.toLocaleString()}</td>
                     <td className="text-right num">
-                      {s.error_rate == null ? "—" : `${(s.error_rate * 100).toFixed(1)}%`}
+                      {s.error_rate == null ? "-" : `${(s.error_rate * 100).toFixed(1)}%`}
                     </td>
                     <td className="max-w-[280px] truncate text-(--color-muted)">
                       {s.last_error ?? "none"}

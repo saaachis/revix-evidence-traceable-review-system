@@ -161,6 +161,35 @@ jobs:
       - name: Tests
         run: uv run pytest --cov --cov-report=term-missing
 
+      # Static security analysis over our own source. Gated at medium: a
+      # medium or high finding fails the build. The low-severity notes (a
+      # seeded PRNG used for jitter, a subprocess call with a fixed argument
+      # list) are left visible rather than suppressed, because hiding a
+      # finding is worse than carrying one that has been read and understood.
+      - name: Security, static analysis
+        run: >
+          uv run bandit -r packages/revix_core/src pipeline/src apps/api/src
+          -q --severity-level medium --confidence-level medium
+
+      # The dependency tree against the published advisory database. A known
+      # vulnerability in anything we install fails here rather than in
+      # production. The three workspace packages are not on PyPI, so pip-audit
+      # reports that it skipped them, which is expected and not a failure.
+      - name: Security, dependency audit
+        run: uv run pip-audit
+
+      # Mutation testing: change the code on purpose and see whether a test
+      # notices. Scoped to the quota ledger (see [tool.mutmut]) and reported
+      # rather than gated, because a surviving mutant is something to read in a
+      # review, not a reason to block a merge. continue-on-error keeps a slow
+      # or flaky mutation run from ever failing an otherwise green build.
+      - name: Mutation testing, informational
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          uv run mutmut run || true
+          uv run mutmut results || true
+
   web:
     name: Web
     runs-on: ubuntu-latest

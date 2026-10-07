@@ -4,7 +4,7 @@ Only two things live here, and both are committed deliberately.
 
 ```
 data/
-├── seed/    catalogue seed lists — which variants we deliberately cover
+├── seed/    catalogue seed lists, which variants we deliberately cover
 └── gold/    hand-labelled evaluation sets
 ```
 

@@ -46,7 +46,7 @@ export function VariantTable({ variants }: { variants: VariantSummary[] }) {
                 <td className="text-(--color-muted)">
                   {FUEL[v.fuel_type] ?? v.fuel_type} · {GEARBOX[v.transmission] ?? v.transmission}
                 </td>
-                <td className="text-right num">{priceRange(v.price_min, v.price_max) ?? "—"}</td>
+                <td className="text-right num">{priceRange(v.price_min, v.price_max) ?? "-"}</td>
                 <td className="text-right num">
                   {scored ? (
                     <b className="font-semibold">{v.overall_score!.toFixed(1)}</b>
